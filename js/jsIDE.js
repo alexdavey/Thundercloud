@@ -9,8 +9,21 @@ var source = 'alert(\'hello world\')\n' +
 var editor = {
 
 	init : function(id, options) {
+		var canvasEl = $(id);
 		$.merge(this.options, options);
-		canvas.init(id);
+		canvas.init(canvasEl);
+		$.listen(canvasEl, 'mousedown', this.mouseDown);
+		$.listen(canvasEl, 'keydown', this.keydown);
+	},
+
+	mouseDown : function(e) {
+		var mouse = $.mouse(e);
+		cursor.setPosition(mouse.x, mouse.y);
+		canvas.render(text.source);
+	},
+
+	keydown : function() {
+		
 	},
 
 	options : {
@@ -25,11 +38,11 @@ var editor = {
 
 var canvas = {
 
-	init : function(canvasId) {
+	init : function(canvas) {
 
 		var options = editor.options;
 
-		this.paper = $(canvasId);
+		this.paper = canvas;
 		this.ctx = this.paper.getContext('2d');
 
 		this.paper.width  = options.width;
@@ -119,7 +132,7 @@ var cursor = {
 
 };
 
-canvas.init('#editor');
+editor.init('#editor');
 text.parse(source);
 canvas.render(text.source);
 
