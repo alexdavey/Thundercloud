@@ -34,13 +34,17 @@ var editor = {
 			var col = cursor.col, row = cursor.row;
 
 			if (col <= 0) {
-				text.append(col, text.source[row]);
-				text.removeLine(row);
+				if (row == 0) return;
+
 				cursor.col = text.lineLength(row - 1);
 				cursor.row--;
+
+				text.append(text.source[row], row - 1);
+				text.removeLine(row);
 			} else {
-				text.remove(1, row, col);
 				cursor.col--;
+				
+				text.remove(1, row, col);
 			}
 
 		}
@@ -116,7 +120,7 @@ var text = {
 
 	lineLength : function(row) {
 		console.log(row);
-		return this.source[row].length - 1;
+		return this.source[row].length;
 	},
 	
 	addLine : function(row, col) {
@@ -130,7 +134,7 @@ var text = {
 	},
 
 	append : function(text, row) {
-		this.insert(text, row, this.lineLength(row));
+		this.source[row] += text;
 	},
 
 	insert : function(text, row, col) {
