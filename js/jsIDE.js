@@ -14,40 +14,15 @@ var editor = {
 		$.merge(this.options, options);
 
 		canvas.init(canvasEl);
+		input.init('#input');
 		this.options.charWidth = canvas.ctx.measureText('m').width;
 
 		$.listen(canvasEl, 'mousedown', this.mouseDown);
-		$.listen('keydown', this.keydown);
 	},
 
 	mouseDown : function(e) {
 		var mouse = $.mouse(e);
 		cursor.setPosition(mouse.x, mouse.y);
-		canvas.render(text.source);
-	},
-
-	keydown : function(e) {
-		e = e || window.e;
-
-		if (e.keyCode == 8) {
-			
-			var col = cursor.col, row = cursor.row;
-
-			if (col <= 0) {
-				if (row == 0) return;
-
-				cursor.col = text.lineLength(row - 1);
-				cursor.row--;
-
-				text.append(text.source[row], row - 1);
-				text.removeLine(row);
-			} else {
-				cursor.col--;
-				
-				text.remove(1, row, col);
-			}
-
-		}
 		canvas.render(text.source);
 	},
 
@@ -158,12 +133,50 @@ var text = {
 var input = {
 	
 	init : function(textAreaId) {
-		this.textarea = $(textAreaId);
-		$.listen(this.textArea, 'keypress');
+		this.textArea = $(textAreaId);
+		this.textArea.focus();
+		$.listen(this.textArea, 'blur', this.textArea.focus);
+		$.listen(this.textArea, 'keypress', this.onKeyPress);
+	},
+
+	focus : function() {
+		this.focus();
 	},
 
 	onKeyPress : function(e) {
-		// if (this.textArea)
+		if (this.value) {
+			text.insert(this.value, cursor.row, cursor.col);
+			cursor.col++;
+			canvas.render(text.source);
+			this.value = '';
+		} else {
+			input.command(e);
+		}
+	},
+
+	command : function(e) {
+		e = e || window.e;
+
+		if (e.keyCode == 8) {
+			
+			var col = cursor.col, row = cursor.row;
+
+			if (col <= 0) {
+				if (row == 0) return;
+
+				cursor.col = text.lineLength(row - 1);
+				cursor.row--;
+
+				text.append(text.source[row], row - 1);
+				text.removeLine(row);
+			} else {
+				cursor.col--;
+				
+				text.remove(1, row, col);
+			}
+
+		}
+		canvas.render(text.source);
 	}
 
 };
