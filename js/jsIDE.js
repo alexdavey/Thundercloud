@@ -1,19 +1,23 @@
 // $(function() {
 
 "use strict";
-	
+
 var source = 'alert(\'hello world\')\n' +
 			 'var canvas = document.getElementById(\'editor\'),\n' +
-			 '	  ctx = canvas.getContext(\'2d\')';
+			 '	  ctx = canvas.getContext(\'2d\')\n' +
+			 '123456789';
 
 var editor = {
 
 	init : function(id, options) {
 		var canvasEl = $(id);
 		$.merge(this.options, options);
+
 		canvas.init(canvasEl);
+		this.options.charWidth = canvas.ctx.measureText('m').width;
+
 		$.listen(canvasEl, 'mousedown', this.mouseDown);
-		$.listen(canvasEl, 'keydown', this.keydown);
+		$.listen('keydown', this.keydown);
 	},
 
 	mouseDown : function(e) {
@@ -22,8 +26,25 @@ var editor = {
 		canvas.render(text.source);
 	},
 
-	keydown : function() {
-		
+	keydown : function(e) {
+		e = e || window.e;
+
+		if (e.keyCode == 8) {
+			
+			var col = cursor.col, row = cursor.row;
+
+			if (col <= 0) {
+				text.append(col, text.source[row]);
+				text.removeLine(row);
+				cursor.col = text.lineLength(row - 1);
+				cursor.row--;
+			} else {
+				text.remove(1, row, col);
+				cursor.col--;
+			}
+
+		}
+		canvas.render(text.source);
 	},
 
 	options : {
@@ -58,9 +79,7 @@ var canvas = {
 	render : function(lines) {
 		var ctx = this.ctx, lineHeight = editor.options.lineHeight;
 		this.clear();
-		console.log(ctx.font);
 		$(lines, function(line, key) {
-			console.log(ctx.font);
 			ctx.fillText(line, 0, key * lineHeight + 10);
 		});
 		this.drawCursor();
@@ -68,7 +87,6 @@ var canvas = {
 
 	setFont : function(font, size) {
 		this.ctx.font = size + 'px ' + font;
-		console.log(this.ctx.font);
 	},
 
 	drawCursor : function(x, y) {
@@ -95,6 +113,11 @@ var text = {
 	stringify : function() {
 		return this.source.join('\n');
 	},
+
+	lineLength : function(row) {
+		console.log(row);
+		return this.source[row].length - 1;
+	},
 	
 	addLine : function(row, col) {
 		var currentLine = this.source[row],
@@ -106,9 +129,37 @@ var text = {
 		this.source.splice(row, 1);
 	},
 
+	append : function(text, row) {
+		this.insert(text, row, this.lineLength(row));
+	},
+
 	insert : function(text, row, col) {
 		var parts = split(this.source[row], col);
 		this.source[row] = parts.left + text + parts.right;
+	},
+
+	remove : function(items, row, col) {
+		var currentLine = this.source[row],
+			parts = split(currentLine, col);
+
+		if (items < 0) {
+			this.source[row] = parts.left + parts.right.slice(items * -1);
+		} else {
+			this.source[row] = parts.left.slice(0, parts.left.length - items) + parts.right;
+		}
+	}
+
+};
+
+var input = {
+	
+	init : function(textAreaId) {
+		this.textarea = $(textAreaId);
+		$.listen(this.textArea, 'keypress');
+	},
+
+	onKeyPress : function(e) {
+		// if (this.textArea)
 	}
 
 };
@@ -119,15 +170,17 @@ var cursor = {
 	col : 10,
 
 	toPixels : function() {
+		var charWidth = editor.options.charWidth, lineHeight = editor.options.lineHeight;
 		return {
-			x : this.col * editor.options.lineHeight,
-			y : this.row * editor.options.fontSize
+			x : this.col * charWidth,
+			y : this.row * lineHeight 
 		};
 	},
 
 	setPosition : function(x, y) {
-		this.col = ~~(x / editor.options.lineHeight);
-		this.row = ~~(y / editor.options.fontSize);
+		this.col = ~~(x / editor.options.charWidth) - 1;
+		this.row = ~~(y / editor.options.lineHeight);
+		console.log(this.col, this.row);
 	}
 
 };
