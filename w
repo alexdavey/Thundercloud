@@ -109,23 +109,21 @@ var text = {
 		this.source[row] += text;
 	},
 
-	lineSection : function(row, col1, col2) {
-		return this.source[row].slice(col1, col2 || undefined);
-	},
-
-	selectLines : function(from, to) {
-		to = to || from;
-		var selection = '';
-		while (from < to) {
-			selection += this.source[from++] + '\n';
-		} 
-		return selection;
-	},
-
 	selection : function(row1, col1, row2, col2) {
-		var selection = this.lineSelection(row1, col1);
-		selection += selectLines(row1 + 1, row2 - 1);
-		selection += this.lineSelection(row2, 0, col2);
+		var selection = '';
+		switch (arguments.length) {
+			case 1:
+				return this.source[row1];
+			case 2:
+				var selection = '';
+				for (; row1 < col1; row1++) {
+					selection += this.source[row1] + '\n';
+				} 
+				return selection;
+			case 3:
+				selection = 
+			case 4:
+		}
 		return selection;
 	},
 
@@ -135,7 +133,8 @@ var text = {
 	},
 
 	remove : function(items, row, col) {
-		var parts = split(this.source[row], col);
+		var currentLine = this.source[row],
+			parts = split(currentLine, col);
 
 		if (items < 0) {
 			this.source[row] = parts.left + parts.right.slice(items * -1);
@@ -213,18 +212,8 @@ var actions = {
 
 	enter : function() {
 		console.log('Entered!');
-		var row = cursor.row, col = cursor.col,
-			overflow = text.lineSection(row, col);
-
-		text.addLine(row + 1, overflow);
-		text.remove(-overflow.length, row, col);
-
+		text.addLine(cursor.row + 1);
 		cursor.row++;
-		cursor.col = 0;
-	},
-
-	tab : function() {
-		
 	},
 
 	shift : function() {
