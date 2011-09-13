@@ -94,7 +94,6 @@ var text = {
 	},
 
 	lineLength : function(row) {
-		console.log(row);
 		return this.source[row].length;
 	},
 	
@@ -136,7 +135,7 @@ var input = {
 		this.textArea = $(textAreaId);
 		this.textArea.focus();
 		$.listen(this.textArea, 'blur', this.textArea.focus);
-		$.listen(this.textArea, 'keypress', this.onKeyPress);
+		$.listen(this.textArea, 'keyup', this.onKeyPress);
 	},
 
 	focus : function() {
@@ -144,12 +143,14 @@ var input = {
 	},
 
 	onKeyPress : function(e) {
-		if (this.value) {
+		console.log('value: ', this.value);
+		if (this.value.length > 0) {
 			text.insert(this.value, cursor.row, cursor.col);
+			this.value = '';
 			cursor.col++;
 			canvas.render(text.source);
-			this.value = '';
 		} else {
+			console.log('Command!');
 			input.command(e);
 		}
 	},
@@ -181,6 +182,54 @@ var input = {
 
 };
 
+var actions = {
+	
+	backspace : function() {
+		
+	},
+
+	del : function() {
+		
+	},
+
+	enter : function() {
+		
+	},
+
+	shift : function() {
+		
+	},
+
+	copy : function() {
+		
+	},
+
+	paste : function() {
+		
+	},
+
+	arrow : {
+		
+		up : function() {
+			cursor.row--;
+		},
+
+		down : function() {
+			cursor.row++;
+		},
+
+		left : function() {
+			cursor.col--;
+		},
+
+		right : function() {
+			cursor.col++;
+		}
+
+	}
+
+};
+
 var cursor = {
 	
 	row : 0,
@@ -197,7 +246,6 @@ var cursor = {
 	setPosition : function(x, y) {
 		this.col = ~~(x / editor.options.charWidth) - 1;
 		this.row = ~~(y / editor.options.lineHeight);
-		console.log(this.col, this.row);
 	}
 
 };
