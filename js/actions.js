@@ -11,15 +11,19 @@ var actions = {
 			if (row == 0) return;
 
 			cursor.col = text.lineLength(row - 1);
-			cursor.row--;
+			cursor.shift('up');
 
 			text.append(text.source[row], row - 1);
 			text.removeLine(row);
 		} else {
-			cursor.col--;
+			cursor.shift('left');
 			
 			text.remove(1, row, col);
 		}
+	},
+
+	shift : function() {
+		
 	},
 
 	// Enter
@@ -30,16 +34,13 @@ var actions = {
 		text.addLine(row + 1, overflow);
 		text.remove(-overflow.length, row, col);
 
-		cursor.row++;
+		cursor.shift('down');
 		cursor.col = 0;
 	},
 
-	tab : function() {
-		
-	},
-
-	shift : function() {
-		
+	// Tab
+	'9' : function() {
+		text.insert('\t', cursor.row, cursor.col);
 	},
 
 	copy : function() {
@@ -50,24 +51,24 @@ var actions = {
 		
 	},
 
-	arrow : {
-		
-		up : function() {
-			cursor.row--;
-		},
+	// Up arrow
+	'38' : function() {
+		cursor.shift('up');
+	},
 
-		down : function() {
-			cursor.row++;
-		},
+	// Down arrow
+	'40' : function() {
+		cursor.shift('down');
+	},
 
-		left : function() {
-			cursor.col--;
-		},
+	// Left arrow
+	'37' : function() {
+		cursor.shift('left');
+	},
 
-		right : function() {
-			cursor.col++;
-		}
-
+	// Right arrow
+	'39' : function() {
+		cursor.shift('right');
 	}
 
 };

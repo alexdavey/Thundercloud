@@ -3,7 +3,7 @@ var input = {
 	init : function(canvasEl) {
 		$.listen('keypress', this.onKeyPress);
 		$.listen('keydown', this.onKeyDown);
-		$.listen(canvasEl, 'mousedown', this.mouseDown);
+		$.listen(canvasEl, 'mousedown', this.onMouseDown);
 	},
 
 	onMouseDown : function(e) {
@@ -27,7 +27,7 @@ var input = {
 		e = e || window.e;
 		var character = String.fromCharCode(e.charCode);
 		text.insert(character, cursor.row, cursor.col);
-		cursor.col++;
+		cursor.shift('right');
 		canvas.render(text.source);
 	}
 

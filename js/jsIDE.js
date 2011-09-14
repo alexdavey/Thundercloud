@@ -80,6 +80,32 @@ var cursor = {
 	setPosition : function(x, y) {
 		this.col = ~~(x / editor.options.charWidth) - 1;
 		this.row = ~~(y / editor.options.lineHeight);
+	},
+
+	shift : function(direction) {
+		switch(direction) {
+			case 'right':
+				if (this.col < text.lineLength(this.row))
+					this.col++;
+					break;
+			case 'left':
+				if (this.col > 0)
+					this.col--;
+				break;
+			case 'down':
+				if (this.row < text.source.length) {
+					var length = text.lineLength(this.row + 1);
+					if (this.col > length) this.col = length;
+					this.row++;
+				}
+				break;
+			case 'up':
+				if (this.row > 0) {
+					var length = text.lineLength(this.row - 1);
+					if (this.col > length) this.col = length;
+					this.row--;
+				}
+		}
 	}
 
 };
