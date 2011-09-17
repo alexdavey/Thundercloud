@@ -4,10 +4,10 @@ var actions = {
 		
 	},
 
-	// Delete
+	// Backspace
 	'8' : function() {
 		var col = cursor.col, row = cursor.row;
-		if (col <= 0) {
+		if (col == 0) {
 			if (row == 0) return;
 
 			cursor.col = text.lineLength(row - 1);
@@ -16,9 +16,21 @@ var actions = {
 			text.append(text.source[row], row - 1);
 			text.removeLine(row);
 		} else {
-			cursor.shift('left');
-			
 			text.remove(1, row, col);
+			cursor.shift('left');
+		}
+	},
+
+	// Delete
+	'46' : function() {
+		var col = cursor.col, row = cursor.row;
+		if (col >= text.lineLength(row)) {
+			if (text.source.length == 1) return;
+			cursor.shift('down');
+			cursor.col = 0;
+			actions[8]();
+		} else {
+			text.remove(-1, row, col);
 		}
 	},
 
@@ -40,7 +52,9 @@ var actions = {
 
 	// Tab
 	'9' : function() {
-		text.insert('\t', cursor.row, cursor.col);
+		var tab = new Array(editor.options.tabSize + 1).join(' ');
+		text.insert(tab, cursor.row, cursor.col);
+		cursor.shift('right', 4);
 	},
 
 	copy : function() {

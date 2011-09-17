@@ -23,8 +23,8 @@ var input = {
 	},
 
 	onKeyPress : function(e) {
-		e.preventDefault();
 		e = e || window.e;
+		e.preventDefault();
 		var character = String.fromCharCode(e.charCode);
 		text.insert(character, cursor.row, cursor.col);
 		cursor.shift('right');

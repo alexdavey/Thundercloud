@@ -16,6 +16,7 @@ var text = {
 	},
 
 	lineLength : function(row) {
+		if (typeof this.source[row] == 'undefined') return -1;
 		return this.source[row].length;
 	},
 	
@@ -45,10 +46,10 @@ var text = {
 	},
 
 	selection : function(row1, col1, row2, col2) {
-		var selection = this.lineSelection(row1, col1);
-		selection += selectLines(row1 + 1, row2 - 1);
-		selection += this.lineSelection(row2, 0, col2);
-		return selection;
+		var area = this.lineSelection(row1, col1);
+		area += selectLines(row1 + 1, row2 - 1);
+		area += this.lineSelection(row2, 0, col2);
+		return area;
 	},
 
 	insert : function(text, row, col) {
