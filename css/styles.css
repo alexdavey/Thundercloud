@@ -15,5 +15,21 @@ body {
 }
 
 #editor {
+	float : right;
 	cursor : text;
+}
+
+#sidebar {
+	float : left;
+	background : url(../img/sidebar-bg.png) repeat;
+	width : 200px;
+	height : 100%;
+}
+
+#clipboard {
+	width : 1px;
+	height : 1px;
+	position : absolute;
+	top : 0;
+	left : 0;
 }

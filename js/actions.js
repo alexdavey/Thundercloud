@@ -1,9 +1,5 @@
 var actions = {
 	
-	backspace : function() {
-		
-	},
-
 	// Backspace
 	'8' : function() {
 		var col = cursor.col, row = cursor.row;
@@ -34,10 +30,6 @@ var actions = {
 		}
 	},
 
-	shift : function() {
-		
-	},
-
 	// Enter
 	'13' : function() {
 		var row = cursor.row, col = cursor.col,
@@ -55,14 +47,6 @@ var actions = {
 		var tab = new Array(editor.options.tabSize + 1).join(' ');
 		text.insert(tab, cursor.row, cursor.col);
 		cursor.shift('right', 4);
-	},
-
-	copy : function() {
-		
-	},
-
-	paste : function() {
-		
 	},
 
 	// Up arrow
@@ -83,6 +67,19 @@ var actions = {
 	// Right arrow
 	'39' : function() {
 		cursor.shift('right');
-	}
+	},
+
+	copy : function() {
+		
+	},
+
+	paste : function() {
+		setTimeout(function() {
+			text.insert(textArea.value, cursor.row, cursor.col);
+			cursor.shift('right', textArea.value.length);
+			textArea.value = '';
+			canvas.render(text.source);
+		}, 100);
+	},
 
 };

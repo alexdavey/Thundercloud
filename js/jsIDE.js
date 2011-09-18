@@ -103,10 +103,19 @@ var cursor = {
 	},
 
 	setPosition : function(x, y) {
-		var options = editor.options;
-		this.col = ~~((x - options.padding) / options.charWidth);
-		this.row = ~~(y / options.lineHeight);
-		console.log(this.col, this.row);
+		var options = editor.options,
+			col = ~~((x - options.padding) / options.charWidth),
+			row = ~~(y / options.lineHeight),
+			textLength = text.source.length - 1,
+
+		row = (row > textLength ? textLength : row);
+
+		var lineLength = text.lineLength(row);
+
+		col = (col > lineLength ? lineLength : col);
+
+		this.col = col;
+		this.row = row;
 	},
 
 	shift : function(direction, magnitude) {
