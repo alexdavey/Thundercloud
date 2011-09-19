@@ -4,10 +4,10 @@ var ctrlDown = false,
 var input = {
 	
 	init : function(canvasEl) {
+		$.listen(canvasEl, 'mousedown', this.onMouseDown);
 		$.listen('keypress', this.onKeyPress);
 		$.listen('keydown', this.onKeyDown);
 		$.listen('keyup', this.onKeyUp);
-		$.listen(canvasEl, 'mousedown', this.onMouseDown);
 	},
 
 	onMouseDown : function(e) {
@@ -50,6 +50,5 @@ var input = {
 		cursor.shift('right');
 		canvas.render(text.source);
 	}
-
 
 };
