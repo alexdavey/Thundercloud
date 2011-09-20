@@ -7,7 +7,7 @@ var input = {
 		$.listen(canvasEl, 'mousedown', this.onMouseDown);
 		$.listen('keypress', this.onKeyPress);
 		$.listen('keydown', this.onKeyDown);
-		$.listen('keyup', this.onKeyUp);
+		$.listen('keyup', this.onKeyDown);
 	},
 
 	onMouseDown : function(e) {
@@ -17,29 +17,22 @@ var input = {
 	},
 
 	onKeyDown : function(e) {
-		console.log(e.keyCode);
 		e = e || window.e;
-		var keyCode = e.keyCode;
+		var keyCode = e.keyCode,
+			passive = actions.passive;
+
 		if (keyCode in actions) {
 			e.preventDefault();
 			actions[keyCode]();
 			canvas.render(text.source);
-		}
-		// Special case for ctrl / left window
-		if (e.keyCode == 17 || e.keyCode == 91) {
-			ctrlDown = true;
-			textArea.focus();
-		} else if (e.keyCode == 86) {
-			actions.paste();
+		} else if (keyCode in passive) {
+			passive[keyCode]();
 		}
 	},
 
 	onKeyUp : function(e) {
 		e = e || window.e;
-		if (e.keyCode == 17 || e.keyCode == 91) {
-			ctrlDown = false;
-			textArea.focus();
-		}
+		if (e.keyCode == 17 || e.keyCode == 91) ctrlDown = false;
 	},
 
 	onKeyPress : function(e) {

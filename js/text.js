@@ -54,14 +54,16 @@ var text = {
 
 	insertLines : function(items, row) {
 		items.unshift(row, 0);
-		console.log(items);
 		[].splice.apply(this.source, items);
 	},
 
 	insert : function(text, row, col) {
-		console.log(this, row);
-		var parts = split(this.source[row], col);
-		this.source[row] = parts.left + text + parts.right;
+		if (this.source[row] === undefined) {
+			this.addLine(row);
+		} else {
+			var parts = split(this.source[row], col);
+			this.source[row] = parts.left + text + parts.right;
+		}
 	},
 
 	remove : function(items, row, col) {

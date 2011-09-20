@@ -69,42 +69,57 @@ var actions = {
 		cursor.shift('right');
 	},
 
-	copy : function() {
-		textArea.value = selection;
-		textArea.select();
-		setTimeout(function() {
-			textArea.value = '';
-		}, 100);
-	},
+	passive : {
+		
+		// Ctrl
+		17 : function() {
+			ctrlDown = true;
+			textArea.focus();
+		},
 
-	paste : function() {
-		setTimeout(function() {
-			var input = textArea.value.split(/\n|\r/),
-				overflow = text.lineSection(cursor.row, cursor.col);
-				length = input.length,
-				lastLineLength = input[length - 1].length,
-				row = cursor.row,
-				col = cursor.col;
+		// Left window
+		91 : function() {
+			ctrlDown = true;
+			textArea.focus();
+		},
 
+		// Paste (v)
+		86 : function() {
+			if (!ctrlDown) return;
+			setTimeout(function() {
+				var input = textArea.value.split(/\n|\r/),
+					overflow = text.lineSection(cursor.row, cursor.col);
+					length = input.length,
+					lastLineLength = input[length - 1].length,
+					row = cursor.row,
+					col = cursor.col;
 
-				console.log(lastLineLength);
+				if (input.length > 1) {
+					text.remove(-overflow.length, row, col);
+					text.append(input.shift(), row);
+					text.insert(input.pop() + overflow, row + 1, 0);
+					text.insertLines(input, row);
 
-			if (input.length > 1) {
-				text.remove(-overflow.length, row, col);
-				text.append(input.shift(), row);
-				text.insert(input.pop() + overflow, row + 1, 0);
-				text.insertLines(input, row + 1);
+					cursor.col = overflow.length + lastLineLength;
+					cursor.shift('down', length - 2);
+				} else {
+					text.insert(textArea.value, row, col);
+					cursor.shift('right', textArea.value.length);
+				}
 
-				cursor.col = overflow.length + lastLineLength;
-				cursor.shift('down', length - 2);
-			} else {
-				text.insert(textArea.value, row, col);
-				cursor.shift('right', textArea.value.length);
-			}
+				textArea.value = '';
+				canvas.render(text.source);
+			}, 100);
+		},
 
-			textArea.value = '';
-			canvas.render(text.source);
-		}, 100);
-	},
+		copy : function() {
+			textArea.value = selection;
+			textArea.select();
+			setTimeout(function() {
+				textArea.value = '';
+			}, 100);
+		}
+	}
+
 
 };
