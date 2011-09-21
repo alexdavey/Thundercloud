@@ -39,16 +39,18 @@ var text = {
 	selectLines : function(from, to) {
 		to = to || from;
 		var selection = '';
-		while (from < to) {
+		while (from <= to) {
 			selection += this.source[from++] + '\n';
 		} 
 		return selection;
 	},
 
 	selection : function(row1, col1, row2, col2) {
-		var area = this.lineSelection(row1, col1);
-		area += selectLines(row1 + 1, row2 - 1);
-		area += this.lineSelection(row2, 0, col2);
+		var area = this.lineSection(row1, col1, row1 == row2 ? col2 : undefined);
+		if (row1 != row2) {
+			area += '\n' + this.selectLines(row1 + 1, row2 - 1);
+			area += this.lineSection(row2, 0, col2);
+		}
 		return area;
 	},
 

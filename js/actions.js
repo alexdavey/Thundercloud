@@ -21,7 +21,7 @@ var actions = {
 	'46' : function() {
 		var col = cursor.col, row = cursor.row;
 		if (col >= text.lineLength(row)) {
-			if (text.source.length == 1) return;
+			if (row != length - 1) return;
 			cursor.shift('down');
 			cursor.col = 0;
 			actions[8]();
@@ -112,12 +112,17 @@ var actions = {
 			}, 100);
 		},
 
-		copy : function() {
-			textArea.value = selection;
-			textArea.select();
-			setTimeout(function() {
-				textArea.value = '';
-			}, 100);
+		// Copy (c)
+		67 : function() {
+			var normal = selection.normalize(), 
+				end = normal.end, start = normal.start;
+			if (!selection.isEmpty()) {
+				textArea.value = text.selection(start.row, start.col, end.row, end.col);
+				textArea.select();
+				setTimeout(function() {
+					textArea.value = '';
+				}, 100);
+			}
 		}
 	}
 

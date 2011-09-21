@@ -20,12 +20,28 @@ var editor = {
 		width : window.innerWidth,
 		height : window.innerHeight,
 		font : 'Courier New, monospace',
+		highlight : '#B4D5FE',
 		tabSize : 4,
 		fontSize : 14,
 		lineHeight : 14
 	}
 
 };
+
+function highlightLine(ctx, row) {
+	var options = editor.options, lineHeight = options.lineHeight;
+	ctx.fillRect(options.padding, row * lineHeight, 
+			text.lineLength(row) * options.charWidth, lineHeight);
+}
+
+function highlightPart(ctx, row, col1, col2) {
+	var options = editor.options,
+		charWidth = options.charWidth,
+		difference = (col1 - col2) * -1;
+
+	ctx.fillRect(options.padding + charWidth * col1, row * options.lineHeight, 
+			difference * charWidth, options.lineHeight);
+}
 
 var canvas = {
 
@@ -49,6 +65,7 @@ var canvas = {
 	render : function(lines) {
 		var ctx = this.ctx, lineHeight = editor.options.lineHeight;
 		this.clear();
+		this.drawSelection();
 		$(lines, function(line, key) {
 			var y = key * lineHeight + 10;
 			ctx.fillText(line, editor.options.padding, y);
@@ -76,6 +93,26 @@ var canvas = {
 			var y = key * editor.options.lineHeight + 10;
 			ctx.fillText(key + 1, editor.options.padding / 3, y);
 		});
+	},
+
+	drawSelection : function() {
+		if (selection.isEmpty()) return;
+
+		var normal = selection.normalize(), start = normal.start, end = normal.end,
+			col2 = (start.row == end.row ? end.col : text.lineLength(start.row));
+
+		this.ctx.fillStyle = editor.options.highlight;
+		
+		highlightPart(this.ctx, start.row, start.col, col2);
+		if (start.row != end.row) {
+			var i = start.row;
+			while (++i < end.row) {
+				highlightLine(this.ctx, i);
+			}
+			highlightPart(this.ctx, end.row, 0, end.col);
+		}
+
+		this.ctx.fillStyle = '#000000';
 	},
 
 	setFont : function(font, size) {
