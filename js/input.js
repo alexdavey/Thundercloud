@@ -69,8 +69,6 @@ var input = {
 
 var selection = {
 	
-	selecting : false,
-
 	isEmpty : function() {
 		var start = this.start, end = this.end;
 		return start.col == end.col && start.row == end.row;

@@ -20,7 +20,9 @@ var editor = {
 		width : window.innerWidth,
 		height : window.innerHeight,
 		font : 'Courier New, monospace',
-		highlight : '#B4D5FE',
+		// highlight : '#B4D5FE',
+		highlight : '#FEF241',
+		scrollbar : '#BBBBBB',
 		tabSize : 4,
 		fontSize : 14,
 		lineHeight : 14
@@ -93,6 +95,10 @@ var canvas = {
 			var y = key * editor.options.lineHeight + 10;
 			ctx.fillText(key + 1, editor.options.padding / 3, y);
 		});
+	},
+
+	drawScrollbar : function() {
+
 	},
 
 	drawSelection : function() {
