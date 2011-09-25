@@ -1,0 +1,11 @@
+canvas .openTag, canvas .closeTag {
+	color : rgb(250, 191, 96);
+}
+
+canvas .comment, canvas .doctype {
+	color : rgb(114, 114, 114);
+}
+
+canvas .doubleQuotedString, canvas .singleQuotedString {
+	color : rgb(85, 100, 68);
+}

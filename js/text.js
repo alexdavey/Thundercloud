@@ -74,7 +74,8 @@ var text = {
 		if (items < 0) {
 			this.source[row] = parts.left + parts.right.slice(items * -1);
 		} else {
-			this.source[row] = parts.left.slice(0, parts.left.length - items) + parts.right;
+			this.source[row] = 
+				parts.left.slice(0, parts.left.length - items) + parts.right;
 		}
 	}
 
