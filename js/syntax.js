@@ -155,7 +155,6 @@ Syntak.triggers = {
 
 	Syntak.LineSplitter.prototype = {
 		
-/////////////// UNFINISHED! /////////////////
 		split : function(text, index, callback) {
 			var length, position = 0;
 			for (var i = index || 0, l = text.length; i < l; ++i) {
@@ -172,12 +171,24 @@ Syntak.triggers = {
 (function() {
 
 	var getColor = (function() {
-		var div = document.createElement('div');
+
+		var div = document.createElement('div'),
+			cache = {};
+
 		$('canvas')[0].appendChild(div);
 
 		return function(className) {
-			div.className = className;
-			return getComputedStyle(div, null).color;
+			if (className in cache) {
+				return cache[className];
+			} else {
+				div.className = className;
+				var color = getComputedStyle(div, null).color;
+
+				cache[className] = color;
+				return color;
+			}
+
+
 		};
 		
 	})();
@@ -188,10 +199,10 @@ Syntak.triggers = {
 
 	Syntak.Colorizer.prototype = {
 
-		colorize : function(token, callback) {
+		colorize : function(tokens, callback) {
 			this.callback({
 				value : token.value,
-				color : getColor(token.type) || 'text'
+				color : getColor(token.type) || getColor('text')
 			});
 		}
 
@@ -330,7 +341,8 @@ Syntak.triggers = {
 
 
 
-var callback = function (token) { console.log(token) },
+var callback = function (token) { output.push(token) },
+	output = [];
 	// LineSplitter = new Syntak.LineSplitter(callback),
 	// Colorizer = new Syntak.Colorizer($.bind(LineSplitter.split, LineSplitter)),
 	Colorizer = new Syntak.Colorizer(callback),
@@ -372,3 +384,8 @@ Tokenizer.start(
 );
 // 
 // );
+
+
+var LineSplitter = new Syntak.LineSplitter(text.source, function() {
+	
+});

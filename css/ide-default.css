@@ -1,5 +1,13 @@
+canvas .text {
+	color : rgb(221, 221, 221);
+}
+
 canvas .openTag, canvas .closeTag {
 	color : rgb(250, 191, 96);
+}
+
+canvas .tagBody {
+	color : rgb(129, 151, 191);
 }
 
 canvas .comment, canvas .doctype {
@@ -9,3 +17,8 @@ canvas .comment, canvas .doctype {
 canvas .doubleQuotedString, canvas .singleQuotedString {
 	color : rgb(85, 100, 68);
 }
+
+canvas .attribute {
+	color : rgb(285, 187, 100);
+}
+
