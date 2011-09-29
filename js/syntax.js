@@ -1,132 +1,24 @@
-$.rightPartial = function(fn, context) {
-	var outer = [].slice.call(arguments, 2);
+var Syntax = {};
 
-	return function() {
-		var args = [].slice.call(arguments);
-		[].push.apply(args, outer);
-		return fn.apply(context, args);
-	};
-};
-
-
-var Syntak = {};
-
-// (function() {
-// 
-// 	var stop = true, iteratorArray, i = 0, length;
-// 
-// 	function callback(token) {
-// 		console.log('Callback!')
-// 		iteratorArray[++i](token, callback);
-// 	}
-// 	
-// 	Syntak.Stack = function(iterators, fn) {
-// 		iterators.push(fn);
-// 
-// 		this.firstIterator = iterators[i];
-// 		iteratorArray = iterators;
-// 	}
-// 
-// 	Syntak.Stack.prototype = {
-// 
-// 		start : function(text, index) {
-// 			this.firstIterator(index ? text.slice(index) : text, callback);
-// 		}
-// 		
-// 	};
-// 
-// })();
-
-
-Syntak.tokens = {
-
-	html : {
-
-		openTag : /\</,
-		closeTag : /\>/,
-		closingTag : /\/\>/,
-
-		singleQuote : /\'/,
-		doubleQuote : /\"/,
-
-		commentEnd : /\-\-\>/,
-		commentStart : /\<\!\-\-/
-
-	}
-};
-
-Syntak.triggers = {
-	
-	openTag : function() {
-		if (this.states.last == 'singleQuote' || this.states.last == 'doubleQuote') {
-			return 'string';
-		}
-		this.states.push('tagBody');
-		return 'openTag';
-	},
-
-	closeTag : function() {
-		if (this.states.last == 'singleQuote' || this.states.last == 'doubleQuote') {
-			return 'string';
-		}
-		this.states.push('text');
-		return 'closeTag';
-	},
-
-	commentStart : function() {
-		if (this.states.last == 'singleQuote' || this.states.last == 'doubleQuote') {
-			return 'string';
-		}
-		this.states.push('comment');
-		return 'comment';
-	},
-
-	commentEnd : function() {
-		if (this.states.last == 'singleQuote' || this.states.last == 'doubleQuote') {
-			return 'string';
-		}
-		if (this.states.last == 'comment') {
-			this.states.push('text');
-			return 'comment';
-		}
-	},
-
-	singleQuote : function() {
-		if (this.states.last == 'singleQuote') {
-			this.states.push('text');
-		} else {
-			this.states.push('singleQuote');
-		}
-	},
-
-	doubleQuote : function() {
-		if (this.states.last == 'doubleQuote') {
-			this.states.push('text');
-			return 'doubleQuotedString';
-		} else if (this.states.stateOf(1) == 'backslash') {
-			this.states.push('doubleQuoteString');
-			return 'doubleQuote';
-		}
-	}
-
-
-};
-
-(function() {
+Syntax.LineSplitter = (function() {
 
 	function joinedLength(array, equalTo, startElement, startPosition) {
+
 		startElement = startElement || 0;
 		startPosition = startPosition || 0;
 
-		length = array[startElement].length - startPosition || 0;
+		var element,
+			firstElement = array[startElement],
+			length = (firstElement === null ? 0 : firstElement.length) - startPosition || 0;
 
 		while (length < equalTo) {
-			length += array[++startElement];
+			element = array[++startElement]
+			length += (element === null ? 0 : element.value.length);
 		}
 
 		return {
 			index : startElement,
-			position : (length - equalTo) - 1
+			position : length - equalTo
 		}
 
 	}
@@ -139,7 +31,7 @@ Syntak.triggers = {
 	}
 
 	function splitAt(array, i, position) {
-		var text = splitText(array[i], position),
+		var text  = splitText(array[i].value, position),
 			clone = $.clone(array[i]);
 
 		array[i].value = text.left;
@@ -148,75 +40,88 @@ Syntak.triggers = {
 		array.splice(i, 0, null, clone);
 	}
 
-	Syntak.LineSplitter = function(original, callback) {
+	var Constructor = function(original) {
 		this.original = original;
-		this.callback = callback;
 	};
 
-	Syntak.LineSplitter.prototype = {
+	Constructor.prototype = {
 		
-		split : function(text, index, callback) {
-			var length, position = 0;
+		split : function(text, index, lineNumber) {
+			var length, position = 0, lineNumber = lineNumber || 0, cutoff;
+
 			for (var i = index || 0, l = text.length; i < l; ++i) {
-				cutoff = joinedLength(text, this.original[i], i, position);
-				position = cutoff.index;
+
+				cutoff = joinedLength(text, this.original[lineNumber].length, i, position);
+
+				i = cutoff.index;
+				position = cutoff.position;
 				splitAt(text, cutoff.index, cutoff.position);
+
+				++position;
+				++lineNumber;
 			}
 		}
 
 	};
 
+	return Constructor;
+
 })();
 
-(function() {
+Syntax.Colorizer = (function() {
 
-	var getColor = (function() {
+	var div = document.createElement('div'),
+		cache = {},
+		callback;
 
-		var div = document.createElement('div'),
-			cache = {};
-
-		$('canvas')[0].appendChild(div);
-
-		return function(className) {
-			if (className in cache) {
-				return cache[className];
-			} else {
-				div.className = className;
-				var color = getComputedStyle(div, null).color;
-
-				cache[className] = color;
-				return color;
-			}
+	$('canvas')[0].appendChild(div);
 
 
-		};
-		
-	})();
+	function getColor(className) {
+		if (className in cache) {
+			return cache[className];
+		} else {
+			div.className = className;
+			var color = getComputedStyle(div, null).color;
 
-	Syntak.Colorizer = function(callback) {
-		this.callback = callback;
+			cache[className] = color;
+			return color;
+		}
+	}
+
+	var Constructor = function(fn) {
+		callback = fn;
 	};
 
-	Syntak.Colorizer.prototype = {
+	Constructor.prototype = {
 
-		colorize : function(tokens, callback) {
-			this.callback({
+		colorize : function(token) {
+			var color = getColor(token.type);
+			callback({
 				value : token.value,
-				color : getColor(token.type) || getColor('text')
+				color : (color == 'rgb(0, 0, 0)' ? getColor('text') : color)
 			});
+		},
+
+		clearCache : function() {
+			cache = {};
 		}
 
 	};
 
+	return Constructor;
+
 })();
 
-(function() {
+Syntax.Parser = (function() {
 
+	var that, rules, callback;
 
-	Syntak.Parser = function(rules, callback) {
+	var Constructor = function(rule, callbacks) {
 		
-		this.rules = rules;
-		this.callback = callback;
+		that = this;
+		rules = rule;
+		callback = callbacks;
 
 		this.states = (function() {
 			var index = 0;
@@ -245,25 +150,22 @@ Syntak.triggers = {
 		
 	};
 
-	Syntak.Parser.prototype = {
-		
-		parse : function(token) {
+	Constructor.prototype.parse = function(token) {
 
-			var type = (token.type in this.rules ? this.rules[token.type].call(this) : 'text');
+		var type = (token.type in rules ? rules[token.type].call(that) : 'text');
 
-			this.callback({ 
-				type : type || undefined,
-				value : token.value
-			});
-
-		}
+		callback({ 
+			type : type || undefined,
+			value : token.value
+		});
 
 	};
 
+	return Constructor;
 
 })();
 
-(function() {
+Syntax.Tokenizer = (function() {
 
 	var token = '', tokens, text, length, callback, interval, i = 0, stop = true;
 
@@ -316,12 +218,12 @@ Syntak.triggers = {
 		return false;
 	}
 
-	Syntak.Tokenizer = function(tokens, fn) { 
+	var Constructor = function(tokens, fn) { 
 		this.tokens = tokens;
 		callback = fn;
 	};
 
-	Syntak.Tokenizer.prototype = {
+	Constructor.prototype = {
 
 		start : function(source) {
 			text = source || text;
@@ -336,56 +238,84 @@ Syntak.triggers = {
 		}
 
 	};
+
+	return Constructor;
 	
 })();
 
-
-
-var callback = function (token) { output.push(token) },
-	output = [];
-	// LineSplitter = new Syntak.LineSplitter(callback),
-	// Colorizer = new Syntak.Colorizer($.bind(LineSplitter.split, LineSplitter)),
-	Colorizer = new Syntak.Colorizer(callback),
-	HTML = new Syntak.Parser(Syntak.triggers, $.bind(Colorizer.colorize, Colorizer)),
-	Tokenizer = new Syntak.Tokenizer(Syntak.tokens.html, $.bind(HTML.parse, HTML));
-
-// var iterators = [Tokenizer.start, HTML.parse, Colorizer.colorize, LineSplitter.split];
-// 
-// var Stack = new Syntak.Stack(iterators, function(token) {
-// 	console.log(token);
-// });
-
-// Stack.start(
-// 
-
-Tokenizer.start(
-
-'<!DOCTYPE html>'+
-'<html class="no-js">'+
-'    <head>'+
-'        <meta charset="utf-8"/>'+
-'        <title>New Document</title>'+
-'        <meta name="description" content=""/>'+
-'        <link rel="shortcut icon" href="images/favicon.png" type="image/png"/>'+
-'        <link rel="stylesheet" href="styles/reset.css" media="all"/>'+
-'        <link rel="stylesheet" href="styles/all.css" media="all"/>'+
-'        <link rel="stylesheet" href="styles/print.css" media="print"/>'+
-'        <script src="scripts/modernizr-1.7.min.js"></script>'+
-'        <!--link rel="stylesheet" href="styles/ie8.css" media="all"-->'+
-'        <!--link rel="stylesheet" href="styles/ie7.css" media="all"-->'+
-'        <!--link rel="stylesheet" href="styles/ie6.css" media="all"-->'+
-'    </head>'+
-'    <body>'+
-'        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>'+
-'        <script src="scripts/setup.js"></script>'+
-'    </body>'+
-'</html>'
-
-);
-// 
-// );
-
-
-var LineSplitter = new Syntak.LineSplitter(text.source, function() {
+Syntax.Stack = (function() {
 	
-});
+	var stack = [], i;
+
+	var callback = function(text) {
+		stack[++i](text, stack[i + 1]);
+	};
+
+	var Constructor = function(iterators, callback) {
+		iterators.push(callback);
+		stack = iterators;
+		this.firstIterator = stack.shift();
+		i = 0;
+	};
+
+	Constructor.prototype.start = function(text) {
+		this.firstIterator(text, stack[i]);
+	};
+
+	return Constructor;
+
+})();
+
+Syntax.Highlighter = (function() {
+
+	var output = [];
+
+	function stripEmptyElements(array) {
+		var i = array.length,
+			element;
+
+
+		while (i--) {
+			element = array[i];
+			if (element === null || element.value == '') {
+				array.splice(i, 1);
+			}
+		}
+	}
+
+	var Constructor = function(text, language) {
+
+		if (!this instanceof Syntax.Highlighter) {
+			return new Syntax.Highlighter(text, language);
+		}
+
+		this.textString = text.join('');
+		this.textArray = text;
+
+		this.output = output;
+
+		this.callback  = function(token) { output.push(token) };
+
+		this.Colorizer = new Syntax.Colorizer(this.callback);
+		this.Splitter  = new Syntax.LineSplitter(text);
+		this.Parser    = new Syntax.Parser(Syntax.triggers[language], this.Colorizer.colorize);
+		this.Tokenizer = new Syntax.Tokenizer(Syntax.tokens[language], this.Parser.parse);
+
+	};
+
+	Constructor.prototype.highlight = function(text, startLine, stopLine) {
+		console.time('Highlighter')
+
+		this.Tokenizer.start(text);
+
+		stripEmptyElements(output);
+
+		this.Splitter.split(output);
+
+		console.timeEnd('Highlighter');
+		return output;
+	};
+
+	return Constructor;
+
+})();

@@ -1,8 +1,3 @@
-var source = 'alert(\'hello world\')\n' +
-			 'var canvas = document.getElementById(\'editor\'),\n' +
-			 '	  ctx = canvas.getContext(\'2d\')\n' +
-			 '123456789';
-
 var editor = {
 
 	init : function(id, options) {
@@ -21,7 +16,8 @@ var editor = {
 		height : window.innerHeight,
 		font : 'Courier New, monospace',
 		// highlight : '#B4D5FE',
-		highlight : '#FEF241',
+		// highlight : '#FEF241',
+		highlight : 'rgb(64, 64, 64)',
 		scrollbar : '#BBBBBB',
 		tabSize : 4,
 		fontSize : 14,
@@ -61,40 +57,79 @@ var canvas = {
 	},
 
 	clear : function() {
-		this.ctx.clearRect(0, 0, this.paper.width, this.paper.height);
+		var paper = this.paper;
+		this.ctx.fillStyle = 'rgb(21, 21, 21)';
+		this.ctx.fillRect(0, 0, paper.width, paper.height);
+		// this.ctx.clearRect(0, 0, paper.width, paper.height);
 	},
 
-	render : function(lines) {
-		var ctx = this.ctx, lineHeight = editor.options.lineHeight;
+	render : function(source) {
+		var text = Highlighter.highlight(source.join(''));
+
 		this.clear();
 		this.drawSelection();
-		$(lines, function(line, key) {
-			var y = key * lineHeight + 10;
-			ctx.fillText(line, editor.options.padding, y);
-		});
-		this.drawMargin(lines);
+
+		var y = this.drawText(text);
+
+		this.drawMargin(y + 1);
 		this.drawCursor();
 	},
 
-	drawMargin : function(lines) {
-		var ctx = this.ctx;
+	drawText : function(tokens) {
+		var token, i, ctx = this.ctx, y = 0, x = 0, value;
 
-		var grad = this.ctx.createLinearGradient(0, 0, editor.options.padding, 0);
+		var options = editor.options,
+			lineHeight = options.lineHeight,
+			charWidth = options.charWidth,
+			padding = options.padding;
+
+
+		console.dir(tokens);
+		for (i = 0, l = tokens.length; i < l; ++i) {
+
+			token = tokens[i];
+
+			// Null tokens represent newlines
+			if (token === null) {
+				y += 1;
+				x = 0;
+			} else {
+
+				value = token.value;
+
+				ctx.fillStyle = token.color;
+				ctx.fillText(value, x * charWidth + padding, y * lineHeight + 10);
+
+				x += value.length;
+			}
+
+		}
+
+		return y;
+	},
+
+	drawMargin : function(line) {
+		var ctx = this.ctx,
+			options = editor.options,
+			padding = options.padding,
+			lineHeight = options.lineHeight;
+
+		var grad = this.ctx.createLinearGradient(0, 0, padding, 0);
 		grad.addColorStop(0, '#B4B4B4');
 		grad.addColorStop(0.4, '#F7F7F7');
 
 		ctx.fillStyle = grad;
-		ctx.fillRect(0, 0, editor.options.padding - 7, this.paper.height);
+		ctx.fillRect(0, 0, padding - 7, this.paper.height);
 		ctx.fillStyle = '#C3BBB5';
 
-		ctx.fillRect(editor.options.padding - 7, 0, 1, this.paper.height);
+		ctx.fillRect(padding - 7, 0, 1, this.paper.height);
 
 		ctx.fillStyle = '#000000';
 
-		$(lines, function(value, key) {
-			var y = key * editor.options.lineHeight + 10;
-			ctx.fillText(key + 1, editor.options.padding / 3, y);
-		});
+		while (line--) {
+			var y = line * lineHeight + 10;
+			ctx.fillText(line + 1, padding / 3, y);
+		}
 	},
 
 	drawScrollbar : function() {
@@ -110,11 +145,14 @@ var canvas = {
 		this.ctx.fillStyle = editor.options.highlight;
 		
 		highlightPart(this.ctx, start.row, start.col, col2);
+
 		if (start.row != end.row) {
 			var i = start.row;
+
 			while (++i < end.row) {
 				highlightLine(this.ctx, i);
 			}
+
 			highlightPart(this.ctx, end.row, 0, end.col);
 		}
 
@@ -127,6 +165,7 @@ var canvas = {
 
 	drawCursor : function(x, y) {
 		var cursorPos = cursor.toPixels();
+		this.ctx.fillStyle = 'rgb(176, 208, 240)';
 		this.ctx.fillRect(cursorPos.x, cursorPos.y, 2, editor.options.fontSize);
 	}
 
@@ -191,6 +230,3 @@ var cursor = {
 
 };
 
-editor.init('#editor');
-text.parse(source);
-canvas.render(text.source);
