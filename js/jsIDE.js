@@ -64,7 +64,7 @@ var canvas = {
 	},
 
 	render : function(source) {
-		var text = Highlighter.highlight(source.join(''));
+		var text = Highlighter.highlight(source);
 
 		this.clear();
 		this.drawSelection();

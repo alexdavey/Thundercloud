@@ -40,18 +40,16 @@ Syntax.LineSplitter = (function() {
 		array.splice(i, 0, null, clone);
 	}
 
-	var Constructor = function(original) {
-		this.original = original;
-	};
+	var Constructor = function() { };
 
 	Constructor.prototype = {
 		
-		split : function(text, index, lineNumber) {
+		split : function(original, text, index, lineNumber) {
 			var length, position = 0, lineNumber = lineNumber || 0, cutoff;
 
 			for (var i = index || 0, l = text.length; i < l; ++i) {
 
-				cutoff = joinedLength(text, this.original[lineNumber].length, i, position);
+				cutoff = joinedLength(text, original[lineNumber].length, i, position);
 
 				i = cutoff.index;
 				position = cutoff.position;
@@ -153,7 +151,6 @@ Syntax.Parser = (function() {
 	Constructor.prototype.parse = function(token) {
 
 		var type = (token.type in rules ? rules[token.type].call(that) : 'text');
-
 		callback({ 
 			type : type || undefined,
 			value : token.value
@@ -167,37 +164,7 @@ Syntax.Parser = (function() {
 
 Syntax.Tokenizer = (function() {
 
-	var token = '', tokens, text, length, callback, interval, i = 0, stop = true;
-
-	function iterate() {
-		while (!stop && i < length) {
-			token += text.charAt(i);
-
-			var match = matchesToken(token);
-			if (match) {
-
-				// If there is a text preceding the token, send it first
-				if (match.remainder.length > 0) {
-
-					callback({ 
-						type : 'text',
-						value : match.remainder
-					});
-
-				}
-
-				// Send the token
-				callback({
-					type : match.type,
-					value : match.value
-				});
-
-				token = '';
-			}
-
-			i++;
-		}
-	}
+	var token = '', tokens, text, length, callback, interval;
 
 	function matchesToken(token) {
 		for (var i in tokens) {
@@ -218,23 +185,40 @@ Syntax.Tokenizer = (function() {
 		return false;
 	}
 
-	var Constructor = function(tokens, fn) { 
-		this.tokens = tokens;
+	var Constructor = function(tokensObj, fn) { 
+		tokens = tokensObj;
 		callback = fn;
 	};
 
-	Constructor.prototype = {
+	Constructor.prototype.start = function(text) {
 
-		start : function(source) {
-			text = source || text;
-			length = text.length;
-			tokens = this.tokens;
-			stop = false;
-			iterate();
-		},
+		var i = 0, match, length = text.length, token = '';
 
-		stop : function() {
-			stop = true;
+		while (i < length) {
+			token += text.charAt(i);
+
+			match = matchesToken(token);
+			if (match) {
+
+				// If there is a text preceding the token, send it first
+				if (match.remainder.length > 0) {
+					callback({ 
+						type : 'text',
+						value : match.remainder
+					});
+
+				}
+
+				// Send the token
+				callback({
+					type : match.type,
+					value : match.value
+				});
+
+				token = '';
+			}
+
+			i++;
 		}
 
 	};
@@ -297,7 +281,7 @@ Syntax.Highlighter = (function() {
 		this.callback  = function(token) { output.push(token) };
 
 		this.Colorizer = new Syntax.Colorizer(this.callback);
-		this.Splitter  = new Syntax.LineSplitter(text);
+		this.Splitter  = new Syntax.LineSplitter();
 		this.Parser    = new Syntax.Parser(Syntax.triggers[language], this.Colorizer.colorize);
 		this.Tokenizer = new Syntax.Tokenizer(Syntax.tokens[language], this.Parser.parse);
 
@@ -305,12 +289,12 @@ Syntax.Highlighter = (function() {
 
 	Constructor.prototype.highlight = function(text, startLine, stopLine) {
 		console.time('Highlighter')
-
-		this.Tokenizer.start(text);
+		
+		output = [];
+		this.Tokenizer.start(text.join(''));
 
 		stripEmptyElements(output);
-
-		this.Splitter.split(output);
+		this.Splitter.split(text, output);
 
 		console.timeEnd('Highlighter');
 		return output;
