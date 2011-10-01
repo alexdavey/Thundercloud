@@ -23,17 +23,9 @@ Syntax.LineSplitter = (function() {
 
 	}
 
-	function splitText(text, position) {
-		return {
-			left : text.slice(0, position),
-			right : text.slice(position)
-		};
-	}
-
 	function splitAt(array, i, position) {
-		var text  = splitText(array[i].value, position),
-			clone = $.clone(array[i]);
-
+		var text  = _.splitText(array[i].value, position),
+			clone = _.clone(array[i]);
 		array[i].value = text.left;
 		clone.value = text.right;
 
@@ -45,9 +37,10 @@ Syntax.LineSplitter = (function() {
 	Constructor.prototype = {
 		
 		split : function(original, text, index, lineNumber) {
-			var length, position = 0, lineNumber = lineNumber || 0, cutoff;
+			var length = text.length + 2 * (original.length - 4),
+				position = 0, lineNumber = lineNumber || 0, cutoff;
 
-			for (var i = index || 0, l = text.length; i < l; ++i) {
+			for (var i = index || 0; i < length; ++i) {
 
 				cutoff = joinedLength(text, original[lineNumber].length, i, position);
 
@@ -68,43 +61,18 @@ Syntax.LineSplitter = (function() {
 
 Syntax.Colorizer = (function() {
 
-	var div = document.createElement('div'),
-		cache = {},
-		callback;
-
-	$('canvas')[0].appendChild(div);
-
-
-	function getColor(className) {
-		if (className in cache) {
-			return cache[className];
-		} else {
-			div.className = className;
-			var color = getComputedStyle(div, null).color;
-
-			cache[className] = color;
-			return color;
-		}
-	}
+	var callback;
 
 	var Constructor = function(fn) {
 		callback = fn;
 	};
 
-	Constructor.prototype = {
-
-		colorize : function(token) {
-			var color = getColor(token.type);
+	Constructor.prototype.colorize = function(token) {
+			var color = _.computedCSS(token.type);
 			callback({
 				value : token.value,
-				color : (color == 'rgb(0, 0, 0)' ? getColor('text') : color)
+				color : (color == 'rgb(0, 0, 0)' ? _.computedCSS('text') : color)
 			});
-		},
-
-		clearCache : function() {
-			cache = {};
-		}
-
 	};
 
 	return Constructor;
@@ -253,7 +221,7 @@ Syntax.Stack = (function() {
 Syntax.Highlighter = (function() {
 
 	var output = [];
-
+	
 	function stripEmptyElements(array) {
 		var i = array.length,
 			element;
@@ -265,6 +233,18 @@ Syntax.Highlighter = (function() {
 				array.splice(i, 1);
 			}
 		}
+	}
+
+	function extractLines(array, start, stop) {
+		var extract = [];
+		start = start || 0;
+		stop  = stop  || array.length;
+
+		while (--stop >= start) {
+			extract.unshift(array[stop]);
+		}
+
+		return extract;
 	}
 
 	var Constructor = function(text, language) {
@@ -287,16 +267,18 @@ Syntax.Highlighter = (function() {
 
 	};
 
-	Constructor.prototype.highlight = function(text, startLine, stopLine) {
-		console.time('Highlighter')
-		
+	Constructor.prototype.highlight = function(originalText, startLine, stopLine) {
+
+		var text = _.clone(originalText);
+		extractLines(text, startLine, stopLine);
+
 		output = [];
 		this.Tokenizer.start(text.join(''));
 
 		stripEmptyElements(output);
+
 		this.Splitter.split(text, output);
 
-		console.timeEnd('Highlighter');
 		return output;
 	};
 

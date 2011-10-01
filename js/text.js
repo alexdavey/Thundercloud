@@ -1,10 +1,3 @@
-function split(text, pos) {
-	return {
-		left : text.slice(0, pos),
-		right : text.slice(pos)
-	};
-}
-
 var text = {
 
 	parse : function(text) {
@@ -63,13 +56,13 @@ var text = {
 		if (this.source[row] === undefined) {
 			this.addLine(row);
 		} else {
-			var parts = split(this.source[row], col);
+			var parts = _.splitText(this.source[row], col);
 			this.source[row] = parts.left + text + parts.right;
 		}
 	},
 
 	remove : function(items, row, col) {
-		var parts = split(this.source[row], col);
+		var parts = _.splitText(this.source[row], col);
 
 		if (items < 0) {
 			this.source[row] = parts.left + parts.right.slice(items * -1);

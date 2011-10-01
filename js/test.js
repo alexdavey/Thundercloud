@@ -19,7 +19,8 @@ var source =
 '        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>\n'+
 '        <script src="scripts/setup.js"></script>\n'+
 '    </body>\n'+
-'</html>';
+'</html>\n';
+
 
 Syntax.tokens = {
 
@@ -102,9 +103,10 @@ Syntax.triggers = {
 
 		singleQuote : function() {
 			if (this.states.last == 'singleQuotedString') {
-				this.states.push('text');
+				this.states.push(this.states.stateOf(1));
 			} else {
 				this.states.push('singleQuotedString');
+				return 'singleQuotedString';
 			}
 		},
 
@@ -123,7 +125,12 @@ Syntax.triggers = {
 
 };
 
-editor.init('#editor');
+editor.init('editor');
 text.parse(source);
-var Highlighter = new Syntax.Highlighter(text.source, 'html');
+
+var Highlighter = new Syntax.Highlighter(text.source, 'html'),
+	Cursor = new IDE.Cursor(0, 10),
+	Input = new IDE.Input(_.getId('editor'), _.getId('clipboard'));
+
+
 canvas.render(text.source);

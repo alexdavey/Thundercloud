@@ -1,71 +1,80 @@
-var ctrlDown = false,
-	textArea = $('#clipboard'),
-	mouseDown = false;
+IDE.Input = (function() {
 
-var input = {
-	
-	init : function(canvasEl) {
-		$.listen(canvasEl, 'mousedown', this.onMouseDown);
-		$.listen(canvasEl, 'mousemove', this.onMouseMove);
-		$.listen(canvasEl, 'mouseup', this.onMouseUp);
+	var ctrlDown = false,
+		mouseDown = false,
+		textArea;
 
-		$.listen('keypress', this.onKeyPress);
-		$.listen('keydown', this.onKeyDown);
-		$.listen('keyup', this.onKeyUp);
-	},
+	var Constructor = function(canvasEl, clipboardEl) {
+		textArea = clipboardEl;
 
-	onMouseDown : function(e) {
-		var mouse = $.mouse(e);
-		cursor.setPosition(mouse.x, mouse.y);
-		mouseDown = true;
+		_.listen(canvasEl, 'mousedown', this.onMouseDown);
+		_.listen(canvasEl, 'mousemove', this.onMouseMove);
+		_.listen(canvasEl, 'mouseup', this.onMouseUp);
 
-		selection.setStart();
-		selection.setEnd();
+		_.listen('keypress', this.onKeyPress);
+		_.listen('keydown', this.onKeyDown);
+		_.listen('keyup', this.onKeyUp);
+	};
 
-		canvas.render(text.source);
-	},
+	Constructor.prototype = {
+		
+		onMouseDown : function(e) {
+			var mouse = _.mouse(e);
+			Cursor.setPosition(mouse.x, mouse.y);
+			mouseDown = true;
 
-	onMouseMove : function(e) {
-		if (!mouseDown) return;
-		var mouse = $.mouse(e);
-		cursor.setPosition(mouse.x, mouse.y);
-		selection.setEnd();
-		canvas.render(text.source);
-	},
+			selection.setStart();
+			selection.setEnd();
 
-	onMouseUp : function(e) {
-		mouseDown = false;
-	},
-
-	onKeyDown : function(e) {
-		e = e || window.e;
-		var keyCode = e.keyCode,
-			passive = actions.passive;
-
-		if (keyCode in actions) {
-			e.preventDefault();
-			actions[keyCode]();
 			canvas.render(text.source);
-		} else if (keyCode in passive) {
-			passive[keyCode]();
+		},
+
+		onMouseMove : function(e) {
+			if (!mouseDown) return;
+			var mouse = _.mouse(e);
+			Cursor.setPosition(mouse.x, mouse.y);
+			selection.setEnd();
+			canvas.render(text.source);
+		},
+
+		onMouseUp : function(e) {
+			mouseDown = false;
+		},
+
+		onKeyDown : function(e) {
+			e = e || window.e;
+			var keyCode = e.keyCode,
+				passive = actions.passive;
+
+			if (keyCode in actions) {
+				e.preventDefault();
+				actions[keyCode]();
+				canvas.render(text.source);
+			} else if (keyCode in passive) {
+				passive[keyCode]();
+			}
+		},
+
+		onKeyUp : function(e) {
+			e = e || window.e;
+			if (e.keyCode == 17 || e.keyCode == 91) ctrlDown = false;
+		},
+
+		onKeyPress : function(e) {
+			e = e || window.e;
+			var character = String.fromCharCode(e.charCode);
+			e.preventDefault();
+			text.insert(character, Cursor.row, Cursor.col);
+			Cursor.shift('right');
+			canvas.render(text.source);
 		}
-	},
 
-	onKeyUp : function(e) {
-		e = e || window.e;
-		if (e.keyCode == 17 || e.keyCode == 91) ctrlDown = false;
-	},
+	};
 
-	onKeyPress : function(e) {
-		e = e || window.e;
-		var character = String.fromCharCode(e.charCode);
-		e.preventDefault();
-		text.insert(character, cursor.row, cursor.col);
-		cursor.shift('right');
-		canvas.render(text.source);
-	}
+	return Constructor;
 
-};
+
+})();
 
 var selection = {
 	
@@ -75,13 +84,13 @@ var selection = {
 	},
 
 	setStart : function() {
-		this.start.col = cursor.col;
-		this.start.row = cursor.row;
+		this.start.col = Cursor.col;
+		this.start.row = Cursor.row;
 	},
 
 	setEnd : function() {
-		this.end.col = cursor.col;
-		this.end.row = cursor.row;
+		this.end.col = Cursor.col;
+		this.end.row = Cursor.row;
 	},
 
 	normalize : function() {

@@ -1,11 +1,11 @@
 var editor = {
 
 	init : function(id, options) {
-		var canvasEl = $(id);
-		$.merge(this.options, options);
-
+		var canvasEl = _.getId(id);
+		_.defaults(options || {}, this.options);
+		
+		console.log(canvasEl);
 		canvas.init(canvasEl);
-		input.init(canvasEl);
 		this.options.charWidth = canvas.ctx.measureText('m').width;
 
 	},
@@ -15,8 +15,6 @@ var editor = {
 		width : window.innerWidth,
 		height : window.innerHeight,
 		font : 'Courier New, monospace',
-		// highlight : '#B4D5FE',
-		// highlight : '#FEF241',
 		highlight : 'rgb(64, 64, 64)',
 		scrollbar : '#BBBBBB',
 		tabSize : 4,
@@ -73,6 +71,8 @@ var canvas = {
 
 		this.drawMargin(y + 1);
 		this.drawCursor();
+
+		// this.drawScrollbar(y + 1, viewport.height);
 	},
 
 	drawText : function(tokens) {
@@ -83,8 +83,6 @@ var canvas = {
 			charWidth = options.charWidth,
 			padding = options.padding;
 
-
-		console.dir(tokens);
 		for (i = 0, l = tokens.length; i < l; ++i) {
 
 			token = tokens[i];
@@ -132,31 +130,52 @@ var canvas = {
 		}
 	},
 
-	drawScrollbar : function() {
+	drawScrollbar : function(numLines, currentLine, viewportSize) {
+		viewPortsize = viewportSize || 50;
 
+		var oldLineCap = this.ctx.lineCap,
+			height = (viewPortSize / numLines) * this.paper.height,
+			y = (this.paper.height / viewportSize) * numLines,
+			x = this.paper.width - 10;
+
+
+		this.ctx.lineCap = 'round';
+		this.ctx.strokeStyle = 'rgb(194, 194, 194)';
+		this.ctx.lineWidth = 10;
+
+		this.ctx.beginPath();
+
+		this.ctx.moveTo(x, y);
+		this.ctx.lineTo(x, y + height);
+
+		this.ctx.endPath();
+		this.ctx.strokePath();
+
+		this.ctx.lineCap = oldLineCap;
 	},
 
 	drawSelection : function() {
 		if (selection.isEmpty()) return;
 
 		var normal = selection.normalize(), start = normal.start, end = normal.end,
-			col2 = (start.row == end.row ? end.col : text.lineLength(start.row));
+			col2 = (start.row == end.row ? end.col : text.lineLength(start.row)),
+			ctx = this.ctx;
 
-		this.ctx.fillStyle = editor.options.highlight;
+		ctx.fillStyle = editor.options.highlight;
 		
-		highlightPart(this.ctx, start.row, start.col, col2);
+		highlightPart(ctx, start.row, start.col, col2);
 
 		if (start.row != end.row) {
 			var i = start.row;
 
 			while (++i < end.row) {
-				highlightLine(this.ctx, i);
+				highlightLine(ctx, i);
 			}
 
-			highlightPart(this.ctx, end.row, 0, end.col);
+			highlightPart(ctx, end.row, 0, end.col);
 		}
 
-		this.ctx.fillStyle = '#000000';
+		ctx.fillStyle = '#000000';
 	},
 
 	setFont : function(font, size) {
@@ -164,69 +183,80 @@ var canvas = {
 	},
 
 	drawCursor : function(x, y) {
-		var cursorPos = cursor.toPixels();
+		var cursorPos = Cursor.toPixels();
 		this.ctx.fillStyle = 'rgb(176, 208, 240)';
 		this.ctx.fillRect(cursorPos.x, cursorPos.y, 2, editor.options.fontSize);
 	}
 
 };
 
-var cursor = {
+IDE.Cursor = (function() {
 	
-	row : 0,
-	col : 10,
+	var Constructor = function(row, col) {
 
-	toPixels : function() {
-		var options = editor.options;
-		return {
-			x : this.col * options.charWidth + options.padding,
-			y : this.row * options.lineHeight
-		};
-	},
-
-	setPosition : function(x, y) {
-		var options = editor.options,
-			col = ~~((x - options.padding) / options.charWidth),
-			row = ~~(y / options.lineHeight),
-			textLength = text.source.length - 1,
-
-		row = (row > textLength ? textLength : row);
-
-		var lineLength = text.lineLength(row);
-
-		col = (col > lineLength ? lineLength : col);
-
-		this.col = col;
-		this.row = row;
-	},
-
-	shift : function(direction, magnitude) {
-		magnitude = magnitude || 1;
-		switch(direction) {
-			case 'right':
-				if (this.col < text.lineLength(this.row))
-					this.col += magnitude;
-					break;
-			case 'left':
-				if (this.col > 0)
-					this.col -= magnitude;
-				break;
-			case 'down':
-				if (this.row < text.source.length) {
-					var length = text.lineLength(this.row + 1);
-					if (length == -1) return;
-					if (this.col > length) this.col = length;
-					this.row += magnitude;
-				}
-				break;
-			case 'up':
-				if (this.row > 0) {
-					var length = text.lineLength(this.row - 1);
-					if (this.col > length) this.col = length;
-					this.row -= magnitude;
-				}
+		if (!this instanceof IDE.Cursor) {
+			return new IDE.Cursor(row, col);
 		}
-	}
 
-};
+		this.row = row;
+		this.col = col;
+	};
 
+	Constructor.prototype = {
+		
+		toPixels : function() {
+			var options = editor.options;
+			return {
+				x : this.col * options.charWidth + options.padding,
+				y : this.row * options.lineHeight
+			};
+		},
+
+		setPosition : function(x, y) {
+			var options = editor.options,
+				col = ~~((x - options.padding) / options.charWidth),
+				row = ~~(y / options.lineHeight),
+				textLength = text.source.length - 1,
+
+			row = (row > textLength ? textLength : row);
+
+			var lineLength = text.lineLength(row);
+
+			col = (col > lineLength ? lineLength : col);
+
+			this.col = col;
+			this.row = row;
+		},
+
+		shift : function(direction, magnitude) {
+			magnitude = magnitude || 1;
+			switch(direction) {
+				case 'right':
+					if (this.col < text.lineLength(this.row))
+						this.col += magnitude;
+						break;
+				case 'left':
+					if (this.col > 0)
+						this.col -= magnitude;
+					break;
+				case 'down':
+					if (this.row < text.source.length) {
+						var length = text.lineLength(this.row + 1);
+						if (length == -1) return;
+						if (this.col > length) this.col = length;
+						this.row += magnitude;
+					}
+					break;
+				case 'up':
+					if (this.row > 0) {
+						var length = text.lineLength(this.row - 1);
+						if (this.col > length) this.col = length;
+						this.row -= magnitude;
+					}
+			}
+		}
+	};
+
+	return Constructor;
+
+})();
