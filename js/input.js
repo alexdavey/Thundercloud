@@ -4,7 +4,7 @@ IDE.Input = (function() {
 		mouseDown = false,
 		textArea;
 
-	var Constructor = function(canvasEl, clipboardEl) {
+	var Input = function(canvasEl, clipboardEl) {
 		textArea = clipboardEl;
 
 		_.listen(canvasEl, 'mousedown', this.onMouseDown);
@@ -16,7 +16,7 @@ IDE.Input = (function() {
 		_.listen('keyup', this.onKeyUp);
 	};
 
-	Constructor.prototype = {
+	Input.prototype = {
 		
 		onMouseDown : function(e) {
 			var mouse = _.mouse(e);
@@ -26,7 +26,7 @@ IDE.Input = (function() {
 			selection.setStart();
 			selection.setEnd();
 
-			canvas.render(text.source);
+			Canvas.render(Text.source);
 		},
 
 		onMouseMove : function(e) {
@@ -34,7 +34,7 @@ IDE.Input = (function() {
 			var mouse = _.mouse(e);
 			Cursor.setPosition(mouse.x, mouse.y);
 			selection.setEnd();
-			canvas.render(text.source);
+			Canvas.render(Text.source);
 		},
 
 		onMouseUp : function(e) {
@@ -49,7 +49,7 @@ IDE.Input = (function() {
 			if (keyCode in actions) {
 				e.preventDefault();
 				actions[keyCode]();
-				canvas.render(text.source);
+				Canvas.render(Text.source);
 			} else if (keyCode in passive) {
 				passive[keyCode]();
 			}
@@ -64,14 +64,14 @@ IDE.Input = (function() {
 			e = e || window.e;
 			var character = String.fromCharCode(e.charCode);
 			e.preventDefault();
-			text.insert(character, Cursor.row, Cursor.col);
+			Text.insert(character, Cursor.row, Cursor.col);
 			Cursor.shift('right');
-			canvas.render(text.source);
+			Canvas.render(Text.source);
 		}
 
 	};
 
-	return Constructor;
+	return Input;
 
 
 })();

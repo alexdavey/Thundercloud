@@ -4,7 +4,7 @@ Syntax.LineSplitter = (function() {
 
 	function joinedLength(array, equalTo, startElement, startPosition) {
 
-		startElement = startElement || 0;
+		startElement  = startElement  || 0;
 		startPosition = startPosition || 0;
 
 		var element,
@@ -32,9 +32,9 @@ Syntax.LineSplitter = (function() {
 		array.splice(i, 0, null, clone);
 	}
 
-	var Constructor = function() { };
+	var Splitter = function() { };
 
-	Constructor.prototype = {
+	Splitter.prototype = {
 		
 		split : function(original, text, index, lineNumber) {
 			var length = text.length + 2 * (original.length - 4),
@@ -55,7 +55,7 @@ Syntax.LineSplitter = (function() {
 
 	};
 
-	return Constructor;
+	return Splitter;
 
 })();
 
@@ -64,15 +64,15 @@ Syntax.Colorizer = (function() {
 	var callback;
 
 	var Constructor = function(fn) {
-		callback = fn;
+		// callback = fn;
 	};
 
 	Constructor.prototype.colorize = function(token) {
-			var color = _.computedCSS(token.type);
-			callback({
-				value : token.value,
-				color : (color == 'rgb(0, 0, 0)' ? _.computedCSS('text') : color)
-			});
+		var color = _.computedCSS(token.type);
+		return({
+			value : token.value,
+			color : (color == 'rgb(0, 0, 0)' ? _.computedCSS('text') : color)
+		});
 	};
 
 	return Constructor;
@@ -87,7 +87,7 @@ Syntax.Parser = (function() {
 		
 		that = this;
 		rules = rule;
-		callback = callbacks;
+		// callback = callbacks;
 
 		this.states = (function() {
 			var index = 0;
@@ -117,9 +117,8 @@ Syntax.Parser = (function() {
 	};
 
 	Constructor.prototype.parse = function(token) {
-
 		var type = (token.type in rules ? rules[token.type].call(that) : 'text');
-		callback({ 
+		return({ 
 			type : type || undefined,
 			value : token.value
 		});
@@ -249,27 +248,23 @@ Syntax.Highlighter = (function() {
 
 	var Constructor = function(text, language) {
 
-		if (!this instanceof Syntax.Highlighter) {
-			return new Syntax.Highlighter(text, language);
-		}
-
-		this.textString = text.join('');
-		this.textArray = text;
-
-		this.output = output;
-
 		this.callback  = function(token) { output.push(token) };
 
-		this.Colorizer = new Syntax.Colorizer(this.callback);
+		this.Colorizer = new Syntax.Colorizer();
 		this.Splitter  = new Syntax.LineSplitter();
-		this.Parser    = new Syntax.Parser(Syntax.triggers[language], this.Colorizer.colorize);
-		this.Tokenizer = new Syntax.Tokenizer(Syntax.tokens[language], this.Parser.parse);
+		this.Parser    = new Syntax.Parser(Syntax.triggers[language]);
+
+		this.stack = _.compose(this.callback, this.Colorizer.colorize, this.Parser.parse);
+
+		this.Tokenizer = new Syntax.Tokenizer(Syntax.tokens[language], this.stack);
+
 
 	};
 
 	Constructor.prototype.highlight = function(originalText, startLine, stopLine) {
 
 		var text = _.clone(originalText);
+
 		extractLines(text, startLine, stopLine);
 
 		output = [];

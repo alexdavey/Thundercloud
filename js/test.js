@@ -125,12 +125,14 @@ Syntax.triggers = {
 
 };
 
-editor.init('editor');
-text.parse(source);
+var editorEl = _.getId('editor'),
+	clipboardEl = _.getId('clipboard');
 
-var Highlighter = new Syntax.Highlighter(text.source, 'html'),
+var Text = new IDE.Text(source),
+	Highlighter = new Syntax.Highlighter(Text.source, 'html'),
 	Cursor = new IDE.Cursor(0, 10),
-	Input = new IDE.Input(_.getId('editor'), _.getId('clipboard'));
+	Input = new IDE.Input(editorEl, clipboardEl),
+	Editor = new IDE.Editor(editorEl),
+	Canvas = new IDE.Canvas(editorEl, Editor.options);
 
-
-canvas.render(text.source);
+Canvas.render(Text.source);

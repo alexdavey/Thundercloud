@@ -1,16 +1,11 @@
-var editor = {
-
-	init : function(id, options) {
-		var canvasEl = _.getId(id);
+IDE.Editor = (function() {
+	
+	var Editor = function(canvasEl, options) {
 		_.defaults(options || {}, this.options);
-		
-		console.log(canvasEl);
-		canvas.init(canvasEl);
-		this.options.charWidth = canvas.ctx.measureText('m').width;
+		this.options.charWidth = canvasEl.getContext('2d').measureText('m').width;
+	};
 
-	},
-
-	options : {
+	Editor.prototype.options = {
 		padding : 35,
 		width : window.innerWidth,
 		height : window.innerHeight,
@@ -20,175 +15,179 @@ var editor = {
 		tabSize : 4,
 		fontSize : 14,
 		lineHeight : 14
+	};
+
+	return Editor;
+
+})();
+
+IDE.Canvas = (function() {
+
+	var options, paper, ctx;
+
+	function highlightLine(ctx, row) {
+		var lineHeight = options.lineHeight;
+		ctx.fillRect(options.padding, row * lineHeight, 
+				Text.lineLength(row) * options.charWidth, lineHeight);
 	}
 
-};
+	function highlightPart(ctx, row, col1, col2) {
+		var charWidth = options.charWidth,
+			difference = (col1 - col2) * -1;
 
-function highlightLine(ctx, row) {
-	var options = editor.options, lineHeight = options.lineHeight;
-	ctx.fillRect(options.padding, row * lineHeight, 
-			text.lineLength(row) * options.charWidth, lineHeight);
-}
+		ctx.fillRect(options.padding + charWidth * col1, row * options.lineHeight, 
+				difference * charWidth, options.lineHeight);
+	}
 
-function highlightPart(ctx, row, col1, col2) {
-	var options = editor.options,
-		charWidth = options.charWidth,
-		difference = (col1 - col2) * -1;
+	var Canvas = function(canvasEl, optionsObj) {
 
-	ctx.fillRect(options.padding + charWidth * col1, row * options.lineHeight, 
-			difference * charWidth, options.lineHeight);
-}
+		options = optionsObj;
 
-var canvas = {
+		paper = this.paper = canvasEl;
+		ctx   = this.ctx   = this.paper.getContext('2d');
 
-	init : function(canvas) {
-
-		var options = editor.options;
-
-		this.paper = canvas;
-		this.ctx = this.paper.getContext('2d');
-
-		this.paper.width  = options.width;
-		this.paper.height = options.height;
+		paper.width  = options.width;
+		paper.height = options.height;
 		
 		this.setFont(options.font, options.fontSize);
-	},
+	};
 
-	clear : function() {
-		var paper = this.paper;
-		this.ctx.fillStyle = 'rgb(21, 21, 21)';
-		this.ctx.fillRect(0, 0, paper.width, paper.height);
-		// this.ctx.clearRect(0, 0, paper.width, paper.height);
-	},
+	Canvas.prototype = {
 
-	render : function(source) {
-		var text = Highlighter.highlight(source);
+		clear : function() {
+			this.ctx.fillStyle = 'rgb(21, 21, 21)';
+			ctx.fillRect(0, 0, paper.width, paper.height);
+			// ctx.clearRect(0, 0, paper.width, paper.height);
+		},
 
-		this.clear();
-		this.drawSelection();
+		render : function(source) {
+			var text = Highlighter.highlight(source);
 
-		var y = this.drawText(text);
+			this.clear();
+			this.drawSelection();
 
-		this.drawMargin(y + 1);
-		this.drawCursor();
+			var y = this.drawText(text);
 
-		// this.drawScrollbar(y + 1, viewport.height);
-	},
+			this.drawMargin(y + 1);
+			this.drawCursor();
 
-	drawText : function(tokens) {
-		var token, i, ctx = this.ctx, y = 0, x = 0, value;
+			// this.drawScrollbar(y + 1, viewport.height);
+		},
 
-		var options = editor.options,
-			lineHeight = options.lineHeight,
-			charWidth = options.charWidth,
-			padding = options.padding;
+		drawText : function(tokens) {
+			var token, i, y = 0, x = 0, value;
 
-		for (i = 0, l = tokens.length; i < l; ++i) {
+			var lineHeight = options.lineHeight,
+				charWidth = options.charWidth,
+				padding = options.padding;
 
-			token = tokens[i];
+			for (i = 0, l = tokens.length; i < l; ++i) {
 
-			// Null tokens represent newlines
-			if (token === null) {
-				y += 1;
-				x = 0;
-			} else {
+				token = tokens[i];
 
-				value = token.value;
+				// Null tokens represent newlines
+				if (token === null) {
+					y += 1;
+					x = 0;
+				} else {
 
-				ctx.fillStyle = token.color;
-				ctx.fillText(value, x * charWidth + padding, y * lineHeight + 10);
+					value = token.value;
 
-				x += value.length;
+					ctx.fillStyle = token.color;
+					ctx.fillText(value, x * charWidth + padding, y * lineHeight + 10);
+
+					x += value.length;
+				}
+
 			}
 
-		}
+			return y;
+		},
 
-		return y;
-	},
+		drawMargin : function(line) {
+			var padding = options.padding,
+				lineHeight = options.lineHeight;
 
-	drawMargin : function(line) {
-		var ctx = this.ctx,
-			options = editor.options,
-			padding = options.padding,
-			lineHeight = options.lineHeight;
+			var grad = ctx.createLinearGradient(0, 0, padding, 0);
+			grad.addColorStop(0, '#B4B4B4');
+			grad.addColorStop(0.4, '#F7F7F7');
 
-		var grad = this.ctx.createLinearGradient(0, 0, padding, 0);
-		grad.addColorStop(0, '#B4B4B4');
-		grad.addColorStop(0.4, '#F7F7F7');
+			ctx.fillStyle = grad;
+			ctx.fillRect(0, 0, padding - 7, paper.height);
+			ctx.fillStyle = '#C3BBB5';
 
-		ctx.fillStyle = grad;
-		ctx.fillRect(0, 0, padding - 7, this.paper.height);
-		ctx.fillStyle = '#C3BBB5';
+			ctx.fillRect(padding - 7, 0, 1, paper.height);
 
-		ctx.fillRect(padding - 7, 0, 1, this.paper.height);
+			ctx.fillStyle = '#000000';
 
-		ctx.fillStyle = '#000000';
+			while (line--) {
+				var y = line * lineHeight + 10;
+				ctx.fillText(line + 1, padding / 3, y);
+			}
+		},
 
-		while (line--) {
-			var y = line * lineHeight + 10;
-			ctx.fillText(line + 1, padding / 3, y);
-		}
-	},
+		drawScrollbar : function(numLines, currentLine, viewportSize) {
+			viewPortsize = viewportSize || 50;
 
-	drawScrollbar : function(numLines, currentLine, viewportSize) {
-		viewPortsize = viewportSize || 50;
-
-		var oldLineCap = this.ctx.lineCap,
-			height = (viewPortSize / numLines) * this.paper.height,
-			y = (this.paper.height / viewportSize) * numLines,
-			x = this.paper.width - 10;
+			var oldLineCap = ctx.lineCap,
+				height = (viewPortSize / numLines) * paper.height,
+				y = (paper.height / viewportSize) * numLines,
+				x = paper.width - 10;
 
 
-		this.ctx.lineCap = 'round';
-		this.ctx.strokeStyle = 'rgb(194, 194, 194)';
-		this.ctx.lineWidth = 10;
+			ctx.lineCap = 'round';
+			ctx.strokeStyle = 'rgb(194, 194, 194)';
+			ctx.lineWidth = 10;
 
-		this.ctx.beginPath();
+			ctx.beginPath();
 
-		this.ctx.moveTo(x, y);
-		this.ctx.lineTo(x, y + height);
+			ctx.moveTo(x, y);
+			ctx.lineTo(x, y + height);
 
-		this.ctx.endPath();
-		this.ctx.strokePath();
+			ctx.endPath();
+			ctx.strokePath();
 
-		this.ctx.lineCap = oldLineCap;
-	},
+			ctx.lineCap = oldLineCap;
+		},
 
-	drawSelection : function() {
-		if (selection.isEmpty()) return;
+		drawSelection : function() {
+			if (selection.isEmpty()) return;
 
-		var normal = selection.normalize(), start = normal.start, end = normal.end,
-			col2 = (start.row == end.row ? end.col : text.lineLength(start.row)),
-			ctx = this.ctx;
+			var normal = selection.normalize(), start = normal.start, end = normal.end,
+				col2 = (start.row == end.row ? end.col : Text.lineLength(start.row));
 
-		ctx.fillStyle = editor.options.highlight;
-		
-		highlightPart(ctx, start.row, start.col, col2);
+			ctx.fillStyle = Editor.options.highlight;
+			
+			highlightPart(ctx, start.row, start.col, col2);
 
-		if (start.row != end.row) {
-			var i = start.row;
+			if (start.row != end.row) {
+				var i = start.row;
 
-			while (++i < end.row) {
-				highlightLine(ctx, i);
+				while (++i < end.row) {
+					highlightLine(ctx, i);
+				}
+
+				highlightPart(ctx, end.row, 0, end.col);
 			}
 
-			highlightPart(ctx, end.row, 0, end.col);
+			ctx.fillStyle = '#000000';
+		},
+
+		setFont : function(font, size) {
+			ctx.font = size + 'px ' + font;
+		},
+
+		drawCursor : function(x, y) {
+			var cursorPos = Cursor.toPixels();
+			ctx.fillStyle = 'rgb(176, 208, 240)';
+			ctx.fillRect(cursorPos.x, cursorPos.y, 2, Editor.options.fontSize);
 		}
 
-		ctx.fillStyle = '#000000';
-	},
+	};
 
-	setFont : function(font, size) {
-		this.ctx.font = size + 'px ' + font;
-	},
+	return Canvas;
 
-	drawCursor : function(x, y) {
-		var cursorPos = Cursor.toPixels();
-		this.ctx.fillStyle = 'rgb(176, 208, 240)';
-		this.ctx.fillRect(cursorPos.x, cursorPos.y, 2, editor.options.fontSize);
-	}
-
-};
+})();
 
 IDE.Cursor = (function() {
 	
@@ -205,7 +204,7 @@ IDE.Cursor = (function() {
 	Constructor.prototype = {
 		
 		toPixels : function() {
-			var options = editor.options;
+			var options = Editor.options;
 			return {
 				x : this.col * options.charWidth + options.padding,
 				y : this.row * options.lineHeight
@@ -213,14 +212,14 @@ IDE.Cursor = (function() {
 		},
 
 		setPosition : function(x, y) {
-			var options = editor.options,
+			var options = Editor.options,
 				col = ~~((x - options.padding) / options.charWidth),
 				row = ~~(y / options.lineHeight),
-				textLength = text.source.length - 1,
+				textLength = Text.source.length - 1,
 
 			row = (row > textLength ? textLength : row);
 
-			var lineLength = text.lineLength(row);
+			var lineLength = Text.lineLength(row);
 
 			col = (col > lineLength ? lineLength : col);
 
@@ -232,7 +231,7 @@ IDE.Cursor = (function() {
 			magnitude = magnitude || 1;
 			switch(direction) {
 				case 'right':
-					if (this.col < text.lineLength(this.row))
+					if (this.col < Text.lineLength(this.row))
 						this.col += magnitude;
 						break;
 				case 'left':
@@ -240,8 +239,8 @@ IDE.Cursor = (function() {
 						this.col -= magnitude;
 					break;
 				case 'down':
-					if (this.row < text.source.length) {
-						var length = text.lineLength(this.row + 1);
+					if (this.row < Text.source.length) {
+						var length = Text.lineLength(this.row + 1);
 						if (length == -1) return;
 						if (this.col > length) this.col = length;
 						this.row += magnitude;
@@ -249,7 +248,7 @@ IDE.Cursor = (function() {
 					break;
 				case 'up':
 					if (this.row > 0) {
-						var length = text.lineLength(this.row - 1);
+						var length = Text.lineLength(this.row - 1);
 						if (this.col > length) this.col = length;
 						this.row -= magnitude;
 					}
