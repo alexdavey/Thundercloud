@@ -116,29 +116,6 @@ Syntax.Tokenizer = (function() {
 	
 })();
 
-Syntax.Stack = (function() {
-	
-	var stack = [], i;
-
-	var callback = function(text) {
-		stack[++i](text, stack[i + 1]);
-	};
-
-	var Constructor = function(iterators, callback) {
-		iterators.push(callback);
-		stack = iterators;
-		this.firstIterator = stack.shift();
-		i = 0;
-	};
-
-	Constructor.prototype.start = function(text) {
-		this.firstIterator(text, stack[i]);
-	};
-
-	return Constructor;
-
-})();
-
 Syntax.Highlighter = (function() {
 
 	var output = [];
