@@ -69,10 +69,10 @@ Syntax.Colorizer = (function() {
 
 	Constructor.prototype.colorize = function(token) {
 		var color = _.computedCSS(token.type);
-		return({
+		return {
 			value : token.value,
 			color : (color == 'rgb(0, 0, 0)' ? _.computedCSS('text') : color)
-		});
+		};
 	};
 
 	return Constructor;
@@ -94,10 +94,10 @@ Syntax.Parser = (function() {
 	Constructor.prototype.parse = function(token) {
 		var type = (token.type in rules ? rules[token.type](states) : 'text');
 
-		return({ 
+		return { 
 			type : type || undefined,
 			value : token.value
-		});
+		};
 
 	};
 

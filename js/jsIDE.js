@@ -40,6 +40,10 @@ IDE.Canvas = (function() {
 				difference * charWidth, options.lineHeight);
 	}
 
+	function addPadding(number, charWidth) {
+		return (~~(Math.log(number) / Math.LN10) + 2) * charWidth;
+	}
+
 	var Canvas = function(canvasEl, optionsObj) {
 
 		options = optionsObj;
@@ -122,8 +126,10 @@ IDE.Canvas = (function() {
 			ctx.fillStyle = '#000000';
 
 			while (line--) {
-				var y = line * lineHeight + 10;
-				ctx.fillText(line + 1, padding / 3, y);
+				var y = line * lineHeight + 10,
+					num = line + viewport.startRow + 1,
+					x = padding - addPadding(num, options.charWidth);
+				ctx.fillText(num, x, y);
 			}
 
 		},

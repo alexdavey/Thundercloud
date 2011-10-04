@@ -17,7 +17,6 @@ var viewport = {
 			this.endRow = Text.source.length;
 			this.startRow = Text.source.length - this.height;
 		}
-		console.log(this.startRow, this.endRow);
 	}
 
 };
