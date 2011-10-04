@@ -1,73 +1,13 @@
 var Syntax = {};
 
-Syntax.LineSplitter = (function() {
-
-	function joinedLength(array, equalTo, startElement, startPosition) {
-
-		startElement  = startElement  || 0;
-		startPosition = startPosition || 0;
-
-		var element,
-			firstElement = array[startElement],
-			length = (firstElement === null ? 0 : firstElement.length) - startPosition || 0;
-
-		while (length < equalTo) {
-			element = array[++startElement]
-			length += (element === null ? 0 : element.value.length);
-		}
-
-		return {
-			index : startElement,
-			position : length - equalTo
-		}
-
-	}
-
-	function splitAt(array, i, position) {
-		var text  = _.splitText(array[i].value, position),
-			clone = _.clone(array[i]);
-		array[i].value = text.left;
-		clone.value = text.right;
-
-		array.splice(i, 0, null, clone);
-	}
-
-	var Splitter = function() { };
-
-	Splitter.prototype = {
-		
-		split : function(original, text, index, lineNumber) {
-			var length = text.length + 2 * (original.length - 4),
-				position = 0, lineNumber = lineNumber || 0, cutoff;
-
-			for (var i = index || 0; i < length; ++i) {
-
-				cutoff = joinedLength(text, original[lineNumber].length, i, position);
-
-				i = cutoff.index;
-				position = cutoff.position;
-				splitAt(text, cutoff.index, cutoff.position);
-
-				++position;
-				++lineNumber;
-			}
-		}
-
-	};
-
-	return Splitter;
-
-})();
-
 Syntax.Colorizer = (function() {
 
 	var callback;
 
-	var Constructor = function(fn) {
-		// callback = fn;
-	};
+	var Constructor = function(fn) { };
 
 	Constructor.prototype.colorize = function(token) {
+		if (token === null) return null;
 		var color = _.computedCSS(token.type);
 		return {
 			value : token.value,
@@ -92,6 +32,7 @@ Syntax.Parser = (function() {
 	};
 
 	Constructor.prototype.parse = function(token) {
+		if (token === null) return null;
 		var type = (token.type in rules ? rules[token.type](states) : 'text');
 
 		return { 
@@ -135,33 +76,38 @@ Syntax.Tokenizer = (function() {
 
 	Constructor.prototype.start = function(text) {
 
-		var i = 0, match, length = text.length, token = '';
+		var match, token = '';
+		for (var j = 0, l = text.length; j < l; ++j) {
 
-		while (i < length) {
-			token += text.charAt(i);
+			line = text[j];
 
-			match = matchesToken(token);
-			if (match) {
+			for (var i = 0, m = line.length; i < m; ++i) {
 
-				// If there is a text preceding the token, send it first
-				if (match.remainder.length > 0) {
-					callback({ 
-						type : 'text',
-						value : match.remainder
+				token += line.charAt(i);
+
+				match = matchesToken(token);
+				if (match) {
+
+					// If there is a text preceding the token, send it first
+					if (match.remainder.length > 0) {
+						callback({ 
+							type : 'text',
+							value : match.remainder
+						});
+
+					}
+
+					// Send the token
+					callback({
+						type : match.type,
+						value : match.value
 					});
 
+					token = '';
 				}
-
-				// Send the token
-				callback({
-					type : match.type,
-					value : match.value
-				});
-
-				token = '';
 			}
 
-			i++;
+			callback(null);
 		}
 
 	};
@@ -197,19 +143,6 @@ Syntax.Highlighter = (function() {
 
 	var output = [];
 	
-	function stripEmptyElements(array) {
-		var i = array.length,
-			element;
-
-
-		while (i--) {
-			element = array[i];
-			if (element === null || element.value == '') {
-				array.splice(i, 1);
-			}
-		}
-	}
-
 	function extractLines(array, start, stop) {
 		var extract = [];
 		start = start || 0;
@@ -224,10 +157,8 @@ Syntax.Highlighter = (function() {
 
 	var Constructor = function(text, language) {
 
-		this.callback  = function(token) { output.push(token) };
-
+		this.callback  = function(token) { if (token === null) console.log('A null!'); output.push(token) };
 		this.Colorizer = new Syntax.Colorizer();
-		this.Splitter  = new Syntax.LineSplitter();
 		this.Parser    = new Syntax.Parser(Syntax.triggers[language]);
 
 		this.stack = _.compose(this.callback, this.Colorizer.colorize, this.Parser.parse);
@@ -241,15 +172,11 @@ Syntax.Highlighter = (function() {
 
 		var text = _.clone(originalText);
 
-		extractLines(text, startLine, stopLine);
+		// extractLines(text, startLine, stopLine);
 
 		output = [];
 		this.Parser.clearStates();
-		this.Tokenizer.start(text.join(''));
-
-		stripEmptyElements(output);
-
-		this.Splitter.split(text, output);
+		this.Tokenizer.start(text);
 
 		return output;
 	};

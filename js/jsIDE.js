@@ -145,8 +145,6 @@ IDE.Canvas = (function() {
 				y = (paper.height / textLength) * viewport.startRow + 8,
 				x = paper.width - 8;
 		
-			console.log(y);
-
 			ctx.lineCap = 'round';
 			ctx.strokeStyle = 'rgba(181, 181, 181, 0.5)';
 			ctx.lineWidth = 8;
@@ -191,7 +189,7 @@ IDE.Canvas = (function() {
 		drawCursor : function(x, y) {
 			var cursorPos = Cursor.toPixels();
 			ctx.fillStyle = 'rgb(176, 208, 240)';
-			ctx.fillRect(cursorPos.x, cursorPos.y, 2, Editor.options.fontSize);
+			ctx.fillRect(cursorPos.x, cursorPos.y, 2, options.fontSize);
 		}
 
 	};
