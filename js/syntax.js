@@ -81,43 +81,19 @@ Syntax.Colorizer = (function() {
 
 Syntax.Parser = (function() {
 
-	var that, rules, callback;
+	var rules, states = [];
 
 	var Constructor = function(rule, callbacks) {
-		
-		that = this;
 		rules = rule;
-		// callback = callbacks;
+	};
 
-		this.states = (function() {
-			var index = 0;
-			
-			return {
-
-				push : function(state) {
-					this[++index] = state;
-				},
-				
-				length : function() {
-					return index + 1;
-				},
-				
-				last : function() {
-					return this[index];
-				},
-
-				stateOf : function(num) {
-					return this[index - num];
-				}
-
-			};
-
-		})();
-		
+	Constructor.prototype.clearStates = function() {
+		states = [];
 	};
 
 	Constructor.prototype.parse = function(token) {
-		var type = (token.type in rules ? rules[token.type].call(that) : 'text');
+		var type = (token.type in rules ? rules[token.type](states) : 'text');
+
 		return({ 
 			type : type || undefined,
 			value : token.value
@@ -268,6 +244,7 @@ Syntax.Highlighter = (function() {
 		extractLines(text, startLine, stopLine);
 
 		output = [];
+		this.Parser.clearStates();
 		this.Tokenizer.start(text.join(''));
 
 		stripEmptyElements(output);

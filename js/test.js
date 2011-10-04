@@ -45,81 +45,84 @@ Syntax.triggers = {
 
 	html : {
 		
-		openTag : function() {
-			if (this.states.last() == 'singleQuotedString') {
+		openTag : function(states) {
+			if (_.last(states) == 'singleQuotedString') {
 				return 'singleQuotedString';
-			} else if (this.states.last() == 'doubleQuotedString') {
+			} else if (_.last(states) == 'doubleQuotedString') {
 				return 'doubleQuotedString';
 			}
-			this.states.push('tagBody');
+			states.push('tagBody');
 			return 'openTag';
 		},
 
-		closeTag : function() {
-			if (this.states.last() == 'singleQuotedString') {
+		closeTag : function(states) {
+			if (_.last(states) == 'singleQuotedString') {
 				return 'singleQuotedString';
-			} else if (this.states.last() == 'doubleQuotedString') {
+			} else if (_.last(states) == 'doubleQuotedString') {
 				return 'doubleQuotedString';
 			}
-			this.states.push('text');
+			states.push('text');
 			return 'closeTag';
 		},
 
-		text : function() {
-			if (this.states.last() == 'tagBody') {
-				this.states.push('attribute');
+		text : function(states) {
+			var last = _.last(states);
+			if (last == 'tagBody') {
+				states.push('attribute');
 				return 'tagBody';
-			} else if (this.states.last() == 'attribute') {
+			} else if (last == 'attribute') {
 				return 'attribute';
-			} else if (this.states.last() == 'doubleQuotedString') {
+			} else if (last == 'doubleQuotedString') {
 				return 'doubleQuotedString';
-			} else if (this.states.last() == 'singleQuotedString') {
+			} else if (last == 'singleQuotedString') {
 				return 'singleQuotedString';
 			}
 		},
 
-		commentStart : function() {
-			if (this.states.last() == 'singleQuotedString') {
+		commentStart : function(states) {
+			var last = _.last(states);
+			if (last == 'singleQuotedString') {
 				return 'singleQuotedString';
-			} else if (this.states.last() == 'doubleQuotedString') {
+			} else if (last == 'doubleQuotedString') {
 				return 'doubleQuotedString';
 			} else {
-				this.states.push('comment');
+				states.push('comment');
 				return 'comment';
 			}
 		},
 
-		commentEnd : function() {
-			if (this.states.last() == 'doubleQuotedString') {
+		commentEnd : function(states) {
+			var last = _.last(states);
+			if (last == 'doubleQuotedString') {
 				return 'doubleQuotedString';
-			} else if (this.states.last() == 'singleQuotedString') {
-				this.states.push('singleQuotedString');
+			} else if (last == 'singleQuotedString') {
+				states.push('singleQuotedString');
 				return 'singleQuotedString';
-			} else if (this.states.last() == 'comment') {
-				this.states.push('text');
+			} else if (last == 'comment') {
+				states.push('text');
 				return 'comment';
 			}
 		},
 
-		singleQuote : function() {
-			if (this.states.last == 'singleQuotedString') {
-				this.states.push(this.states.stateOf(1));
+		singleQuote : function(states) {
+			if (_.last(states) == 'singleQuotedString') {
+				states.push(_.atIndex(states, 1));
 			} else {
-				this.states.push('singleQuotedString');
+				states.push('singleQuotedString');
 				return 'singleQuotedString';
 			}
 		},
 
-		doubleQuote : function() {
-			if (this.states.last() == 'doubleQuotedString') {
-				this.states.push(this.states.stateOf(1));
+		doubleQuote : function(states) {
+			if (_.last(states) == 'doubleQuotedString') {
+				states.push(_.atIndex(states, 1));
 				return 'doubleQuotedString';
-			} else if (this.states.stateOf(1) == 'backslash') {
-				return 'doubleQuotedString';
-			} else {
-				this.states.push('doubleQuotedString');
+			} else if (_.atIndex(states, 1) == 'backslash') {
 				return 'doubleQuotedString';
 			}
+
+			states.push('doubleQuotedString');
+			return 'doubleQuotedString';
 		}
 	}
 

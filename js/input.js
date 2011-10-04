@@ -14,6 +14,9 @@ IDE.Input = (function() {
 		_.listen('keypress', this.onKeyPress);
 		_.listen('keydown', this.onKeyDown);
 		_.listen('keyup', this.onKeyUp);
+
+		_.listen('DOMMouseScroll', this.onScrollFF);
+		_.listen('mousewheel', this.onScroll);
 	};
 
 	Input.prototype = {
@@ -66,6 +69,19 @@ IDE.Input = (function() {
 			e.preventDefault();
 			Text.insert(character, Cursor.row, Cursor.col);
 			Cursor.shift('right');
+			Canvas.render(Text.source);
+		},
+
+		onScrollFF : function(e) {
+			e.preventDefault();
+			viewport.shift(e.detail);
+			Canvas.render(~~(Text.source / Editor.options.mouseSensitivity));
+		},
+
+		onScroll : function(e) {
+			e = e || window.e;
+			e.preventDefault();
+			viewport.shift(~~(-e.wheelDelta / Editor.options.mouseSensitivity));
 			Canvas.render(Text.source);
 		}
 

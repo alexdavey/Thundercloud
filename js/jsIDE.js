@@ -14,7 +14,8 @@ IDE.Editor = (function() {
 		scrollbar : '#BBBBBB',
 		tabSize : 4,
 		fontSize : 14,
-		lineHeight : 14
+		lineHeight : 14,
+		mouseSensitivity : 3
 	};
 
 	return Editor;
@@ -71,11 +72,11 @@ IDE.Canvas = (function() {
 			this.drawMargin(y + 1);
 			this.drawCursor();
 
-			// this.drawScrollbar(y + 1, viewport.height);
+			this.drawScrollbar(y + 1, viewport.startRow);
 		},
 
 		drawText : function(tokens) {
-			var token, i, y = 0, x = 0, value;
+			var token, i, y = -viewport.startRow, x = 0, value;
 
 			var lineHeight = options.lineHeight,
 				charWidth = options.charWidth,
@@ -124,28 +125,30 @@ IDE.Canvas = (function() {
 				var y = line * lineHeight + 10;
 				ctx.fillText(line + 1, padding / 3, y);
 			}
+
 		},
 
 		drawScrollbar : function(numLines, currentLine, viewportSize) {
-			viewPortsize = viewportSize || 50;
+			viewportSize = viewportSize || 50;
+
+			if (currentLine == 0) return;
 
 			var oldLineCap = ctx.lineCap,
-				height = (viewPortSize / numLines) * paper.height,
-				y = (paper.height / viewportSize) * numLines,
-				x = paper.width - 10;
+				height = (viewportSize / numLines) * paper.height,
+				y = options.lineHeight * currentLine + 8,
+				x = paper.width - 8;
 
 
 			ctx.lineCap = 'round';
-			ctx.strokeStyle = 'rgb(194, 194, 194)';
-			ctx.lineWidth = 10;
+			ctx.strokeStyle = 'rgba(181, 181, 181, 0.5)';
+			ctx.lineWidth = 8;
 
 			ctx.beginPath();
 
 			ctx.moveTo(x, y);
 			ctx.lineTo(x, y + height);
 
-			ctx.endPath();
-			ctx.strokePath();
+			ctx.stroke();
 
 			ctx.lineCap = oldLineCap;
 		},

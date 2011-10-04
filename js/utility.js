@@ -12,6 +12,9 @@ _.mixin({
 		return document.getElementsByTagName(tagName);
 	},
 
+	atIndex : function(array, i) {
+		return i > 0 ? array[i] : array[array.length + i];
+	},
 
 	mouse : function(e) {
 		e = e || window.e;
