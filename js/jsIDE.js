@@ -134,16 +134,18 @@ IDE.Canvas = (function() {
 
 		},
 
-		drawScrollbar : function(numLines, currentLine, viewportSize) {
-			viewportSize = viewportSize || 50;
+		drawScrollbar : function(numLines) {
 
-			if (currentLine == 0) return;
+			if (Text.source.length <= viewport.height + 1) return;
 
 			var oldLineCap = ctx.lineCap,
-				height = (viewportSize / numLines) * paper.height,
-				y = options.lineHeight * currentLine + 8,
+				canvasHeight = paper.height,
+				textLength = Text.source.length,
+				height = (viewport.height / textLength) * paper.height - 16,
+				y = (paper.height / textLength) * viewport.startRow + 8,
 				x = paper.width - 8;
-
+		
+			console.log(y);
 
 			ctx.lineCap = 'round';
 			ctx.strokeStyle = 'rgba(181, 181, 181, 0.5)';
