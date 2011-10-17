@@ -26,7 +26,7 @@ Syntax.tokens = {
 
 	html : {
 
-		space : /\s/,
+		space : /\s+/,
 
 		openTag : /\</,
 		closeTag : /\>/,
@@ -46,9 +46,10 @@ Syntax.triggers = {
 	html : {
 		
 		openTag : function(states) {
-			if (_.last(states) == 'singleQuotedString') {
+			var last = _.last(states);
+			if (last == 'singleQuotedString') {
 				return 'singleQuotedString';
-			} else if (_.last(states) == 'doubleQuotedString') {
+			} else if (last == 'doubleQuotedString') {
 				return 'doubleQuotedString';
 			}
 			states.push('tagBody');
@@ -56,9 +57,10 @@ Syntax.triggers = {
 		},
 
 		closeTag : function(states) {
-			if (_.last(states) == 'singleQuotedString') {
+			var last = _.last(states);
+			if (last == 'singleQuotedString') {
 				return 'singleQuotedString';
-			} else if (_.last(states) == 'doubleQuotedString') {
+			} else if (last == 'doubleQuotedString') {
 				return 'doubleQuotedString';
 			}
 			states.push('text');
@@ -136,6 +138,6 @@ var Text = new IDE.Text(source),
 	Cursor = new IDE.Cursor(0, 10),
 	Input = new IDE.Input(editorEl, clipboardEl),
 	Editor = new IDE.Editor(editorEl),
-	Canvas = new IDE.Canvas(editorEl, Editor.options);
+	Canvas = new IDE.Canvas(editorEl, Text.source, Editor.options);
 
-Canvas.render(Text.source);
+Canvas.render();

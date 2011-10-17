@@ -11,6 +11,7 @@ IDE.Editor = (function() {
 		height : window.innerHeight,
 		font : 'Courier New, monospace',
 		highlight : 'rgb(64, 64, 64)',
+		cursor : 'rgb(176, 208, 240)',
 		scrollbar : '#BBBBBB',
 		tabSize : 4,
 		fontSize : 14,
@@ -44,12 +45,13 @@ IDE.Canvas = (function() {
 		return (~~(Math.log(number) / Math.LN10) + 2) * charWidth;
 	}
 
-	var Canvas = function(canvasEl, optionsObj) {
+	var Canvas = function(canvasEl, source, optionsObj) {
 
 		options = optionsObj;
 
 		paper = this.paper = canvasEl;
 		ctx   = this.ctx   = this.paper.getContext('2d');
+		this.source = source;
 
 		paper.width  = options.width;
 		paper.height = options.height;
@@ -66,7 +68,7 @@ IDE.Canvas = (function() {
 		},
 
 		render : function(source) {
-			var text = Highlighter.highlight(source);
+			var text = Highlighter.highlight(this.source);
 
 			this.clear();
 			this.drawSelection();
@@ -186,10 +188,12 @@ IDE.Canvas = (function() {
 			ctx.font = size + 'px ' + font;
 		},
 
-		drawCursor : function(x, y) {
+		drawCursor : function() {
 			var cursorPos = Cursor.toPixels();
-			ctx.fillStyle = 'rgb(176, 208, 240)';
-			ctx.fillRect(cursorPos.x, cursorPos.y, 2, options.fontSize);
+			if (cursorPos) {
+				ctx.fillStyle = options.cursor;
+				ctx.fillRect(cursorPos.x, cursorPos.y, 2, options.fontSize);
+			}
 		}
 
 	};
@@ -214,6 +218,7 @@ IDE.Cursor = (function() {
 		
 		toPixels : function() {
 			var options = Editor.options;
+			if (this.row < viewport.startRow || this.row > viewport.endRow) return;
 			return {
 				x : this.col * options.charWidth + options.padding,
 				y : this.row * options.lineHeight

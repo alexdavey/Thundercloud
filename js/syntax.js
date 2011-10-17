@@ -76,7 +76,7 @@ Syntax.Tokenizer = (function() {
 
 	Constructor.prototype.start = function(text) {
 
-		var match, token = '';
+		var match, token = '', overflow = false;
 		for (var j = 0, l = text.length; j < l; ++j) {
 
 			line = text[j];
@@ -88,11 +88,23 @@ Syntax.Tokenizer = (function() {
 				match = matchesToken(token);
 				if (match) {
 
-					// If there is a text preceding the token, send it first
-					if (match.remainder.length > 0) {
+
+					if (overflow) {
+						callback({
+							type : match.type,
+							value : _.splitText(match.value, match.value.length - i).left
+						});
+						match.value = _.splitText(match.value, match.value.length - i).right;
+
+						// Send a null token to signify end-of-line
+						callback(null);
+
+						// If there is a text preceding the token, send it first
+					} else if (match.remainder.length > 0) {
 						callback({ 
 							type : 'text',
-							value : match.remainder
+							value : match.remainder,
+							overflow : overflow
 						});
 
 					}
@@ -100,14 +112,17 @@ Syntax.Tokenizer = (function() {
 					// Send the token
 					callback({
 						type : match.type,
-						value : match.value
+						value : match.value,
+						overflow : overflow
 					});
 
 					token = '';
+					overflow = false;
 				}
 			}
-
+			if (token.length > 0) overflow = true;
 			callback(null);
+
 		}
 
 	};
@@ -134,7 +149,7 @@ Syntax.Highlighter = (function() {
 
 	var Constructor = function(text, language) {
 
-		this.callback  = function(token) { if (token === null) console.log('A null!'); output.push(token) };
+		this.callback  = function(token) { output.push(token) };
 		this.Colorizer = new Syntax.Colorizer();
 		this.Parser    = new Syntax.Parser(Syntax.triggers[language]);
 
@@ -154,7 +169,6 @@ Syntax.Highlighter = (function() {
 		output = [];
 		this.Parser.clearStates();
 		this.Tokenizer.start(text);
-
 		return output;
 	};
 

@@ -6,16 +6,18 @@ var viewport = {
 	height : 50,
 
 	shift : function(delta) {
+		var length = Text.source.length;
+		if (length < viewport.height) return;
 
 		this.startRow += delta;
 		this.endRow += delta;
 
-		if (this.endRow > Text.source.length) {
-			this.endRow = Text.source.length;
-			this.startRow = Text.source.length - this.height;
-		} else if (this.startRow < 0) {
+		if (this.startRow < 0) {
 			this.startRow = 0;
 			this.endRow = this.height;
+		} else if (this.endRow > length) {
+			this.endRow = length;
+			this.startRow = length - this.height;
 		}
 	}
 

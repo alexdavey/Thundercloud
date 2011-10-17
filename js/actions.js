@@ -47,7 +47,7 @@ var actions = {
 
 	// Tab
 	'9' : function() {
-		var tab = new Array(editor.options.tabSize + 2).join(' ');
+		var tab = new Array(Editor.options.tabSize + 2).join(' ');
 		Text.insert(tab, Cursor.row, Cursor.col);
 		Cursor.shift('right', 4);
 	},
@@ -111,7 +111,7 @@ var actions = {
 				}
 
 				textArea.value = '';
-				Canvas.render(Text.source);
+				Canvas.render();
 			}, 100);
 		},
 

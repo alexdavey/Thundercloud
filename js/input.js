@@ -29,7 +29,7 @@ IDE.Input = (function() {
 			selection.setStart();
 			selection.setEnd();
 
-			Canvas.render(Text.source);
+			Canvas.render();
 		},
 
 		onMouseMove : function(e) {
@@ -37,7 +37,7 @@ IDE.Input = (function() {
 			var mouse = _.mouse(e);
 			Cursor.setPosition(mouse.x, mouse.y);
 			selection.setEnd();
-			Canvas.render(Text.source);
+			Canvas.render();
 		},
 
 		onMouseUp : function(e) {
@@ -52,7 +52,7 @@ IDE.Input = (function() {
 			if (keyCode in actions) {
 				e.preventDefault();
 				actions[keyCode]();
-				Canvas.render(Text.source);
+				Canvas.render();
 			} else if (keyCode in passive) {
 				passive[keyCode]();
 			}
@@ -69,20 +69,20 @@ IDE.Input = (function() {
 			e.preventDefault();
 			Text.insert(character, Cursor.row, Cursor.col);
 			Cursor.shift('right');
-			Canvas.render(Text.source);
+			Canvas.render();
 		},
 
 		onScrollFF : function(e) {
 			e.preventDefault();
-			viewport.shift(e.detail);
-			Canvas.render(~~(Text.source / Editor.options.mouseSensitivity));
+			viewport.shift(~~(e.detail / Editor.options.mouseSensitivity));
+			Canvas.render();
 		},
 
 		onScroll : function(e) {
 			e = e || window.e;
 			e.preventDefault();
 			viewport.shift(~~(-e.wheelDelta / Editor.options.mouseSensitivity));
-			Canvas.render(Text.source);
+			Canvas.render();
 		}
 
 	};
