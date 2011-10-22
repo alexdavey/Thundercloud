@@ -1,0 +1,37 @@
+body {
+	/* -webkit-font-smoothing: antialiased; */
+	/* text-rendering: optimizeLegibility; */
+	margin : 0;
+	padding : 0;
+}
+
+#input {
+	position : absolute;
+	top : 10px;
+	left : 10px;
+	z-index : 1000;
+	width : 1px;
+	height : 1px;
+}
+
+#editor {
+	float : right;
+	cursor : text;
+}
+
+#sidebar {
+	float : left;
+	background : url(../img/sidebar-bg.png) repeat;
+	width : 200px;
+	height : 100%;
+}
+
+#clipboard {
+	width : 1px;
+	height : 1px;
+	position : absolute;
+	top : 0;
+	left : 0;
+	z-index : -1;
+	resize : none;
+}
