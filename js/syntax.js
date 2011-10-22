@@ -1,3 +1,5 @@
+"use strict";
+
 var Syntax = {};
 
 Syntax.Colorizer = (function() {
@@ -6,13 +8,25 @@ Syntax.Colorizer = (function() {
 
 	var Constructor = function(fn) { };
 
-	Constructor.prototype.colorize = function(token) {
-		if (token === null) return null;
-		var color = _.computedCSS(token.type);
-		return {
-			value : token.value,
-			color : (color == 'rgb(0, 0, 0)' ? _.computedCSS('text') : color)
-		};
+	Constructor.prototype.colorize = function(input) {
+		var token, color, output = [];
+		for (var i = 0, l = input.length; i < l; ++i) {
+
+			token = input[i];
+
+			if (token === null) {
+				output.push(null);
+				continue;
+			}
+
+			color = _.computedCSS(token.type);
+			
+			output.push({
+				value : token.value,
+				color : (color == 'rgb(0, 0, 0)' ? _.computedCSS('text') : color)
+			});
+		}
+		return output;
 	};
 
 	return Constructor;
@@ -21,25 +35,37 @@ Syntax.Colorizer = (function() {
 
 Syntax.Parser = (function() {
 
-	var rules, states = [];
+	var rules, states = [], output = [];
 
 	var Constructor = function(rule, callbacks) {
 		rules = rule;
 	};
 
-	Constructor.prototype.clearStates = function() {
+	Constructor.prototype.parse = function(input) {
+		var token, type;
+
+		// Clear states and output arrays
 		states = [];
-	};
+		output = [];
 
-	Constructor.prototype.parse = function(token) {
-		if (token === null) return null;
-		var type = (token.type in rules ? rules[token.type](states) : 'text');
+		for (var i = 0, l = input.length; i < l; ++i) {
 
-		return { 
-			type : type || undefined,
-			value : token.value
-		};
+			token = input[i];
 
+			if (token === null) {
+				output.push(null);
+				continue;
+			}
+
+			type = (token.type in rules ? rules[token.type](states) : 'text');
+
+			output.push({ 
+				type : type || undefined,
+				value : token.value
+			});
+
+		}
+		return output;
 	};
 
 	return Constructor;
@@ -69,14 +95,17 @@ Syntax.Tokenizer = (function() {
 		return false;
 	}
 
-	var Constructor = function(tokensObj, fn) { 
+	var Tokenizer = function(tokensObj) { 
 		tokens = tokensObj;
-		callback = fn;
 	};
 
-	Constructor.prototype.start = function(text) {
+	Tokenizer.prototype.start = function(text) {
 
-		var match, token = '', overflow = false;
+		var match,
+			token = '',
+			output = [],
+			line;
+
 		for (var j = 0, l = text.length; j < l; ++j) {
 
 			line = text[j];
@@ -87,54 +116,47 @@ Syntax.Tokenizer = (function() {
 
 				match = matchesToken(token);
 				if (match) {
-
-
-					if (overflow) {
-						callback({
-							type : match.type,
-							value : _.splitText(match.value, match.value.length - i).left
-						});
-						match.value = _.splitText(match.value, match.value.length - i).right;
-
-						// Send a null token to signify end-of-line
-						callback(null);
-
-						// If there is a text preceding the token, send it first
-					} else if (match.remainder.length > 0) {
-						callback({ 
+					
+					// If there is a text preceding the token, send it first
+					if (match.remainder.length > 0) {
+						output.push({ 
 							type : 'text',
 							value : match.remainder,
-							overflow : overflow
 						});
-
 					}
-
+					
 					// Send the token
-					callback({
+					output.push({
 						type : match.type,
 						value : match.value,
-						overflow : overflow
 					});
 
 					token = '';
-					overflow = false;
 				}
 			}
-			if (token.length > 0) overflow = true;
-			callback(null);
+
+			if (token != '') {
+				output.push({ 
+					type : 'text',
+					value : token,
+				});
+			}
+
+			token = '';
+
+			output.push(null);
 
 		}
+		return output;
 
 	};
 
-	return Constructor;
+	return Tokenizer;
 	
 })();
 
 Syntax.Highlighter = (function() {
 
-	var output = [];
-	
 	function extractLines(array, start, stop) {
 		var extract = [];
 		start = start || 0;
@@ -147,31 +169,19 @@ Syntax.Highlighter = (function() {
 		return extract;
 	}
 
-	var Constructor = function(text, language) {
+	var Highlighter = function(language) {
 
-		this.callback  = function(token) { output.push(token) };
 		this.Colorizer = new Syntax.Colorizer();
 		this.Parser    = new Syntax.Parser(Syntax.triggers[language]);
+		this.Tokenizer = new Syntax.Tokenizer(Syntax.tokens[language]);
 
-		this.stack = _.compose(this.callback, this.Colorizer.colorize, this.Parser.parse);
-
-		this.Tokenizer = new Syntax.Tokenizer(Syntax.tokens[language], this.stack);
-
-
+		this.stack = _.compose(this.Colorizer.colorize, this.Parser.parse, this.Tokenizer.start);
 	};
 
-	Constructor.prototype.highlight = function(originalText, startLine, stopLine) {
-
-		var text = _.clone(originalText);
-
-		// extractLines(text, startLine, stopLine);
-
-		output = [];
-		this.Parser.clearStates();
-		this.Tokenizer.start(text);
-		return output;
+	Highlighter.prototype.highlight = function(originalText, startLine, stopLine) {
+		return this.stack(_.clone(originalText));
 	};
 
-	return Constructor;
+	return Highlighter;
 
 })();

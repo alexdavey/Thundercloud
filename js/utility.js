@@ -1,3 +1,5 @@
+"use strict";
+
 _.mixin({
 
 	getId : function(id) {

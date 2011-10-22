@@ -1,3 +1,5 @@
+"use strict";
+
 IDE.Input = (function() {
 
 	var ctrlDown = false,

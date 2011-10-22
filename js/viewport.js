@@ -1,3 +1,5 @@
+"use strict";
+
 var viewport = {
 	
 	startRow : 0,

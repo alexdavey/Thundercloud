@@ -1,3 +1,5 @@
+"use strict";
+
 var source = 
 
 '<!DOCTYPE html>\n'+
@@ -134,7 +136,7 @@ var editorEl = _.getId('editor'),
 	clipboardEl = _.getId('clipboard');
 
 var Text = new IDE.Text(source),
-	Highlighter = new Syntax.Highlighter(Text.source, 'html'),
+	Highlighter = new Syntax.Highlighter('html'),
 	Cursor = new IDE.Cursor(0, 10),
 	Input = new IDE.Input(editorEl, clipboardEl),
 	Editor = new IDE.Editor(editorEl),

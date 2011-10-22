@@ -1,4 +1,7 @@
-var textArea = _.getId('clipboard');
+"use strict";
+
+var textArea = _.getId('clipboard'),
+	ctrlDown = false;
 
 var actions = {
 	

@@ -1,3 +1,5 @@
+"use strict";
+
 IDE.Editor = (function() {
 	
 	var Editor = function(canvasEl, options) {
@@ -64,7 +66,6 @@ IDE.Canvas = (function() {
 		clear : function() {
 			this.ctx.fillStyle = 'rgb(21, 21, 21)';
 			ctx.fillRect(0, 0, paper.width, paper.height);
-			// ctx.clearRect(0, 0, paper.width, paper.height);
 		},
 
 		render : function(source) {
@@ -82,13 +83,13 @@ IDE.Canvas = (function() {
 		},
 
 		drawText : function(tokens) {
-			var token, i, y = -viewport.startRow, x = 0, value;
+			var token, y = -viewport.startRow, x = 0, value;
 
 			var lineHeight = options.lineHeight,
 				charWidth = options.charWidth,
 				padding = options.padding;
 
-			for (i = 0, l = tokens.length; i < l; ++i) {
+			for (var i = 0, l = tokens.length; i < l; ++i) {
 
 				token = tokens[i];
 
