@@ -1,26 +1,30 @@
-"use strict";
-
-var viewport = {
+define(function() {
 	
-	startRow : 0,
-	endRow : 50,
+	"use strict";
 
-	height : 50,
+	return {
+		
+		startRow : 0,
+		endRow : 50,
 
-	shift : function(delta) {
-		var length = Text.source.length;
-		if (length < viewport.height) return;
+		height : 50,
 
-		this.startRow += delta;
-		this.endRow += delta;
+		shift : function(delta) {
+			var length = Text.source.length;
+			if (length < viewport.height) return;
 
-		if (this.startRow < 0) {
-			this.startRow = 0;
-			this.endRow = this.height;
-		} else if (this.endRow > length) {
-			this.endRow = length;
-			this.startRow = length - this.height;
+			this.startRow += delta;
+			this.endRow += delta;
+
+			if (this.startRow < 0) {
+				this.startRow = 0;
+				this.endRow = this.height;
+			} else if (this.endRow > length) {
+				this.endRow = length;
+				this.startRow = length - this.height;
+			}
 		}
-	}
 
-};
+	};
+
+});

@@ -1,31 +1,47 @@
-"use strict";
-
-IDE.Input = (function() {
+define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
+	function(Canvas, Cursor, viewport, settings, selection, actions, Text) {
+	
+	"use strict";
 
 	var ctrlDown = false,
 		mouseDown = false,
 		textArea;
 
-	var Input = function(canvasEl, clipboardEl) {
-		textArea = clipboardEl;
+	// var Input = function(canvasEl, clipboardEl) {
+	// 	textArea = clipboardEl;
 
-		_.listen(canvasEl, 'mousedown', this.onMouseDown);
-		_.listen(canvasEl, 'mousemove', this.onMouseMove);
-		_.listen(canvasEl, 'mouseup', this.onMouseUp);
+	// 	_.listen(canvasEl, 'mousedown', this.onMouseDown);
+	// 	_.listen(canvasEl, 'mousemove', this.onMouseMove);
+	// 	_.listen(canvasEl, 'mouseup', this.onMouseUp);
 
-		_.listen('keypress', this.onKeyPress);
-		_.listen('keydown', this.onKeyDown);
-		_.listen('keyup', this.onKeyUp);
+	// 	_.listen('keypress', this.onKeyPress);
+	// 	_.listen('keydown', this.onKeyDown);
+	// 	_.listen('keyup', this.onKeyUp);
 
-		_.listen('DOMMouseScroll', this.onScrollFF);
-		_.listen('mousewheel', this.onScroll);
-	};
+	// 	_.listen('DOMMouseScroll', this.onScrollFF);
+	// 	_.listen('mousewheel', this.onScroll);
+	// };
 
-	Input.prototype = {
+	var Input = {
+
+		init : function(canvasEl, clipboardEl) {
+			textArea = clipboardEl;
+
+			_.listen(canvasEl, 'mousedown', this.onMouseDown);
+			_.listen(canvasEl, 'mousemove', this.onMouseMove);
+			_.listen(canvasEl, 'mouseup', this.onMouseUp);
+
+			_.listen('keypress', this.onKeyPress);
+			_.listen('keydown', this.onKeyDown);
+			_.listen('keyup', this.onKeyUp);
+
+			_.listen('DOMMouseScroll', this.onScrollFF);
+			_.listen('mousewheel', this.onScroll);
+		},
 		
 		onMouseDown : function(e) {
 			var mouse = _.mouse(e);
-			Cursor.setPosition(mouse.x, mouse.y);
+			Cursor.moveTo(mouse.x, mouse.y);
 			mouseDown = true;
 
 			selection.setStart();
@@ -37,7 +53,7 @@ IDE.Input = (function() {
 		onMouseMove : function(e) {
 			if (!mouseDown) return;
 			var mouse = _.mouse(e);
-			Cursor.setPosition(mouse.x, mouse.y);
+			Cursor.moveTo(mouse.x, mouse.y);
 			selection.setEnd();
 			Canvas.render();
 		},
@@ -76,14 +92,14 @@ IDE.Input = (function() {
 
 		onScrollFF : function(e) {
 			e.preventDefault();
-			viewport.shift(~~(e.detail / Editor.options.mouseSensitivity));
+			viewport.shift(~~(e.detail / settings.mouseSensitivity));
 			Canvas.render();
 		},
 
 		onScroll : function(e) {
 			e = e || window.e;
 			e.preventDefault();
-			viewport.shift(~~(-e.wheelDelta / Editor.options.mouseSensitivity));
+			viewport.shift(~~(-e.wheelDelta / settings.mouseSensitivity));
 			Canvas.render();
 		}
 
@@ -91,49 +107,5 @@ IDE.Input = (function() {
 
 	return Input;
 
+});
 
-})();
-
-var selection = {
-	
-	isEmpty : function() {
-		var start = this.start, end = this.end;
-		return start.col == end.col && start.row == end.row;
-	},
-
-	setStart : function() {
-		this.start.col = Cursor.col;
-		this.start.row = Cursor.row;
-	},
-
-	setEnd : function() {
-		this.end.col = Cursor.col;
-		this.end.row = Cursor.row;
-	},
-
-	normalize : function() {
-		// If selecting upwards, reverse
-		if (this.start.row > this.end.row) {
-			return {
-				start : this.end,
-				end : this.start
-			};
-		} else {
-			return {
-				start : this.start,
-				end : this.end
-			};
-		}
-	},
-
-	start : {
-		col : 0,
-		row : 0
-	},
-
-	end : {
-		col : 0,
-		row : 0
-	}
-
-};
