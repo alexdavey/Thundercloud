@@ -2,6 +2,38 @@
 
 _.mixin({
 
+	deepClone : function(obj) {
+		var newObj = {},
+			prop;
+
+		if (_.isArray(obj)) {
+			return _.clone(obj);
+		}
+
+		for (var i in obj) {
+			prop = obj[i];
+
+			if (obj.hasOwnProperty(i)) {
+				if (typeof prop == 'object') {
+					newObj[i] = _.deepClone(prop);
+				} else {
+					newObj[i] = prop;
+				}
+			}
+
+		}
+
+		return newObj;
+	},
+
+	merge : function(to, from) {
+		for (var i in from) {
+			if (from.hasOwnProperty(i)) {
+				to[i] = from[i];
+			}
+		}
+	},
+
 	getId : function(id) {
 		return document.getElementById(id);
 	},

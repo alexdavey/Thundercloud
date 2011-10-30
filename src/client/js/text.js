@@ -1,20 +1,10 @@
-define(function() {
+define(['events'], function(events) {
 	
 	"use strict";
 
-	// var Text = function(text) {
-	// 	// Split source at newlines
-	// 	this.source = text.split('\n');
-	// 	this.modified = true;
-	// };
 
-	/* Text.prototype */var text = {
+	var text = {
 		
-		// // Concatenates source with a newline character
-		// stringify : function() {
-		// 	return this.source.join('\n');
-		// },
-
 		// Returns the length of any line in the source,
 		// -1 if invalid row number
 		lineLength : function(row) {
@@ -26,20 +16,21 @@ define(function() {
 		// second parameter omitted
 		addLine : function(row, text) {
 			this.source.splice(row, 0, text || '');
+			this.onChange();
 			return this;
 		},
 
 		// Splices a line
 		removeLine : function(row) {
 			this.source.splice(row, 1);
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
 		// Splices all lines between start and end (inclusive)
 		removeLines : function(start, end) {
 			this.source.splice(start, (end - start) + 1);
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
@@ -67,15 +58,16 @@ define(function() {
 				this.removeLine(row);	
 			}
 
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
 		// Removes all text between two points (row, col) 
 		removeSelection : function(row1, col1, row2, col2) {
-			var diff = row2 - row1,
-				row3;
+			var diff = row2 - row1;
 
+			// Proxy to removeSection if the start and end
+			// are on the same line
 			if (diff == 0) {
 				this.removeSection(row1, col1, col2);
 			} else {
@@ -94,14 +86,14 @@ define(function() {
 					this.merge(row1, row1 + 1);
 				}
 			}
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
 		// Appends text to the end of a string
 		append : function(text, row) {
 			this.source[row] += text;
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
@@ -156,7 +148,7 @@ define(function() {
 			items = _.compact(items);
 			items.unshift(row, 0);
 			[].splice.apply(this.source, items);
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
@@ -168,7 +160,7 @@ define(function() {
 				var parts = _.splitText(this.source[row], col);
 				this.source[row] = parts.left + text + parts.right;
 			}
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
@@ -187,7 +179,7 @@ define(function() {
 				this.source[row] = string.slice(0, col - 1) + string.slice(col);
 			}
 
-			this.modified = true;
+			this.onChange();
 			return this;
 		},
 
@@ -197,6 +189,11 @@ define(function() {
 				this.removeLine(row2);
 				row2--;
 			}
+		},
+
+		onChange : function() {
+			this.modified = true;
+			events.publish('textModified');
 		},
 
 		modified : true

@@ -1,8 +1,8 @@
-define(function() {
+define(['text'], function(Text) {
 	
 	"use strict";
 
-	return {
+	var viewport = {
 		
 		startRow : 0,
 		endRow : 50,
@@ -11,7 +11,7 @@ define(function() {
 
 		shift : function(delta) {
 			var length = Text.source.length;
-			if (length < viewport.height) return;
+			if (length < this.height) return;
 
 			this.startRow += delta;
 			this.endRow += delta;
@@ -26,5 +26,7 @@ define(function() {
 		}
 
 	};
+
+	return viewport;
 
 });

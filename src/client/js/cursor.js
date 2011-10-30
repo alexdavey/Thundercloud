@@ -7,12 +7,17 @@ define(['text', 'settings', 'viewport'], function(Text, settings, viewport) {
 		row : 0,
 		col : 10,
 		
-		// Converts the grid co-ordinates of the cursor into pixels
+
+		// Converts the grid co-ordinates of the text 
+		// grid (row, col) into pixels
 		toPixels : function() {
-			if (this.row < viewport.startRow || this.row > viewport.endRow) return;
+			var row = this.row,
+				col = this.col;
+
+			if (row < viewport.startRow || row > viewport.endRow) return;
 			return {
-				x : this.col * settings.charWidth + settings.padding,
-				y : this.row * settings.lineHeight
+				x : col * settings.charWidth + settings.padding,
+				y : (row - viewport.startRow) * settings.lineHeight
 			};
 		},
 
@@ -34,8 +39,9 @@ define(['text', 'settings', 'viewport'], function(Text, settings, viewport) {
 		
 		// Changes the cursor position, checking boundaries
 		moveTo : function(x, y) {
-			var col = ~~((x - settings.padding) / settings.charWidth),
-				row = ~~(y / settings.lineHeight),
+			var lineHeight = settings.lineHeight,
+				col = ~~((x - settings.padding) / settings.charWidth),
+				row = ~~(y / lineHeight) - (viewport.startRow * lineHeight),
 				textLength = Text.source.length - 1,
 
 			row = (row > textLength ? textLength : row);

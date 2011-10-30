@@ -3,33 +3,17 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 	
 	"use strict";
 
-	var ctrlDown = false,
-		mouseDown = false,
+	var mouseDown = false,
 		textArea;
-
-	// var Input = function(canvasEl, clipboardEl) {
-	// 	textArea = clipboardEl;
-
-	// 	_.listen(canvasEl, 'mousedown', this.onMouseDown);
-	// 	_.listen(canvasEl, 'mousemove', this.onMouseMove);
-	// 	_.listen(canvasEl, 'mouseup', this.onMouseUp);
-
-	// 	_.listen('keypress', this.onKeyPress);
-	// 	_.listen('keydown', this.onKeyDown);
-	// 	_.listen('keyup', this.onKeyUp);
-
-	// 	_.listen('DOMMouseScroll', this.onScrollFF);
-	// 	_.listen('mousewheel', this.onScroll);
-	// };
 
 	var Input = {
 
 		init : function(canvasEl, clipboardEl) {
 			textArea = clipboardEl;
 
-			_.listen(canvasEl, 'mousedown', this.onMouseDown);
-			_.listen(canvasEl, 'mousemove', this.onMouseMove);
-			_.listen(canvasEl, 'mouseup', this.onMouseUp);
+			_.listen('mousedown', this.onMouseDown);
+			_.listen('mousemove', this.onMouseMove);
+			_.listen('mouseup', this.onMouseUp);
 
 			_.listen('keypress', this.onKeyPress);
 			_.listen('keydown', this.onKeyDown);
@@ -78,7 +62,9 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 
 		onKeyUp : function(e) {
 			e = e || window.e;
-			if (e.keyCode == 17 || e.keyCode == 91) ctrlDown = false;
+			if (e.keyCode == 17 || e.keyCode == 91) {
+				actions.ctrlDown = false;
+			}
 		},
 
 		onKeyPress : function(e) {

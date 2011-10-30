@@ -2,6 +2,7 @@ define (['syntax/parser'], function(Syntax) {
 
 	var tokens = {
 		space : /\s+/,
+		tab : /\t/,
 
 		openTag : /\</,
 		closeTag : /\>/,

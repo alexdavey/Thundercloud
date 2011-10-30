@@ -1,10 +1,9 @@
-define(['cursor', 'text', 'selection', 'settings', 'canvas'], 
-	function(Cursor, Text, selection, settings, Canvas) {
-		
+define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'], 
+	function(Cursor, Text, selection, settings, Canvas, history) {
+
 	"use strict";
 
-	var textArea = _.getId('clipboard'),
-		ctrlDown = false;
+	var textArea = _.getId('clipboard');
 
 	function deleteSelection() {
 		var normal = selection.normalize(),
@@ -20,10 +19,10 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas'],
 		selection.setEnd();
 	}
 
-	return {
+	var actions = {
 		
 		// Backspace
-		'8' : function() {
+		8 : function() {
 			var col = Cursor.col,
 				row = Cursor.row;
 
@@ -47,7 +46,7 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas'],
 		},
 
 		// Delete
-		'46' : function() {
+		46 : function() {
 			var col = Cursor.col, 
 				row = Cursor.row;
 
@@ -66,74 +65,94 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas'],
 		},
 
 		// Enter
-		'13' : function() {
-			var row = Cursor.row, col = Cursor.col,
+		13 : function() {
+			var row = Cursor.row,
+				col = Cursor.col,
+				overflow
+			if (col == 0) {
+				Text.addLine(row);
+			} else {
 				overflow = Text.lineSection(row, col);
 
-			Text.addLine(row + 1, overflow)
-				.remove(-overflow.length, row, col);
+				Text.addLine(row + 1, overflow)
+					.removeSection(row, col);
+			}
 
 			Cursor.shift('down');
 			Cursor.col = 0;
 		},
 
 		// Tab
-		'9' : function() {
+		9 : function() {
 			var tab = new Array(settings.tabSize + 2).join(' ');
 			Text.insert(tab, Cursor.row, Cursor.col);
 			Cursor.shift('right', 4);
 		},
 
 		// Up arrow
-		'38' : function() {
+		38 : function() {
 			Cursor.shift('up');
 		},
 
 		// Down arrow
-		'40' : function() {
+		40 : function() {
 			Cursor.shift('down');
 		},
 
 		// Left arrow
-		'37' : function() {
+		37 : function() {
 			Cursor.shift('left');
 		},
 
 		// Right arrow
-		'39' : function() {
+		39 : function() {
 			Cursor.shift('right');
 		},
 
 		passive : {
+			// Select all (a)
+			65 : function() {
+				if (!actions.ctrlDown) return;
+				var start = selection.start,
+					end = selection.end;
+				
+				start.row = start.col = 0;
+				end.row = Text.source.length - 1;
+				end.col = _.last(Text.source).length - 1;
+				Canvas.render();
+			},
+
+			// Undo (z)
+			90 : function() {
+				if (!actions.ctrlDown) return;
+				history.undo();
+				Canvas.render();
+			},
+
+			// Redo (y)
+			89 : function() {
+				if (!actions.ctrlDown) return;
+				history.redo();
+				Canvas.render();
+			},
+
 			
 			// Ctrl
 			17 : function() {
-				ctrlDown = true;
+				actions.ctrlDown = true;
 				textArea.focus();
 			},
 
 			// Left window
 			91 : function() {
-				ctrlDown = true;
+				actions.ctrlDown = true;
 				textArea.focus();
 			},
 
-			// Select all (a)
-			65 : function() {
-				var start = selection.start,
-					end = selection.end;
-				if (!ctrlDown) return;
-				
-				start.row = start.col = 0;
-				end.row = Text.source.length - 1;
-				end.col = _.last(Text.source).length - 1;
-
-				Canvas.render();
-			},
 
 			// Paste (v)
 			86 : function() {
-				if (!ctrlDown) return;
+				if (!actions.ctrlDown) return;
 				setTimeout(function() {
 					var input = textArea.value.split(/\n|\r/),
 						overflow = Text.lineSection(Cursor.row, Cursor.col),
@@ -176,8 +195,12 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas'],
 
 				}
 			}
-		}
+		},
 
+		ctrlDown : false
 
 	};
+
+	return actions;
+
 });

@@ -1,5 +1,5 @@
-require(['input', 'settings', 'canvas', 'cursor', 'text'],
-	function(Input, settings, Canvas, Cursor, Text) {
+require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'overlay'],
+	function(Input, settings, Canvas, Cursor, Text, history, events) {
 	
 	"use strict";
 
@@ -29,13 +29,27 @@ require(['input', 'settings', 'canvas', 'cursor', 'text'],
 
 	var editorEl = _.getId('editor'),
 		clipboardEl = _.getId('clipboard');
+
 	
 	Text.source = source.split('\n');
 
 	Input.init(editorEl, clipboardEl);
-		// Editor = new Editor(editorEl),
 	
 	Canvas.init(editorEl);
-
 	Canvas.render();
+
+	history.save();
+
 });
+
+
+require(['history','events', 'text', 'cursor', 'viewport', 'selection'], 
+		function(history, events, text) {
+
+	// Add all of the data representations to the history watch list
+	_.each([].slice.call(arguments, 2), history.watch);
+	
+	// Save the history when the text is changed
+	events.subscribe('textModified', history.save);
+});
+

@@ -9,6 +9,11 @@ define(['cursor'], function(Cursor) {
 			return start.col == end.col && start.row == end.row;
 		},
 
+		clear : function() {
+			this.setStart();
+			this.setEnd();
+		},
+
 		setStart : function() {
 			this.start.col = Cursor.col;
 			this.start.row = Cursor.row;
