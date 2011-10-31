@@ -84,9 +84,9 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 
 		// Tab
 		9 : function() {
-			var tab = new Array(settings.tabSize + 2).join(' ');
-			Text.insert(tab, Cursor.row, Cursor.col);
-			Cursor.shift('right', 4);
+			// var tab = new Array(settings.tabSize + 2).join(' ');
+			Text.insert(/* tab */'\t', Cursor.row, Cursor.col);
+			Cursor.shift('right', 1);
 		},
 
 		// Up arrow
@@ -149,23 +149,38 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 				textArea.focus();
 			},
 
+			// Cut (x)
+			88 : function() {
+				if (!actions.ctrlDown) return;
+
+				// Proxy to the copy function
+				this[67]();
+				// Proxy to the backspace function
+				actions[8]();
+
+				Canvas.render();
+			},
 
 			// Paste (v)
 			86 : function() {
 				if (!actions.ctrlDown) return;
+				// Wait for the text to be pasted into the textarea
 				setTimeout(function() {
 					var input = textArea.value.split(/\n|\r/),
 						overflow = Text.lineSection(Cursor.row, Cursor.col),
 						length = input.length,
-						lastLineLength = input[length - 1].length,
+						lastLineLength = _.last(input).length,
 						row = Cursor.row,
 						col = Cursor.col;
 
 					if (length > 1) {
 						Text.remove(-overflow.length, row, col)
-							.append(input.shift(), row)
-							.insert(input.pop() + overflow, row + 1, 0)
-							.insertLines(input, row);
+							// Append the top line
+						Text.insert(input.shift(), row, col)
+							// Insert the bottom line and the overflow
+						Text.insert(input.pop() + overflow, row + 1, 0)
+							// Insert all of the lines in between
+						Text.insertLines(input, row + 1);
 
 						Cursor.col = overflow.length + lastLineLength;
 						Cursor.shift('down', length - 2);
@@ -192,7 +207,6 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 					setTimeout(function() {
 						textArea.value = '';
 					}, 100);
-
 				}
 			}
 		},

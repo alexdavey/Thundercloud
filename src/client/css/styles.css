@@ -15,7 +15,7 @@ body {
 }
 
 #editor {
-	float : right;
+	float : left;
 	cursor : text;
 }
 

@@ -44,12 +44,12 @@ require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', '
 
 
 require(['history','events', 'text', 'cursor', 'viewport', 'selection'], 
-		function(history, events, text) {
+		function(history, events) {
 
 	// Add all of the data representations to the history watch list
 	_.each([].slice.call(arguments, 2), history.watch);
 	
 	// Save the history when the text is changed
-	events.subscribe('textModified', history.save);
+	events.subscribe('render', history.save);
 });
 

@@ -85,6 +85,12 @@ define(['events'], function(events) {
 				if (col1 != 0) {
 					this.merge(row1, row1 + 1);
 				}
+
+				// If everything is selected, the array will be
+				// emptied, which causes errors when inserting text
+				if (_.isEmpty(this.source)) {
+					this.source = [''];
+				}
 			}
 			this.onChange();
 			return this;
@@ -162,6 +168,14 @@ define(['events'], function(events) {
 			}
 			this.onChange();
 			return this;
+		},
+
+		characterBefore : function(row, col) {
+			return this.source[row].charAt(col - 1);
+		},
+
+		characterAfter : function(row, col) {
+			return this.source[row].charAt(col + 1);
 		},
 
 		// Removes n characters before a point, removing 

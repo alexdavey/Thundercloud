@@ -56,7 +56,7 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 				actions[keyCode]();
 				Canvas.render();
 			} else if (keyCode in passive) {
-				passive[keyCode]();
+				passive[keyCode]()
 			}
 		},
 

@@ -176,6 +176,8 @@ define(function() {
 
 			// Remove the last token (a null token)
 			output.pop();
+			
+			console.dir(output);
 
 			return output;
 

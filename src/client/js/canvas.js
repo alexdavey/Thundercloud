@@ -1,4 +1,4 @@
-define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'history'], 
+define(['text', 'syntax/javascript', 'selection', 'viewport', 'cursor', 'settings', 'history'], 
 	function(Text, Highlighter, selection, viewport, Cursor, settings, history) {
 
 	"use strict";
@@ -7,17 +7,15 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 	var options, paper, ctx, tokens;
 
 	function highlightLine(ctx, row) {
-		var lineHeight = settings.lineHeight;
-		ctx.fillRect(settings.padding, row * lineHeight, 
-				Text.lineLength(row) * settings.charWidth, lineHeight);
+		highlightPart(ctx, row, 0, Text.lineLength(row));
 	}
 
 	function highlightPart(ctx, row, col1, col2) {
 		var charWidth = settings.charWidth,
 			difference = (col1 - col2) * -1;
 
-		ctx.fillRect(settings.padding + charWidth * col1, row * settings.lineHeight, 
-				difference * charWidth, settings.lineHeight);
+		ctx.fillRect(settings.padding + charWidth * col1, (row - viewport.startRow) *
+				settings.lineHeight, difference * charWidth, settings.lineHeight);
 	}
 
 	function addPadding(number, charWidth) {
@@ -72,7 +70,33 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 		// an array of colored tokens. Returns the number of
 		// lines drawn
 		drawText : function(tokens) {
-			var token,
+			// var padding = settings.padding,
+			// 	lineHeight = settings.lineHeight,
+			// 	startY = viewport.startRow * lineHeight,
+			// 	endY = viewport.endRow * lineHeight,
+			// 	token,
+			// 	value;
+
+			// var x = padding,
+			// 	y = 10;
+
+			// for (var i = 0, l = tokens.length; i < l; ++i) {
+			// 	token = tokens[i];
+
+			// 	if (token === null) {
+			// 		x = padding;
+			// 		y += lineHeight;
+			// 	} else if (x < ) {
+			// 		value = token.value;
+
+			// 		ctx.fillStyle = token.color;
+			// 		ctx.fillText(value, x, y);
+
+			// 		x += ctx.measureText(value);
+			// 	}
+			// }
+			
+			var token, 
 				y = 0,
 				x = 0,
 				value;
@@ -113,7 +137,7 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 			}
 
 			// Return the number of lines drawn
-			return y;
+			return y /* / lineHeight */;
 		},
 
 		// Draws both the gradient and the line numbers
@@ -178,7 +202,11 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 		drawSelection : function() {
 			if (selection.isEmpty()) return;
 
-			var normal = selection.normalize(), start = normal.start, end = normal.end,
+			var normal = selection.normalize(),
+				start = normal.start,
+				end = normal.end,
+				viewStart = viewport.startRow,
+				viewEnd = viewport.endRow,
 				col2 = (start.row == end.row ? end.col : Text.lineLength(start.row));
 
 			ctx.fillStyle = settings.highlight;
