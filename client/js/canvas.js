@@ -44,7 +44,6 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 
 		// Main render loop
 		render : function() {
-			console.log('render');
 			var text;
 
 			if (Text.modified) {

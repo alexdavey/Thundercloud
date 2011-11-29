@@ -3,6 +3,13 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 	
 	"use strict";
 
+	function removeCurrentSelection() {
+		var start = selection.start,
+			end   = selection.end;
+
+		Text.removeSelection(start.row, start.col, end.row, end.col);
+	}
+
 	var mouseDown = false,
 		textArea;
 
@@ -80,8 +87,12 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 		onKeyPress : function(e) {
 			e = e || window.e;
 			var character = String.fromCharCode(e.charCode);
+			if (character.length < 1) return;
 			e.preventDefault();
 			Text.insert(character, Cursor.row, Cursor.col);
+			// If there is a current selection, delete it using
+			// the backspace function
+			if (!selection.isEmpty()) actions[8]();
 			Cursor.shift('right');
 			Canvas.render();
 		},

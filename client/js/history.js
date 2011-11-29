@@ -42,6 +42,7 @@ define(['events', 'canvas'], function(events) {
 		// Copies all objects to the internal stack, so they
 		// can be restored later
 		save : function() {
+			console.log('saved');
 			var state = [];
 
 			for (var i = 0, l = objects.length; i < l; ++i) {

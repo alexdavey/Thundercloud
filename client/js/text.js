@@ -89,7 +89,6 @@ define(['events'], function(events) {
 				// If everything is selected, the array will be
 				// emptied, which causes errors when inserting text
 				if (_.isEmpty(this.source)) {
-					console.log('padding');
 					this.source = [''];
 				}
 			}

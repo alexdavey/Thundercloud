@@ -11,13 +11,15 @@
 		"node": "<=0.5.10"
 	},
 	"dependencies": {
+		"underscore" : ">=0.0.1",
 		"socket.io"  : ">=0.0.1",
 		"express"    : ">=0.0.1",
 		"connect"    : ">=0.0.1",
 		"mongodb"    : ">=0.0.1",
-		"underscore" : ">=0.0.1",
+		"riak-js"    : ">=0.0.1",
 		"redis" : ">=0.0.1",
 		"mysql" : ">=0.0.1",
+		"async" : ">=0.0.1",
 		"now" : ">=0.0.1",
 		"ejs" : ">=0.0.1"
 	}

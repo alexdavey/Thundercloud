@@ -1,7 +1,11 @@
+"use strict";
+
 var DB     = require('db'),
 	mail   = require('mail'),
+	async  = require('async'),
 	errors = require('errors'),
-	crypto = require('crypto');
+	crypto = require('crypto'),
+	_	   = require('underscore');
 
 var permissions = makePermissionsObj([
 
@@ -42,6 +46,8 @@ var permissions = makePermissionsObj([
 	
 ]);
 
+// Utility functions
+// -----------
 function makePermissionsObj(array) {
 	var obj = {};
 	for (var i = 0, l = array.length; ++i) {
@@ -78,23 +84,23 @@ function md5(string) {
 }
 
 
-function hashPassword(password, saltString) {
-	var salt = saltString || randomString(10);
+function hashPassword(password, salt) {
+	salt || (salt = randomString(10));
 	return {
 		salt : salt,
-		passhash : md5(md5(password) + md5(salt))
+		hash : md5(md5(password) + md5(salt))
 	};
 }
 
 // Constructor
 // -----------
-var Login = function() {
+var User = function() {
 	
 };
 
 // Prototype
 // ---------
-Login.prototype = {
+User.prototype = {
 	
 	hasPermission : function() {
 		
@@ -104,53 +110,80 @@ Login.prototype = {
 		var username = details.username.toLowerCase(),
 			email    = details.username,
 			passhash,
+			hash,
 			date;
 
-		// Check to see if the user already exists
-		if (DB.emailExists(details.email) || DB.userExists(username)) {
-			fn(errors.alreadyRegistered);
-		} else {
+		// Check to see if the user or email already exists 
+		async.parallel([
+			async.apply(DB.emailExists, details.email, callback),
+			async.apply(DB.userExists, username, callback)
+		], 
+		
+		function(err, results) {
+			if (err) throw err;
 
-			passhash = hashPassword(details.password);
-			date = ''+new Date();
+			// If either email or username exists, return
+			if (results[0] || results[1]) {
+				fn(errors.alreadyRegistered);
+			} else {
+				// Otherwise, register the user
+				passhash = hashPassword(details.password);
+				hash = passhash.hash,
+				date = ''+new Date();
 
-			DB.addUser({
-				email         : email,
-				username      : username,
-				mustValidate  : true,
-				passhash      : passhash.passhash,
-				salt          : passhash.salt,
-				groupId       : detail.group,
+				DB.addUser({
+					email         : email,
+					username      : username,
+					mustValidate  : true,
+					passhash      : hash,
+					salt          : passhash.salt,
+					groupId       : detail.group,
 
-				lastLoginDate : date,
-				registerDate  : date,
+					lastLoginDate : date,
+					registerDate  : date,
 
-				registerIp    : detail.ip,
-				lastLoginIp   : detail.ip,
+					registerIp    : detail.ip,
+					lastLoginIp   : detail.ip,
 
-				permOverrideRemove : 0,
-				permOverrideAdd    : 0
-			});
+					permOverrideRemove : 0,
+					permOverrideAdd    : 0
+				});
 
-			mail.confirmation(email, username, );
-		}
+				// Send a confirmation email with the verification hash
+				mail.confirmation(email, username, md5(email + hash));
+
+				fn(true);
+			}
+		});
 
 	},
 
-	login : function(username, pass, fn) {
+	login : function(username, pass, req, fn) {
 		DB.getUser(function(user) {
-			if (   !user 
-				|| user.passhash !== hashPassword(pass, user.salt)
-				|| ) {
+			if (!user || user.hash !== hashPassword(pass, user.salt)) {
 				fn(false);
+			} else if (!user.verified) {
+				fn(false);
+			} else {
+				req.session.set();
 			}
 		});
 	},
 
-	isBanned : function(details) {
+	ban : function(details) {
 		
+	},
+
+	isBanned : function(details, fn) {
+		// WILL NOT WORK;
+		var tests = _([details.user  && DB.isUserBanned,
+					   details.email && DB.isEmailBanned,
+					   details.ip    && DB.isIPBanned
+		]).compact();
+
+		async.waterfall(tests, fn);
 	}
 
 };
 
-module.exports = Login;
+module.exports = User;

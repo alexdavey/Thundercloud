@@ -1,5 +1,7 @@
 define(function() {
 
+	"use strict";
+
 	var keymap = {
 		 8   : 'backspace', 		9 : 'tab',
 		 13  : 'enter', 			16  : 'shift',
@@ -51,6 +53,14 @@ define(function() {
 		 220 : 'back slash', 		221 : 'close braket',
 		 222 : 'single quote'
 	};
+
+	function reverseLookup(array, value) {
+		for (var i in array) {
+			if (array[i] == value && array.hasOwnProperty(i)) {
+				return i;
+			}
+		}
+	}
 
 	// User subscribed events are stored in
 	// the events object

@@ -37,8 +37,6 @@ require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', '
 	
 	Canvas.init(editorEl);
 	Canvas.render();
-
-	history.save();
 });
 
 
@@ -49,7 +47,7 @@ require(['history','events', 'text', 'cursor', 'viewport', 'selection'],
 	_.each([].slice.call(arguments, 2), history.watch);
 	
 	// Save the history when the text is changed
-	events.subscribe('render', history.save);
+	events.subscribe('textModified', history.save);
 
 	history.save();
 });

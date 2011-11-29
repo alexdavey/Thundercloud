@@ -44,15 +44,22 @@ define(['events', 'text', 'settings', 'viewport'],
 		moveTo : function(x, y) {
 			var lineHeight = settings.lineHeight,
 				col = ~~((x - settings.padding) / settings.charWidth),
-				row = ~~(y / lineHeight) - (viewport.startRow * lineHeight),
-				textLength = Text.source.length - 1,
+				row = ~~(y / lineHeight) + viewport.startRow,
+				textLength = Text.source.length - 1;
 
+
+			// Is the cursor too far down?
 			row = (row > textLength ? textLength : row);
+
+
+			console.log(viewport.startRow, ~~(y / lineHeight));
 
 			var lineLength = Text.lineLength(row);
 
+			// Is the cursor too far to the right?
 			col = (col > lineLength ? lineLength : col);
 
+			// Is the cursor in the margin?
 			col < 0 && (col = 0);
 
 			this.col = col;

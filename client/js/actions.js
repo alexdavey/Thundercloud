@@ -23,7 +23,6 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 		
 		// Backspace
 		8 : function() {
-			console.log('called');
 			var col = Cursor.col,
 				row = Cursor.row;
 
@@ -159,9 +158,14 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 			// Paste (v)
 			86 : function() {
 				if (!actions.ctrlDown) return;
+
+				// If there is a current selection, delete it using
+				// the backspace function
+				if (!selection.isEmpty()) actions[8]();
+
 				// Wait for the text to be pasted into the textarea
 				setTimeout(function() {
-					var input = textArea.value.split(/\n|\r/),
+					var input = textArea.value.split(/\r\n|\n|\r/),
 						overflow = Text.lineSection(Cursor.row, Cursor.col),
 						length = input.length,
 						lastLineLength = _.last(input).length,
