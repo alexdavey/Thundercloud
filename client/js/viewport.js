@@ -1,4 +1,4 @@
-define(['text'], function(Text) {
+define(['text', 'settings'], function(Text, settings) {
 	
 	"use strict";
 
@@ -7,7 +7,7 @@ define(['text'], function(Text) {
 		startRow : 0,
 		endRow : 50,
 
-		height : 50,
+		height : ~~(settings.height / settings.lineHeight),
 
 		isInside : function(row) {
 			return row >= this.startRow && row <= this.endRow;

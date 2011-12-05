@@ -51,9 +51,6 @@ define(['events', 'text', 'settings', 'viewport'],
 			// Is the cursor too far down?
 			row = (row > textLength ? textLength : row);
 
-
-			console.log(viewport.startRow, ~~(y / lineHeight));
-
 			var lineLength = Text.lineLength(row);
 
 			// Is the cursor too far to the right?

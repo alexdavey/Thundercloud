@@ -1,4 +1,4 @@
-require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'overlay'],
+require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'overlay', 'debug'],
 	function(Input, settings, Canvas, Cursor, Text, history, events) {
 	
 	"use strict";
@@ -57,4 +57,3 @@ require(['files'], function(files) {
 		console.log('RESPONSE:', res);
 	});
 });
-

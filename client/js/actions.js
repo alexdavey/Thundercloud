@@ -78,9 +78,9 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 
 		// Tab
 		9 : function() {
-			var tab = new Array(settings.tabSize + 2).join(' ');
+			var tab = new Array(settings.tabSize + 1).join(' ');
 			Text.insert(tab/* '\t' */, Cursor.row, Cursor.col);
-			Cursor.shift('right', 1);
+			Cursor.shift('right', 4);
 		},
 
 		// Up arrow
@@ -172,18 +172,24 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 						row = Cursor.row,
 						col = Cursor.col;
 
+					// Is the input multi-line?
 					if (length > 1) {
+						// Remove the text after the cursor temporarily
 						Text.remove(-overflow.length, row, col)
-							// Append the top line
+
+						// Append the top line
 						Text.insert(input.shift(), row, col)
-							// Insert the bottom line and the overflow
+
+						// Insert the bottom line and the overflow
 						Text.insert(input.pop() + overflow, row + 1, 0)
-							// Insert all of the lines in between
+
+						// Insert all of the lines in between
 						Text.insertLines(input, row + 1);
 
 						Cursor.col = overflow.length + lastLineLength;
-						Cursor.shift('down', length - 2);
+						Cursor.shift('down', length - 1);
 					} else {
+						// If the input is a single line, simply insert it
 						Text.insert(textArea.value, row, col);
 						Cursor.shift('right', textArea.value.length);
 					}

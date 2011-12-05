@@ -161,7 +161,7 @@ define(['events'], function(events) {
 		// Inserts text at a given point (row, col)
 		insert : function(text, row, col) {
 			if (this.source[row] === undefined) {
-				this.addLine(row);
+				this.addLine(row, text);
 			} else {
 				var parts = _.splitText(this.source[row], col);
 				this.source[row] = parts.left + text + parts.right;
