@@ -8,6 +8,20 @@ _.mixin({
 		return this.replace(/^\s+|\s+$/g, '');
 	},
 
+	offset : function(el) {
+		var curleft = 0,
+			curtop  = 0;	
+
+		if (el.offsetParent) {
+			do {
+				curleft += el.offsetLeft;
+				curtop += el.offsetTop;
+			} while (el = el.offsetParent);	
+		}
+
+		return { top : curtop, left : curleft };
+	},
+
 	deepClone : function(obj) {
 		var newObj = {},
 			prop;
@@ -69,6 +83,19 @@ _.mixin({
 			left : text.slice(0, position),
 			right : text.slice(position)
 		};
+	},
+
+	addElement : function(obj) {
+		var el = document.createElement(obj.tag);
+		delete obj.tag;
+
+		if ('css' in obj) {
+			$.css(el, obj.css);
+			delete obj.css;
+		}
+
+		$.merge(el, obj);
+		return el;
 	},
 
 	listen : function(el, type, fn) {

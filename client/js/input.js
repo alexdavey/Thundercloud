@@ -15,7 +15,7 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 
 	var Input = {
 
-		init : function(canvasEl, clipboardEl) {
+		init : function(clipboardEl) {
 			textArea = clipboardEl;
 
 			_.listen('mousedown', this.onMouseDown);
@@ -31,8 +31,10 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 		},
 		
 		onMouseDown : function(e) {
-			var mouse = _.mouse(e);
-			Cursor.moveTo(mouse.x, mouse.y);
+			var mouse = _.mouse(e),
+				offset = _.offset(Canvas.paper);
+
+			Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
 			mouseDown = true;
 
 			selection.setStart();
@@ -45,12 +47,13 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 			if (!mouseDown) return;
 
 			var mouse = _.mouse(e),
+				offset = _.offset(Canvas.paper),
 				oldCol = Cursor.col,
 				oldRow = Cursor.row;
 
 			// Move the cursor and end point of
 			// the selection
-			Cursor.moveTo(mouse.x, mouse.y);
+			Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
 			selection.setEnd();
 
 			// Only render if the cursor position has changed

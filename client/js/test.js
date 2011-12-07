@@ -1,4 +1,4 @@
-require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'overlay', 'debug'],
+require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'overlay', 'debug', 'menu'],
 	function(Input, settings, Canvas, Cursor, Text, history, events) {
 	
 	"use strict";

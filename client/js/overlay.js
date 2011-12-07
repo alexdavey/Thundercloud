@@ -7,6 +7,8 @@ define(['settings'], function(settings) {
 	
 	var settingsButton = _.getId('settings'),
 		lightbox = _.getId('lightbox');
+	
+	if (!settingsButton) return;
 
 	_.listen(settingsButton, 'click', function() {
 		toggleDisplay(lightbox);

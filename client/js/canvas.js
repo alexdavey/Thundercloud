@@ -44,8 +44,9 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 
 		// Main render loop
 		render : function() {
-			var text;
+			var text, y;
 
+			// If the text has not been modified, use the cached version
 			if (Text.modified) {
 				text = Highlighter.highlight(Text.source);
 				tokens = _.clone(text);
@@ -58,7 +59,7 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 			this.clear();
 			this.drawSelection();
 
-			var y = this.drawText(text);
+			y = this.drawText(text);
 
 			this.drawMargin(y + 1);
 			this.drawCursor();

@@ -85,21 +85,25 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 
 		// Up arrow
 		38 : function() {
+			if (!selection.empty) selection.clear();
 			Cursor.shift('up');
 		},
 
 		// Down arrow
 		40 : function() {
+			if (!selection.empty) selection.clear();
 			Cursor.shift('down');
 		},
 
 		// Left arrow
 		37 : function() {
+			if (!selection.empty) selection.clear();
 			Cursor.shift('left');
 		},
 
 		// Right arrow
 		39 : function() {
+			if (!selection.empty) selection.clear();
 			Cursor.shift('right');
 		},
 
