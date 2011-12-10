@@ -3,6 +3,15 @@ define(['events', 'text', 'settings', 'viewport'],
 
 	"use strict";
 
+	function shiftViewport() {
+		if (!viewport.isInside(cursor.row)) {
+			console.log('not inside');
+			// Shift the viewport to the end of the line if the cursor
+			// is above the cursor or to the beginning if below.
+			viewport.shiftTo(cursor.row < viewport.startRow ? 'start' : 'end', cursor.row);
+		}
+	}
+
 	var cursor = {
 
 		row : 0,
@@ -17,7 +26,7 @@ define(['events', 'text', 'settings', 'viewport'],
 			var row = this.row,
 				col = this.col;
 
-			if (row < viewport.startRow || row > viewport.endRow) return;
+			if (!viewport.isInside(row)) return;
 			return {
 				x : col * settings.charWidth + settings.padding,
 				y : (row - viewport.startRow) * settings.lineHeight
@@ -61,12 +70,16 @@ define(['events', 'text', 'settings', 'viewport'],
 
 			this.col = col;
 			this.row = row;
+
+			shiftViewport();
 		},
 
 		// Shifts the cursor position whilst checking boundaries
 		shift : function(direction, magnitude) {
-			magnitude = magnitude || 1;
+			magnitude || (magnitude = 1);
+
 			switch(direction) {
+
 				case 'right':
 					if (!this.atEndOfLine()) this.col += magnitude;
 					break;
@@ -86,12 +99,15 @@ define(['events', 'text', 'settings', 'viewport'],
 
 				case 'up':
 					if (!this.onFirstLine()) {
-						var length = Text.lineLength(this.row - 1);
+						var length = Text.lineLength(this.row - magnitude);
 						if (this.col > length) this.col = length;
 						this.row -= magnitude;
 					}
 
-				}
+			}
+
+			shiftViewport();
+
 		}
 	};
 

@@ -12,8 +12,11 @@ define(['text', 'settings'], function(Text, settings) {
 		isInside : function(row) {
 			return row >= this.startRow && row <= this.endRow;
 		},
-
+		
+		// Shifts the "start row" and "end row".
+		// Down is positive
 		shift : function(delta) {
+			console.log('shifting', delta);
 			var length = Text.source.length;
 			if (length < this.height) return;
 
@@ -27,6 +30,10 @@ define(['text', 'settings'], function(Text, settings) {
 				this.endRow = length;
 				this.startRow = length - this.height;
 			}
+		},
+
+		shiftTo : function(startOrEnd, row) {
+			this.shift(row - (startOrEnd == 'start' ? this.startRow : this.endRow));
 		}
 
 	};

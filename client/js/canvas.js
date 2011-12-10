@@ -53,7 +53,7 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 			} else {
 				text = tokens;
 			}
-			
+
 			Text.modified = false;
 
 			this.clear();
@@ -115,7 +115,7 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 				if (token === null) {
 					y += 1;
 					x = 0;
-				} else if (y >= startRow && y <= viewport.endRow){
+				} else if (viewport.isInside(y)){
 
 					value = token.value;
 
