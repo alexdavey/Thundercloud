@@ -6,6 +6,7 @@ define(['events', 'canvas'], function(events) {
 		states  = [],
 		active  = 0;
 
+	// Return an object without the static members (functions)
 	function withoutFunctions(obj) {
 		var clone = _.deepClone(obj);
 		
@@ -18,6 +19,9 @@ define(['events', 'canvas'], function(events) {
 		return clone;
 	}
 
+	// Changes the active (current) history state
+	// based on the "delta". Positive values are
+	// more recent snapshots
 	function setActive(delta) {
 		if (states[active + delta] !== undefined) {
 			active += delta;
@@ -59,6 +63,8 @@ define(['events', 'canvas'], function(events) {
 		restore : function(delta) {
 			setActive(delta);
 			var activeState = states[active];
+
+			console.dir(activeState);
 
 			// Restore all of the objects
 			for (var i = 0, l = activeState.length; i < l; ++i) {

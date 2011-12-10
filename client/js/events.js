@@ -5,22 +5,24 @@ define(function() {
 	var subscribers = {};
 
 	function notifyAll(evt, info) {
-		var subs;
+		var subs, sub;
 		if (evt in subscribers) {
 			subs = subscribers[evt];
+			// Loop over all of the subscribers for that event
 			for (var i = 0, l = subs.length; i < l; ++i) {
-				subs[i](info);
+				subs[i].call(info);
 			}
 		}
 	}
 	
 	var events = {
 		
-		subscribe : function(evt, fn) {
+		subscribe : function(evt, fn, context) {
+			var callback = _.bind(fn, context);
 			if (evt in subscribers) {
-				subscribers[evt].push(fn);
+				subscribers[evt].push(callback);
 			} else {
-				subscribers[evt] = [fn];
+				subscribers[evt] = [callback];
 			}
 		},
 

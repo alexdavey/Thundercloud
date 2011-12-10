@@ -1,5 +1,7 @@
 define(['actions'], function(actions) {
 
+	return;
+
 	"use strict";
 	
 	var menuItems = _.getClass('menu');
@@ -21,15 +23,21 @@ define(['actions'], function(actions) {
 	var dropdownList = [['file', file], ['edit', edit]];
 
 	// Create a template to render a list with the names of the operations
-	var template = _.template('<ul id="<%= name %>">' +
-			'<% _.each(items, function(x) { %> <li> <%= x[0] %> </li> <% }) %> </ul>');
+	var template = _.template('<ul>' +
+								'<% _.(items).pluck(0).each(function(item) { %>' + 
+										'<li> <%=item %> </li> <%' +
+									'}) %>' + 
+						      '</ul>');
 	
+	// Create html strings from the template
 	var html = _.map(dropdowns, function(dropdown) {
-		return template({ items : dropdown[1], name : dropdown[0] });
+		return template({ items : dropdown[1] });
 	});
 
-	var dropdowns = _.map(html, function(innerHTML) {
+	// Wrap the html in a div, and hide the div
+	var dropdowns = _.map(html, function(innerHTML, key) {
 		return _.addElement({
+			id : dropdownList[key][0], // Name of the dropdown menu
 			tag : 'div',
 			innerHTMl : innerHTML,
 			css : {

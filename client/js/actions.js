@@ -1,5 +1,5 @@
-define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'], 
-	function(Cursor, Text, selection, settings, Canvas, history) {
+define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'], 
+	function(events, Cursor, Text, selection, settings, Canvas, history) {
 
 	"use strict";
 
@@ -117,7 +117,7 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 				start.row = start.col = 0;
 				end.row = Text.source.length - 1;
 				end.col = _.last(Text.source).length;
-				Canvas.render();
+				events.publish('operation');
 			},
 
 			// Undo (z)
@@ -156,7 +156,7 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 				// Proxy to the backspace function
 				actions[8]();
 
-				Canvas.render();
+				events.publish('operation');
 			},
 
 			// Paste (v)
@@ -199,7 +199,7 @@ define(['cursor', 'text', 'selection', 'settings', 'canvas', 'history'],
 					}
 
 					textArea.value = '';
-					Canvas.render();
+					events.publish('operation');
 				}, 100);
 			},
 

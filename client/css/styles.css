@@ -105,7 +105,11 @@
 		startColorstr='#b3eef5f5', endColorstr='#b3000000',GradientType=0 ); /* IE6-9 */
 }
 
-.menu .button {
+.menuDropdown {
+	display : none;
+}
+
+.menu button {
 	text-shadow: white 0 1px;
 	font-size: 14px;
 	font-family: Helvetica;

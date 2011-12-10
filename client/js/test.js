@@ -1,5 +1,5 @@
-require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'overlay', 'debug', 'menu'],
-	function(Input, settings, Canvas, Cursor, Text, history, events) {
+require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'viewport', 'selection', 'files', 'overlay', 'debug', 'menu'],
+	function(Input, settings, Canvas, Cursor, Text, history, events, viewport, selection, files) {
 	
 	"use strict";
 
@@ -34,26 +34,40 @@ require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', '
 	Text.source = source.split('\n');
 
 	Input.init(editorEl, clipboardEl);
-	
-	Canvas.init(editorEl);
-	Canvas.render();
-});
 
-
-require(['history','events', 'text', 'cursor', 'viewport', 'selection'], 
-		function(history, events) {
+	// History
+	// -------
 
 	// Add all of the data representations to the history watch list
-	_.each([].slice.call(arguments, 2), history.watch);
+	_.each([Text, Cursor, viewport, selection], history.watch);
+
+	// Save the history when the text is changed. It is important
+	// that the history is subscribed first because otherwise the
+	// canvas toggles the "text modified" flag.
+	events.subscribe('operation', history.save);
+
+
+	// Canvas
+	// ------
 	
-	// Save the history when the text is changed
-	events.subscribe('textModified', history.save);
+	Canvas.init(editorEl);
 
-	history.save();
-});
+	// Render the canvas when the text is changed
+	events.subscribe('operation', Canvas.render, Canvas);
 
-require(['files'], function(files) {
+
+	// Files
+	// -----
+
 	files.read('index.html', function(res) {
 		console.log('RESPONSE:', res);
 	});
+
+
+	// Start
+	// -----
+	
+	history.save();
+	Canvas.render();
+
 });

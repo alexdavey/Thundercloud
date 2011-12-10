@@ -1,5 +1,5 @@
-define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
-	function(Canvas, Cursor, viewport, settings, selection, actions, Text) {
+define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
+	function(events, Canvas, Cursor, viewport, settings, selection, actions, Text) {
 	
 	"use strict";
 
@@ -40,7 +40,7 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 			selection.setStart();
 			selection.setEnd();
 
-			Canvas.render();
+			events.publish('operation');
 		},
 
 		onMouseMove : function(e) {
@@ -58,7 +58,7 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 
 			// Only render if the cursor position has changed
 			if (Cursor.col != oldCol || Cursor.row != oldRow) {
-				Canvas.render();
+				events.publish('operation');
 			}
 		},
 
@@ -74,7 +74,7 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 			if (keyCode in actions) {
 				e.preventDefault();
 				actions[keyCode]();
-				Canvas.render();
+				events.publish('operation');
 			} else if (keyCode in passive) {
 				passive[keyCode]();
 			}
@@ -97,13 +97,13 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 			// the backspace function
 			if (!selection.isEmpty()) actions[8]();
 			Cursor.shift('right');
-			Canvas.render();
+			events.publish('operation');
 		},
 
 		onScrollFF : function(e) {
 			e.preventDefault();
 			viewport.shift(~~(e.detail / settings.mouseSensitivity));
-			Canvas.render();
+			events.publish('operation');
 		},
 
 		onScroll : function(e) {
@@ -116,7 +116,7 @@ define(['canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'tex
 			viewport.shift(~~(-e.wheelDelta / settings.mouseSensitivity));
 
 			if (viewport.startRow != viewportStart || viewport.endRow != viewportEnd) {
-				Canvas.render();
+				events.publish('operation');
 			}
 		}
 
