@@ -16,7 +16,6 @@ define(['text', 'settings'], function(Text, settings) {
 		// Shifts the "start row" and "end row".
 		// Down is positive
 		shift : function(delta) {
-			console.log('shifting', delta);
 			var length = Text.source.length;
 			if (length < this.height) return;
 

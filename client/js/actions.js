@@ -85,26 +85,26 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 
 		// Up arrow
 		38 : function() {
-			if (!selection.empty) selection.clear();
 			Cursor.shift('up');
+			actions.handleSelection();
 		},
 
 		// Down arrow
 		40 : function() {
-			if (!selection.empty) selection.clear();
 			Cursor.shift('down');
+			actions.handleSelection();
 		},
 
 		// Left arrow
 		37 : function() {
-			if (!selection.empty) selection.clear();
 			Cursor.shift('left');
+			actions.handleSelection();
 		},
 
 		// Right arrow
 		39 : function() {
-			if (!selection.empty) selection.clear();
 			Cursor.shift('right');
+			actions.handleSelection();
 		},
 
 		passive : {
@@ -134,6 +134,10 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 				Canvas.render();
 			},
 
+			// Shift
+			16 : function() {
+				actions.shiftDown = true;
+			},
 			
 			// Ctrl
 			17 : function() {
@@ -152,7 +156,7 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 				if (!actions.ctrlDown) return;
 
 				// Proxy to the copy function
-				this[67]();
+				actions[67]();
 				// Proxy to the backspace function
 				actions[8]();
 
@@ -219,7 +223,22 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 				}
 			}
 		},
+	
+		// Utility methods
+		// ---------------
 
+		handleSelection : function() {
+			if (actions.shiftDown) {
+				selection.setEnd();
+			} else if (!selection.empty) {
+				selection.clear();
+			}
+		},
+
+		// Flags
+		// -----
+		
+		shiftDown : false,
 		ctrlDown : false
 
 	};

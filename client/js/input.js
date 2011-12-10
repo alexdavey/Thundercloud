@@ -37,8 +37,7 @@ define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'acti
 			Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
 			mouseDown = true;
 
-			selection.setStart();
-			selection.setEnd();
+			actions.handleSelection();
 
 			events.publish('operation');
 		},
@@ -82,8 +81,11 @@ define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'acti
 
 		onKeyUp : function(e) {
 			e = e || window.e;
+
 			if (e.keyCode == 17 || e.keyCode == 91) {
 				actions.ctrlDown = false;
+			} else if (e.keyCode == 16) {
+				actions.shiftDown = false;
 			}
 		},
 
