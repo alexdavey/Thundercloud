@@ -14,6 +14,8 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 		var charWidth = settings.charWidth,
 			difference = (col1 - col2) * -1;
 
+		if (difference == 0 && col1 == 0) difference = 0.5;
+
 		ctx.fillRect(settings.padding + charWidth * col1, (row - viewport.startRow) *
 				settings.lineHeight, difference * charWidth, settings.lineHeight);
 	}
@@ -71,32 +73,6 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 		// an array of colored tokens. Returns the number of
 		// lines drawn
 		drawText : function(tokens) {
-			// var padding = settings.padding,
-			// 	lineHeight = settings.lineHeight,
-			// 	startY = viewport.startRow * lineHeight,
-			// 	endY = viewport.endRow * lineHeight,
-			// 	token,
-			// 	value;
-
-			// var x = padding,
-			// 	y = 10;
-
-			// for (var i = 0, l = tokens.length; i < l; ++i) {
-			// 	token = tokens[i];
-
-			// 	if (token === null) {
-			// 		x = padding;
-			// 		y += lineHeight;
-			// 	} else if (x < ) {
-			// 		value = token.value;
-
-			// 		ctx.fillStyle = token.color;
-			// 		ctx.fillText(value, x, y);
-
-			// 		x += ctx.measureText(value);
-			// 	}
-			// }
-			
 			var token, 
 				y = 0,
 				x = 0,
@@ -138,7 +114,7 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 			}
 
 			// Return the number of lines drawn
-			return y /* / lineHeight */;
+			return y;
 		},
 
 		// Draws both the gradient and the line numbers
@@ -212,8 +188,10 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 
 			ctx.fillStyle = settings.highlight;
 			
+			// Highlight the part selected on the current line
 			highlightPart(ctx, start.row, start.col, col2);
-
+			
+			// I the selection is on a single line
 			if (start.row != end.row) {
 				var i = start.row;
 
