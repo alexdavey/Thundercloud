@@ -24,18 +24,19 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 		// Backspace
 		8 : function() {
 			var col = Cursor.col,
-				row = Cursor.row;
+				row = Cursor.row,
+				length;
 
 			if (selection.isEmpty()) {
 				if (col == 0) {
 					if (row == 0) return;
-
-					Cursor.col = Text.lineLength(row - 1);
-					Cursor.shift('up');
+					length = Text.lineLength(row - 1);
 
 					Text.append(Text.source[row], row - 1)
 						.removeLine(row);
 
+					Cursor.col = length;
+					Cursor.shift('up');
 				} else {
 					Text.remove(1, row, col);
 					Cursor.shift('left');
@@ -85,26 +86,26 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 
 		// Up arrow
 		38 : function() {
-			Cursor.shift('up');
 			actions.handleSelection();
+			Cursor.shift('up');
 		},
 
 		// Down arrow
 		40 : function() {
-			Cursor.shift('down');
 			actions.handleSelection();
+			Cursor.shift('down');
 		},
 
 		// Left arrow
 		37 : function() {
-			Cursor.shift('left');
 			actions.handleSelection();
+			Cursor.shift('left');
 		},
 
 		// Right arrow
 		39 : function() {
-			Cursor.shift('right');
 			actions.handleSelection();
+			Cursor.shift('right');
 		},
 
 		passive : {
@@ -156,7 +157,7 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 				if (!actions.ctrlDown) return;
 
 				// Proxy to the copy function
-				actions[67]();
+				actions.passive[67]();
 				// Proxy to the backspace function
 				actions[8]();
 

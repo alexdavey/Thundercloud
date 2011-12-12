@@ -4,9 +4,6 @@ define(['text', 'settings'], function(Text, settings) {
 
 	var viewport = {
 		
-		startRow : 0,
-		endRow : 50,
-
 		height : ~~(settings.height / settings.lineHeight),
 
 		isInside : function(row) {
@@ -17,18 +14,17 @@ define(['text', 'settings'], function(Text, settings) {
 		// Down is positive
 		shift : function(delta) {
 			var length = Text.source.length;
-			if (length < this.height) return;
+			if (length <= this.height) return;
 
 			this.startRow += delta;
 			this.endRow += delta;
 
 			if (this.startRow < 0) {
-				this.startRow = 0;
-				this.endRow = this.height;
+				this.shiftTo('start', 0);
 			} else if (this.endRow > length) {
-				this.endRow = length;
-				this.startRow = length - this.height;
+				this.shiftTo('end', length);
 			}
+
 		},
 
 		shiftTo : function(startOrEnd, row) {
@@ -36,6 +32,9 @@ define(['text', 'settings'], function(Text, settings) {
 		}
 
 	};
+
+	viewport.startRow = 0;
+	viewport.endRow = viewport.height;
 
 	return viewport;
 

@@ -145,7 +145,8 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 		// for the margin
 		drawMargin : function(line) {
 			var padding = settings.padding,
-				lineHeight = settings.lineHeight;
+				lineHeight = settings.lineHeight,
+				startRow = viewport.startRow;
 
 			// Draw the gradient
 			var grad = ctx.createLinearGradient(0, 0, padding, 0);
@@ -160,10 +161,12 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 
 			ctx.fillStyle = '#000000';
 
+			line -= startRow;
+
 			// Draw the line numbers
-			while (line--) {
+			while (line-- > 0) {
 				var y = line * lineHeight + 10,
-					num = line + viewport.startRow + 1,
+					num = line + startRow + 1,
 					x = padding - addPadding(num, settings.charWidth);
 				ctx.fillText(num, x, y);
 			}

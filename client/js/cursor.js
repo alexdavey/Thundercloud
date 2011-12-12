@@ -4,8 +4,10 @@ define(['events', 'text', 'settings', 'viewport'],
 	"use strict";
 
 	function shiftViewport() {
-		if (!viewport.isInside(cursor.row)) {
-			console.log('not inside');
+		// Ensure that the viewport is not past the end of the text
+		if (viewport.endRow > Text.source.length - 1) {
+			viewport.shiftTo('end', cursor.row);
+		} else if (!viewport.isInside(cursor.row)) {
 			// Shift the viewport to the end of the line if the cursor
 			// is above the cursor or to the beginning if below.
 			viewport.shiftTo(cursor.row < viewport.startRow ? 'start' : 'end', cursor.row);
@@ -111,12 +113,11 @@ define(['events', 'text', 'settings', 'viewport'],
 		}
 	};
 
-	// events.subscribe('text modified', function() {
+	// events.subscribe('operation', function() {
 	// 	cursor.blinking = false;
 	// 	setInterval(function() {
-	// 		console.log('blink');
 	// 		cursor.blinking = !cursor.blinking;
-	// 	}, 1000);
+	// 	}, 500);
 	// });
 
 	return cursor;

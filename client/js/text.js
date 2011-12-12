@@ -151,7 +151,6 @@ define(['events'], function(events) {
 
 		// Inserts an array of lines at a given row
 		insertLines : function(items, row) {
-			items = _.compact(items);
 			items.unshift(row, 0);
 			[].splice.apply(this.source, items);
 			this.onChange();

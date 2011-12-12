@@ -34,6 +34,9 @@ define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'acti
 			var mouse = _.mouse(e),
 				offset = _.offset(Canvas.paper);
 
+			e.preventDefault();
+			e.stopPropagation();
+
 			Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
 			mouseDown = true;
 
@@ -49,6 +52,9 @@ define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'acti
 				offset = _.offset(Canvas.paper),
 				oldCol = Cursor.col,
 				oldRow = Cursor.row;
+
+			e.preventDefault();
+			e.stopPropagation();
 
 			// Move the cursor and end point of
 			// the selection
