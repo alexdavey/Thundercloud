@@ -7,17 +7,11 @@
 	padding : 0;
 }
 
-#input {
-	position : absolute;
-	top : 10px;
-	left : 10px;
-	z-index : 1000;
-	width : 1px;
-	height : 1px;
-}
-
 #editor {
 	cursor : text;
+	position : absolute;
+	top : 0;
+	left : 0;
 }
 
 #sidebar {
@@ -60,6 +54,7 @@
 }
 
 #clipboard {
+	overflow : hidden;
 	margin: 0;
 	padding: 0;
 	width : 0px;
@@ -67,7 +62,7 @@
 	position : absolute;
 	top : 0;
 	left : 0;
-	z-index : -1;
+	z-index : -100;
 	resize : none;
 }
 

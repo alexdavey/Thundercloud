@@ -15,8 +15,7 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 		Cursor.col = start.col;
 		Cursor.row = start.row;
 
-		selection.setStart();
-		selection.setEnd();
+		selection.clear();
 	}
 
 	var actions = {
@@ -137,6 +136,7 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 
 			// Shift
 			16 : function() {
+				selection.setStart();
 				actions.shiftDown = true;
 			},
 			
