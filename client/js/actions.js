@@ -63,6 +63,7 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 			var row = Cursor.row,
 				col = Cursor.col,
 				overflow
+			
 			if (col == 0) {
 				Text.addLine(row);
 			} else {
@@ -137,6 +138,8 @@ define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history'
 			// Shift
 			16 : function() {
 				selection.setStart();
+				console.log('cursor:', Cursor.row, Cursor.col);
+				console.log('selection:', selection.start, selection.end);
 				actions.shiftDown = true;
 			},
 			

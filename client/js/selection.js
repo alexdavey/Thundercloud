@@ -5,23 +5,29 @@ define(['cursor'], function(Cursor) {
 	var selection = {
 		
 		isEmpty : function() {
-			var start = this.start, end = this.end;
-			return start.col == end.col && start.row == end.row;
+			var start = this.start,
+				end = this.end;
+
+			// Check that none of the values are null, and the start position
+			// does not equal the end position
+			return (start.col === end.col && start.row === end.row) ||
+				   (start.col === null    || start.row === null &&
+					end.col   === null    || end.row   === null);
 		},
 
 		clear : function() {
-			this.setStart();
-			this.setEnd();
+			this.start = { col : null, row : null };
+			this.end   = { col : null, row : null };
 		},
 
-		setStart : function() {
-			this.start.col = Cursor.col;
-			this.start.row = Cursor.row;
+		setStart : function(row, col) {
+			this.start.col = col || Cursor.col;
+			this.start.row = row || Cursor.row;
 		},
 
-		setEnd : function() {
-			this.end.col = Cursor.col;
-			this.end.row = Cursor.row;
+		setEnd : function(row, col) {
+			this.end.col = col || Cursor.col;
+			this.end.row = row || Cursor.row;
 		},
 
 		normalize : function() {
@@ -52,13 +58,13 @@ define(['cursor'], function(Cursor) {
 		},
 
 		start : {
-			col : 0,
-			row : 0
+			col : null,
+			row : null
 		},
 
 		end : {
-			col : 0,
-			row : 0
+			col : null,
+			row : null
 		}
 
 	};

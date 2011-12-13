@@ -101,9 +101,11 @@ define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'acti
 			if (character.length < 1) return;
 			e.preventDefault();
 			Text.insert(character, Cursor.row, Cursor.col);
+
 			// If there is a current selection, delete it using
 			// the backspace function
 			if (!selection.isEmpty()) actions[8]();
+
 			Cursor.shift('right');
 			events.publish('operation');
 		},
