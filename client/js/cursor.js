@@ -44,7 +44,7 @@ define(['events', 'text', 'settings', 'viewport'],
 		},
 
 		onLastLine : function() {
-			return this.col == Text.source.length - 1;
+			return this.row == Text.source.length - 1;
 		},
 
 		onFirstLine : function() {
