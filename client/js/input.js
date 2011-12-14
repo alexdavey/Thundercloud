@@ -40,7 +40,14 @@ define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'acti
 			Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
 			mouseDown = true;
 
-			actions.handleSelection();
+			if (actions.shiftDown) {
+				selection.setEnd();
+			} else {
+				// Deselect any existing selections and 
+				// start a new one
+				selection.clear();
+				selection.setStart();
+			}
 
 			events.publish('operation');
 		},
