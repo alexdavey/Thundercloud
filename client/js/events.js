@@ -1,4 +1,4 @@
-define(function() {
+define('events', function() {
 
 	"use strict";
 

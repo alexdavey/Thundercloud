@@ -61,6 +61,7 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 			this.clear();
 			this.drawSelection();
 
+			// Drawtext returns the number of lines drawn
 			y = this.drawText(text);
 
 			this.drawMargin(y + 1);
@@ -157,8 +158,8 @@ define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'h
 			var oldLineCap = ctx.lineCap,
 				canvasHeight = paper.height,
 				textLength = Text.source.length,
-				height = (viewport.height / textLength) * paper.height - 16,
-				y = (paper.height / textLength) * viewport.startRow + 8,
+				height = (viewport.height / textLength) * canvasHeight - 16,
+				y = (canvasHeight / textLength) * viewport.startRow + 8,
 				x = paper.width - 8;
 		
 			ctx.lineCap = 'round';

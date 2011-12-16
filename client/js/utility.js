@@ -115,6 +115,9 @@ _.mixin({
 
 (function() {
 
+		// Satisfy DOMless test suite
+		if (typeof document === 'undefined') return;
+
 		var div = document.createElement('div'),
 			cache = {};
 

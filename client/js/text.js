@@ -1,4 +1,4 @@
-define(['events'], function(events) {
+define('text', ['events'], function(events) {
 	
 	"use strict";
 
@@ -30,6 +30,9 @@ define(['events'], function(events) {
 		// Splices all lines between start and end (inclusive)
 		removeLines : function(start, end) {
 			this.source.splice(start, (end - start) + 1);
+			// An empty array causes errors in other text manipulation
+			// functions such as insert
+			if (_.isEmpty(this.source)) this.source = [''];
 			this.onChange();
 			return this;
 		},
@@ -64,7 +67,20 @@ define(['events'], function(events) {
 
 		// Removes all text between two points (row, col) 
 		removeSelection : function(row1, col1, row2, col2) {
-			var diff = row2 - row1;
+			var diff, temp;
+
+			// If the selection is backwards, reverse it
+			if (row1 > row2 || col1 > col2) {
+				temp = { col : col1, row : row1 };
+
+				row1 = row2;
+				col1 = col2;
+
+				row2 = temp.row;
+				col2 = temp.col;
+			}
+
+			diff = row2 - row1;
 
 			// Proxy to removeSection if the start and end
 			// are on the same line
@@ -88,9 +104,7 @@ define(['events'], function(events) {
 
 				// If everything is selected, the array will be
 				// emptied, which causes errors when inserting text
-				if (_.isEmpty(this.source)) {
-					this.source = [''];
-				}
+				if (_.isEmpty(this.source)) this.source = [''];
 			}
 			this.onChange();
 			return this;
@@ -180,20 +194,7 @@ define(['events'], function(events) {
 		// Removes n characters before a point, removing 
 		// characters after if negative
 		remove : function(items, row, col) {
-			var string = this.source[row];
-
-			if (items === 0) return this;
-
-			// If negative remove characters after
-			if (items <= -1) {
-				col *= -1;
-				this.source[row] = string.slice(0, col) + string.slice(col + 1);
-			} else {
-				this.source[row] = string.slice(0, col - 1) + string.slice(col);
-			}
-
-			this.onChange();
-			return this;
+			return this.removeSection(row, col, col - items);
 		},
 
 		merge : function(row1, row2) {
