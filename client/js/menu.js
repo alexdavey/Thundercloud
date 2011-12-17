@@ -1,4 +1,4 @@
-define(['actions'], function(actions) {
+define('menu', ['actions'], function(actions) {
 
 	return;
 

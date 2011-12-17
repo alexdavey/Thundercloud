@@ -1,4 +1,4 @@
-define(['text', 'settings'], function(Text, settings) {
+define('viewport', ['text', 'settings'], function(Text, settings) {
 	
 	"use strict";
 

@@ -1,4 +1,4 @@
-define(['events', 'canvas'], function(events) {
+define('history', ['events', 'canvas'], function(events) {
 
 	"use strict";
 

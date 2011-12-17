@@ -1,4 +1,4 @@
-define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
+define('input', ['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
 	function(events, Canvas, Cursor, viewport, settings, selection, actions, Text) {
 	
 	"use strict";
@@ -107,11 +107,12 @@ define(['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'acti
 			var character = String.fromCharCode(e.charCode);
 			if (character.length < 1) return;
 			e.preventDefault();
-			Text.insert(character, Cursor.row, Cursor.col);
 
 			// If there is a current selection, delete it using
 			// the backspace function
 			if (!selection.isEmpty()) actions[8]();
+
+			Text.insert(character, Cursor.row, Cursor.col);
 
 			Cursor.shift('right');
 			events.publish('operation');

@@ -1,4 +1,4 @@
-define(['cursor'], function(Cursor) {
+define('selection', ['cursor'], function(Cursor) {
 	
 	"use strict";
 

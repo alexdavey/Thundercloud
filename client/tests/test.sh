@@ -4,7 +4,12 @@
 IFS=$','
 
 # Arguments required for every test
-args=("../js/lib/require.js" "../js/lib/underscore.js" "../js/utility.js")
+args=("../js/lib/require.js" "../js/lib/underscore.js" "../js/utility.js" "test.js")
+
+# if $1=="*"
+# then
+# 	args+=$(ls *.js) + $(ls -r ../js/*.js)
+# fi
 
 # Run the test with the new arguments, concatenating
 # them with a comma and prepending the js_files flag

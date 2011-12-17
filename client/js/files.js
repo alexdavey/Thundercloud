@@ -1,4 +1,4 @@
-define(function() {
+define('files', function() {
 
 	var ajax = (function() {
 

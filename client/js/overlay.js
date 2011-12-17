@@ -1,4 +1,4 @@
-define(['settings'], function(settings) {
+define('overlay', ['settings'], function(settings) {
 
 	function toggleDisplay(el) {
 		var styles = el.style;

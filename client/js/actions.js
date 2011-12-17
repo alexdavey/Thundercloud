@@ -1,4 +1,4 @@
-define(['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history', 'viewport'], 
+define('actions', ['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history', 'viewport'], 
 	function(events, Cursor, Text, selection, settings, Canvas, history, viewport) {
 
 	"use strict";

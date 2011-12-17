@@ -1,4 +1,4 @@
-define(['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'history'], 
+define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'history'], 
 	function(Text, Highlighter, selection, viewport, Cursor, settings, history) {
 
 	"use strict";

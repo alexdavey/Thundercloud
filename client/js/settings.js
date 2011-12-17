@@ -1,4 +1,4 @@
-define({
+define('settings', {
 	padding : 35,                        // Size of the line-number margin
 	language : 'html',
 	width : window.innerWidth,

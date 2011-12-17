@@ -1,4 +1,4 @@
-define(['events', 'text', 'settings', 'viewport'],
+define('cursor', ['events', 'text', 'settings', 'viewport'],
 			function(events, Text, settings, viewport) {
 
 	"use strict";
@@ -91,20 +91,18 @@ define(['events', 'text', 'settings', 'viewport'],
 					break;
 
 				case 'down':
-					if (!this.onLastLine()) {
-						var length = Text.lineLength(this.row + 1);
-						if (length == -1) return;
-						if (this.col > length) this.col = length;
-						this.row += magnitude;
-					}
+					if (this.onLastLine()) break;
+					var length = Text.lineLength(this.row + 1);
+					if (length == -1) return;
+					if (this.col > length) this.col = length;
+					this.row += magnitude;
 					break;
 
 				case 'up':
-					if (!this.onFirstLine()) {
-						var length = Text.lineLength(this.row - magnitude);
-						if (this.col > length) this.col = length;
-						this.row -= magnitude;
-					}
+					if (this.onFirstLine()) break;
+					var length = Text.lineLength(this.row - magnitude);
+					if (this.col > length) this.col = length;
+					this.row -= magnitude;
 
 			}
 

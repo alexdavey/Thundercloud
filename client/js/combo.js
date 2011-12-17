@@ -1,4 +1,4 @@
-define(function() {
+define('combo', function() {
 
 	"use strict";
 
