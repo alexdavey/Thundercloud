@@ -70,8 +70,8 @@ require(['viewport', 'text'], function(viewport, text) {
 
 		doesNotShiftPastBottom : function() {
 			viewport.shift(1000);
-			expectEq(viewport.startRow, 50);
-			expectEq(viewport.endRow, 100);
+			expectEq(viewport.startRow, 49);
+			expectEq(viewport.endRow, 99);
 		}
 		
 
@@ -94,9 +94,9 @@ require(['viewport', 'text'], function(viewport, text) {
 		},
 
 		shiftsEnd : function() {
-			viewport.shiftTo('end', 100);
-			expectEq(viewport.startRow, 50);
-			expectEq(viewport.endRow, 100);
+			viewport.shiftTo('end', 99);
+			expectEq(viewport.startRow, 49);
+			expectEq(viewport.endRow, 99);
 		}
 
 	};
