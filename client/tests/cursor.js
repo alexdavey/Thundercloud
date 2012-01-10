@@ -1,7 +1,9 @@
-require(['cursor', 'text'], function(cursor, text) {
+require(['cursor', 'text'], function(cursor, Text) {
 	
 	
 	"use strict";
+
+	var text = _.clone(Text);
 
 	var contents = Array(21).join('-');
 	text.source  = [];

@@ -55,19 +55,11 @@ define('selection', ['cursor'], function(Cursor) {
 				start : this.start,
 				end : this.end
 			};
-		},
-
-		start : {
-			col : null,
-			row : null
-		},
-
-		end : {
-			col : null,
-			row : null
 		}
 
 	};
+
+	selection.clear();
 	
 	return selection;
 

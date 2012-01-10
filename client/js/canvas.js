@@ -20,6 +20,7 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 				settings.lineHeight, difference * charWidth, settings.lineHeight);
 	}
 
+	// Returns the width of a string of numbers
 	function addPadding(number, charWidth) {
 		return (~~(Math.log(number) / Math.LN10) + 2) * charWidth;
 	}
@@ -82,7 +83,8 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 			var lineHeight = settings.lineHeight,
 				charWidth = settings.charWidth,
 				padding = settings.padding,
-				startRow = viewport.startRow;
+				startRow = viewport.startRow,
+				vPadding = settings.vPadding;
 
 			for (var i = 0, l = tokens.length; i < l; ++i) {
 
@@ -99,7 +101,7 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 
 					ctx.fillStyle = token.color;
 					ctx.fillText(value, x * charWidth + padding, 
-										(y - startRow) * lineHeight + 10);
+										(y - startRow) * lineHeight + vPadding);
 					
 					// Tokens have to be treated specially, 
 					// as they take up more than one space
@@ -183,8 +185,8 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 			var normal = selection.normalize(),
 				start = normal.start,
 				end = normal.end,
-				viewStart = viewport.startRow,
-				viewEnd = viewport.endRow,
+				viewportStart = viewport.startRow,
+				viewportEnd = viewport.endRow,
 				col2 = (start.row == end.row ? end.col : Text.lineLength(start.row));
 
 			ctx.fillStyle = settings.highlight;
@@ -192,7 +194,7 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 			// Highlight the part selected on the current line
 			highlightPart(ctx, start.row, start.col, col2);
 			
-			// I the selection is on a single line
+			// If the selection is on a single line
 			if (start.row != end.row) {
 				var i = start.row;
 
@@ -204,6 +206,7 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 			}
 
 			ctx.fillStyle = '#000000';
+			
 		},
 
 		// Sets the canvas font

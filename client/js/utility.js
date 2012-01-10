@@ -2,6 +2,13 @@
 
 _.mixin({
 
+	invokeAll : function(array) {
+		var args = _.tail(arguments);
+		_.each(array, function(fn) {
+			fn.fn.apply(fn.ctx || null, args);
+		});
+	},
+
 	trim : function(string) {
 		if (!this) return this;
 		if (string.trim) return string.trim();

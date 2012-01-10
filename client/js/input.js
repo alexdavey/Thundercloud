@@ -10,6 +10,14 @@ define('input', ['events', 'canvas', 'cursor', 'viewport', 'settings', 'selectio
 		Text.removeSelection(start.row, start.col, end.row, end.col);
 	}
 
+	function startSelection() {
+		selection.setStart(Cursor.row, Cursor.col);
+	}
+
+	function endSelection() {
+		selection.setEnd(Cursor.row, Cursor.col);
+	}
+
 	var mouseDown = false,
 		textArea;
 
@@ -41,12 +49,12 @@ define('input', ['events', 'canvas', 'cursor', 'viewport', 'settings', 'selectio
 			mouseDown = true;
 
 			if (actions.shiftDown) {
-				selection.setEnd();
+				endSelection();
 			} else {
 				// Deselect any existing selections and 
 				// start a new one
 				selection.clear();
-				selection.setStart();
+				startSelection();
 			}
 
 			events.publish('operation');
@@ -66,7 +74,7 @@ define('input', ['events', 'canvas', 'cursor', 'viewport', 'settings', 'selectio
 			// Move the cursor and end point of
 			// the selection
 			Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
-			selection.setEnd();
+			endSelection();
 
 			// Only render if the cursor position has changed
 			if (Cursor.col != oldCol || Cursor.row != oldRow) {

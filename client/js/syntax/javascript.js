@@ -15,7 +15,7 @@ define (['syntax/parser'], function(Syntax) {
 		commentEnd : /\/\*/,
 		commentStart : /\*\//,
 
-		keyword : /if|else|return|break|continue|for|while|do|in|new|var/
+		keyword : /^(if|else|return|break|continue|for|while|do|in|new|var)$/
 	};
 
 	var triggers = {

@@ -1,10 +1,9 @@
-require(['text'], function(text) {
+require(['text'], function(TEXT) {
 	
 
-// Utility
-// -------
-
 "use strict";
+
+var text = _.clone(TEXT);
 
 function Text() {
 	return _.extend(text, {

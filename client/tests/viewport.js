@@ -1,7 +1,9 @@
-require(['viewport', 'text'], function(viewport, text) {
+require(['viewport', 'text'], function(viewport, Text) {
 
 	"use strict";
 	
+	var text = _.clone(Text);
+
 	text.source = Array(100);
 	viewport.endRow = viewport.height = 50;
 
