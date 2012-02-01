@@ -10,8 +10,9 @@ define('inputII', function() {
 		flags    = {},
 	
 	// Textarea element used to capture printable keystrokes
-		textArea = _.createElement({ type : 'textArea' });
-
+		textArea = document.createElement('textArea');
+	
+	document.body.appendChild(textArea);
 
 	// Utility
 	// -------
@@ -24,8 +25,12 @@ define('inputII', function() {
 	}
 
 	function addBinding(keyCodes, fn) {
-		if (!bindings[name]) bindings[name] = [];
-		bindings[name].push(fn);
+		if (_.isString(keyCodes)) {
+			bindings[keyCodes] || (bindings[keyCodes] = []);
+			bindings[keyCodes].push(fn);
+		} else {
+			bindings.push(fn);
+		}
 	}
 
 	function removeBinding(name, fn) {
@@ -36,7 +41,7 @@ define('inputII', function() {
 
 	function fireBindings(name, e) {
 		if (_.isString(name)) {
-			invokeAll(bindings[name], e);
+			if (name in bindings) invokeAll(bindings[name], e);
 		} else {
 			fireActive(name);
 		}
@@ -65,7 +70,7 @@ define('inputII', function() {
 	function toKeyCodes(string) {
 		var keys = string.split('+');
 
-		_.map(keys, function(key) {
+		keys = _.map(keys, function(key) {
 			key = _.trim(key);
 			return aliases[key] || key.charCodeAt(0);
 		});
@@ -78,15 +83,6 @@ define('inputII', function() {
 		return _.sortBy(keyCodes, function(x) { return x });
 	}
 
-	// // Check to see if the current key combination is bound 
-	// // to an array of key codes
-	// function checkKeyCombinations(keyCodes) {
-	// 	for (var i = 0, l = keyCodes.length; i < l; ++i) {
-	// 		if (!keycodes[i] in flags) return false;
-	// 	}
-	// 	return true;
-	// }
-
 	function addFlag(flag) {
 		flags[flag] = true;
 	}
@@ -96,10 +92,44 @@ define('inputII', function() {
 	}
 
 	// Check the hidden textArea for printable characters
-	function getKeyInput() {
+	function getKeyInput(callback) {
+		textArea.focus();
 		setTimeout(function() {
-			return textArea.value || null;
+			callback(textArea.value || null);
+			textArea.value = '';
 		}, 10);
+	}
+	
+	function textInput(e, character) {
+		var keyCode = e.which || e.charCode || e.keyCode,
+			code = character ? character.charCodeAt(0) : keyCode,
+			extended = _.extend(e, { which : code }),
+			extras;
+
+		addFlag(code);
+
+		// If a character is given, fire the 'printable' event
+		if (character) {
+
+			// If multiple characters where caught, fire the
+			// events multiple times
+			if (character.length > 1) {
+				extras = _.tail(character.split(''));
+				_.each(extras, _.bind(textInput, null, e));
+				character = character.slice(0, 1);
+			}
+
+			fireBindings('printable', _.extend(extended, {
+				character : character
+			}));
+
+		} else {
+
+			fireBindings('meta', extended);
+
+		}
+
+		fireBindings('keypress', extended);
 	}
 
 	// Human readable synonyms to the key codes
@@ -137,25 +167,6 @@ define('inputII', function() {
 	};
 
 
-	// Internal event listeners
-	// ------------------------
-	
-	var events = {
-
-		'mousedown': onMouseDown,
-		'mousemove': onMouseMove,
-		'mouseup'  : onMouseUp,
-	
-		'keypress' : onKeyPress,
-		'keydown'  : onKeyDown,
-		'keyup'    : onKeyUp,
-									
-		'DOMMouseScroll' : onScrollFF,
-		'mousewheel'     : onScroll
-
-	};
-
-
 	// Internal event handlers
 	// -----------------------
 	
@@ -168,64 +179,46 @@ define('inputII', function() {
 		onMouseDown : function(e) {
 			addFlag('mousedown');
 			fireBindings('mouseDown');
-		}
+		},
 
 		onMouseMove : function(e) {
+			if (flags['mousedown']) fireBindings('drag');
 			fireBindings('mousemove');
-		}
+		},
 
 		onMouseUp : function(e) {
 			removeFlag('mousedown');
 			fireBindings('mouseup');
-		}
+		},
 
-		onKeyPress : function(e) {
-			var keyCode = e.charCode == null ? e.keyCode : e.charCode;
+		onKeyPress : function(e, character) {
+			getKeyInput(_.bind(textInput, null, e));
+		},
 
-			getKeyInput(function(character) {
-				var code = character ? character.charCodeAt(0) : keyCode,
-					extended = _.extend(e, { which : code });
-
-				addFlag(code);
-
-				if (character) {
-
-					fireBindings('printable', _.extend(extended, {
-						character : character
-					}));
-
-				} else {
-
-					fireBindings('meta', extended);
-
-				}
-
-				fireBindings('keypress', extended);
-			});
-
-		}
-
-		onKeyDown : function(keycode) {
-			var code = e.charCode == null ? e.keyCode : e.charCode;
+		onKeyDown : function(e) {
+			var code = e.which || e.charCode || e.keyCode;
+			console.log('keydown:', code);
 			addFlag(code);
 			fireBindings('keydown', _.extend(e, {
 				which : code
 			}));
-		}
+		},
 
-		onKeyUp : function(keycode) {
-			var code = e.charCode == null ? e.keyCode : e.charCode;
+		onKeyUp : function(e) {
+			var code = e.which || e.charCode || e.keyCode;
+			console.log('keypress:', code);
+			if (!code in flags) throw Error('Invalid flag');
 			removeFlag(code);
 			fireBindings('keyup', _.extend(e, {
 				which : code
 			}));
-		}
+		},
 
-		onScrollFF function(e) {
+		onScrollFF : function(e) {
 			fireBindings('scroll', _.extend(e, {
 				delta : -e.detail / 3
 			}));
-		}
+		},
 
 		onScroll : function(e) {
 			fireBindings('scroll', _.extend(e, {
@@ -235,24 +228,48 @@ define('inputII', function() {
 
 
 	};
-	
 
+
+	// Internal event listeners
+	// ------------------------
+	
+	var events = {
+
+		'mousedown': handlers.onMouseDown,
+		'mousemove': handlers.onMouseMove,
+		'mouseup'  : handlers.onMouseUp,
+	
+		'keypress' : handlers.onKeyPress,
+		'keydown'  : handlers.onKeyDown,
+		'keyup'    : handlers.onKeyUp,
+									
+		'DOMMouseScroll' : handlers.onScrollFF,
+		'mousewheel'     : handlers.onScroll
+
+	};
+	
 
 	// Interface
 	// ---------
+	
+	// List of events that will be automatically
+	// added to the interface
+	var namedEvents = ['printable', 'control', 'mousemove', 'mousedown',
+					   'mouseup', 'click', 'doubleClick', 'tripleClick',
+					   'drag', 'scroll'];
 	
 	var input = {
 
 		// Check to see id an array of keys are currently
 		// being pressed
-		is : _.compose(areActive, toKeyCodes);
+		is : _.compose(areActive, toKeyCodes),
 
 		bind : function(codes, fn) {
-			bindings.push(toKeyCodes(codes));
+			bindings.push([toKeyCodes(codes), fn]);
 		},
 
 		unbind : function(fn) {
-			for (var i = 0, l = bindings.length; ++i) {
+			for (var i = 0, l = bindings.length; i < l; ++i) {
 				if (bindings[i][1] === fn) {
 					bindings.splice(i, 1);
 					return;
@@ -260,39 +277,16 @@ define('inputII', function() {
 			}
 		},
 
-		printable : function(fn) {
-			
-		},
-
-		control : function(fn) {
-			
-		},
-
-		mouseDown : function(fn) {
-			
-		},
-
-		mouseUp : function(fn) {
-			
-		},
-
-		click : function(fn) {
-			
-		},
-
-		drag : function(fn) {
-			
-		},
-
-		scroll : function(fn) {
-			
-		},
-
 		setClipboard : function(string) {
 			textArea.value = string;
 		}
 
 	};
+
+	// Add all of the named events to the interface
+	_.each(namedEvents, function(name) {
+		input[name] = _.bind(addBinding, null, name);
+	});
 
 
 	// Attach all of the event listeners needed

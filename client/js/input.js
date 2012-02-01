@@ -1,5 +1,5 @@
-define('input', ['events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
-	function(events, Canvas, Cursor, viewport, settings, selection, actions, Text) {
+define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
+	function(inputII, events, Canvas, Cursor, viewport, settings, selection, actions, Text) {
 	
 	"use strict";
 
@@ -26,16 +26,16 @@ define('input', ['events', 'canvas', 'cursor', 'viewport', 'settings', 'selectio
 		init : function(clipboardEl) {
 			textArea = clipboardEl;
 
-			_.listen('mousedown', this.onMouseDown);
-			_.listen('mousemove', this.onMouseMove);
-			_.listen('mouseup', this.onMouseUp);
+			// _.listen('mousedown', this.onMouseDown);
+			// _.listen('mousemove', this.onMouseMove);
+			// _.listen('mouseup', this.onMouseUp);
 
-			_.listen('keypress', this.onKeyPress);
-			_.listen('keydown', this.onKeyDown);
-			_.listen('keyup', this.onKeyUp);
+			// _.listen('keypress', this.onKeyPress);
+			// _.listen('keydown', this.onKeyDown);
+			// _.listen('keyup', this.onKeyUp);
 
-			_.listen('DOMMouseScroll', this.onScrollFF);
-			_.listen('mousewheel', this.onScroll);
+			// _.listen('DOMMouseScroll', this.onScrollFF);
+			// _.listen('mousewheel', this.onScroll);
 		},
 		
 		onMouseDown : function(e) {
@@ -147,6 +147,16 @@ define('input', ['events', 'canvas', 'cursor', 'viewport', 'settings', 'selectio
 		}
 
 	};
+
+	// Temporary
+	inputII.printable(function(e) {
+		// console.log('CALLED');
+		// console.dir(e);
+	});
+
+	inputII.bind('^+a', function(e) {
+		console.log('^+a', e);
+	});
 
 	return Input;
 
