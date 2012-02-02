@@ -1,5 +1,5 @@
-require(['inputII', 'input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'viewport', 'selection', 'files', 'overlay', 'debug', 'menu'],
-	function(InputII, Input, settings, Canvas, Cursor, Text, history, events, viewport, selection, files) {
+require(['input', 'inputII', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'viewport', 'selection', 'files', 'overlay', 'debug', 'menu'],
+	function(Input, InputII, settings, Canvas, Cursor, Text, history, events, viewport, selection, files) {
 	
 	"use strict";
 

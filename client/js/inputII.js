@@ -41,20 +41,27 @@ define('inputII', function() {
 
 	function fireBindings(name, e) {
 		if (_.isString(name)) {
-			if (name in bindings) invokeAll(bindings[name], e);
+			if (name in bindings) {
+				invokeAll(bindings[name], e);
+			}
 		} else {
 			fireActive(name);
 		}
 	}
 
 	function fireActive(e) {
-		var binding;
+		var binding, stop;
 		for (var i = 0, l = bindings.length; i < l; ++i) {
 			binding = bindings[i];
 			if (areActive(binding[0])) {
-				bindings[1](e);
+				if (bindings[1](e) !== true) cancelEvent(e);
 			}
 		}
+	}
+
+	function cancelEvent(e) {
+		e.stopPropagation();
+		e.preventDefault();
 	}
 
 	// Invoke all of the elements in an array 
@@ -174,21 +181,20 @@ define('inputII', function() {
 	// before firing any event handlers listening
 	// to that event
 	var handlers = {
-		
 
 		onMouseDown : function(e) {
-			addFlag('mousedown');
-			fireBindings('mouseDown');
+			addFlag('mouseDown');
+			fireBindings('mouseDown', e);
 		},
 
 		onMouseMove : function(e) {
-			if (flags['mousedown']) fireBindings('drag');
-			fireBindings('mousemove');
+			if (flags['mouseDown']) fireBindings('drag', e);
+			fireBindings('mouseMove', e);
 		},
 
 		onMouseUp : function(e) {
-			removeFlag('mousedown');
-			fireBindings('mouseup');
+			removeFlag('mouseDown');
+			fireBindings('mouseUp');
 		},
 
 		onKeyPress : function(e, character) {
@@ -197,19 +203,17 @@ define('inputII', function() {
 
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
-			console.log('keydown:', code);
 			addFlag(code);
-			fireBindings('keydown', _.extend(e, {
+			fireBindings('keyDown', _.extend(e, {
 				which : code
 			}));
 		},
 
 		onKeyUp : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
-			console.log('keypress:', code);
 			if (!code in flags) throw Error('Invalid flag');
 			removeFlag(code);
-			fireBindings('keyup', _.extend(e, {
+			fireBindings('keyUp', _.extend(e, {
 				which : code
 			}));
 		},
@@ -235,16 +239,16 @@ define('inputII', function() {
 	
 	var events = {
 
-		'mousedown': handlers.onMouseDown,
-		'mousemove': handlers.onMouseMove,
-		'mouseup'  : handlers.onMouseUp,
+		'mouseDown': handlers.onMouseDown,
+		'mouseMove': handlers.onMouseMove,
+		'mouseUp'  : handlers.onMouseUp,
 	
-		'keypress' : handlers.onKeyPress,
-		'keydown'  : handlers.onKeyDown,
-		'keyup'    : handlers.onKeyUp,
+		'keyPress' : handlers.onKeyPress,
+		'keyDown'  : handlers.onKeyDown,
+		'keyUp'    : handlers.onKeyUp,
 									
 		'DOMMouseScroll' : handlers.onScrollFF,
-		'mousewheel'     : handlers.onScroll
+		'mouseWheel'     : handlers.onScroll
 
 	};
 	
@@ -254,8 +258,8 @@ define('inputII', function() {
 	
 	// List of events that will be automatically
 	// added to the interface
-	var namedEvents = ['printable', 'control', 'mousemove', 'mousedown',
-					   'mouseup', 'click', 'doubleClick', 'tripleClick',
+	var namedEvents = ['printable', 'control', 'mouseMove', 'mouseDown',
+					   'mouseUp', 'click', 'doubleClick', 'tripleClick',
 					   'drag', 'scroll'];
 	
 	var input = {
@@ -288,10 +292,9 @@ define('inputII', function() {
 		input[name] = _.bind(addBinding, null, name);
 	});
 
-
 	// Attach all of the event listeners needed
 	_.each(events, function(fn, name) {
-		_.listen(name, function(e) {
+		_.listen(name.toLowerCase(), function(e) {
 			fn(e || window.e);
 		});
 	});
