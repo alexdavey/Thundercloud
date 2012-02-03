@@ -31,6 +31,10 @@ define('inputII', function() {
 		} else {
 			bindings.push(fn);
 		}
+
+		// Return the function passed to it so that
+		// anonymous functions can be saved to variables
+		return fn;
 	}
 
 	function removeBinding(name, fn) {
@@ -127,10 +131,12 @@ define('inputII', function() {
 			}
 
 			fireBindings('printable', _.extend(extended, {
-				character : character
+				character : character,
 			}));
 
 		} else {
+
+			console.log('firing META');
 
 			fireBindings('meta', extended);
 
@@ -203,6 +209,7 @@ define('inputII', function() {
 
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
+			getKeyInput(_.bind(textInput, null, e));
 			addFlag(code);
 			fireBindings('keyDown', _.extend(e, {
 				which : code
@@ -260,7 +267,7 @@ define('inputII', function() {
 	// added to the interface
 	var namedEvents = ['printable', 'control', 'mouseMove', 'mouseDown',
 					   'mouseUp', 'click', 'doubleClick', 'tripleClick',
-					   'drag', 'scroll'];
+					   'drag', 'scroll', 'meta'];
 	
 	var input = {
 
@@ -270,6 +277,7 @@ define('inputII', function() {
 
 		bind : function(codes, fn) {
 			bindings.push([toKeyCodes(codes), fn]);
+			return fn;
 		},
 
 		unbind : function(fn) {
@@ -297,6 +305,14 @@ define('inputII', function() {
 		_.listen(name.toLowerCase(), function(e) {
 			fn(e || window.e);
 		});
+	});
+
+	input.meta(function(e) {
+		console.log('meta', e.which);
+	});
+
+	input.printable(function(e) {
+		console.log('printable', e.character);
 	});
 
 	return input;

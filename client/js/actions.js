@@ -1,5 +1,5 @@
-define('actions', ['events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history', 'viewport'], 
-	function(events, Cursor, Text, selection, settings, Canvas, history, viewport) {
+define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history', 'viewport'], 
+	function(input, events, Cursor, Text, selection, settings, Canvas, history, viewport) {
 
 	"use strict";
 
@@ -85,28 +85,28 @@ define('actions', ['events', 'cursor', 'text', 'selection', 'settings', 'canvas'
 		},
 
 		// Up arrow
-		38 : function() {
+		up : input.bind('↑', function() {
 			actions.handleSelection();
 			Cursor.shift('up');
-		},
+		}),
 
 		// Down arrow
-		40 : function() {
+		down : input.bind('↓', function() {
 			actions.handleSelection();
 			Cursor.shift('down');
-		},
+		}),
 
 		// Left arrow
-		37 : function() {
+		left : input.bind('←', function() {
 			actions.handleSelection();
 			Cursor.shift('left');
-		},
+		}),
 
 		// Right arrow
-		39 : function() {
+		right : input.bind('→', function() {
 			actions.handleSelection();
 			Cursor.shift('right');
-		},
+		}),
 
 		passive : {
 			// Select all (a)
