@@ -8,7 +8,7 @@ define('trie', function() {
 
 		// Loop over all of the paths (eg the letters in
 		// a word)
-		for (var i = 0, l = paths.length; ++i) {
+		for (var i = 0, l = paths.length; i < l; ++i) {
 
 			// Cache the "letter"
 			path = paths[i];
@@ -41,7 +41,7 @@ define('trie', function() {
 
 			// Loop over all of the paths (eg the letters in
 			// a word)
-			for (var i = 0, l = paths.length; ++i) {
+			for (var i = 0, l = paths.length; i < l; ++i) {
 
 				// Cache the "letter"
 				path = paths[i];
@@ -56,7 +56,7 @@ define('trie', function() {
 
 			}
 
-			current = { value : value };
+			current.value = value;
 
 			return this;
 		},
@@ -64,12 +64,12 @@ define('trie', function() {
 		// Deletes a node in the trie with a given path
 		delete : function(paths) {
 			// Get the parent element to the target
-			var parent = find(_.init(paths)),
+			var parent = find(this.data, _.initial(paths)),
 				last   = _.last(paths);
 
 			// If parent === false, then the target does
 			// not exist, otherwise delete it
-			if (parent && last in parent) delete[last];
+			if (parent && last in parent && 'value' in parent[last]) delete parent[last];
 
 			return this;
 		},
@@ -77,7 +77,7 @@ define('trie', function() {
 		// Iterates over all of the nodes in depth first
 		// order yielding each one to an iterator
 		each : function(fn) {
-			
+
 		},
 
 		// Maps over all of the nodes in depth first order,
@@ -105,7 +105,8 @@ define('trie', function() {
 
 		// Returns the value of a node given its path
 		has : function(paths) {
-			return find(this.data, paths).value;
+			var node = find(this.data, paths);
+			return node ? node.value : false;
 		}
 
 	};
