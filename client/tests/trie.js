@@ -10,7 +10,8 @@ require(['trie'], function(Trie) {
 		
 		returnsObjectContainingTrie : function() {
 			var Test = new Trie;
-			expectThat(test, recursivelyEquals({ data : [] }));
+			expectEq(_.isObject(Test.data), true);
+			expectEq(_.isObject(Test), true);
 		}
 		
 	};
@@ -27,14 +28,15 @@ require(['trie'], function(Trie) {
 			var Test = new Trie;
 			Test.insert(['c'], 'c');
 
-			expectEq(Test.data, { c : { value : cat } });
+			expectThat(Test.data, recursivelyEquals({ c : { value : 'c' } }));
 		},
 
 		insertsMultiplePathsIntoEmptyTrie : function() {
 			var Test = new Trie;
 			Test.insert(['c', 'a', 't'], 'cat');
 
-			expectEq(Test.data, { c : { a : { t : { value : 'cat' } } } });
+			expectThat(Test.data,
+				recursivelyEquals({ c : { a : { t : { value : 'cat' } } } }));
 		},
 
 		insertsASinglePathIntoNonEmptyTrie : function() {
@@ -43,7 +45,7 @@ require(['trie'], function(Trie) {
 			Test.insert(['c', 'a', 'n'], 'can');
 			Test.insert(['c'], 'c');
 
-			expectEq(Test.data, { 
+			expectThat(Test.data, recursivelyEquals({ 
 				c : { 
 					value : 'c',
 					a : { 
@@ -51,7 +53,7 @@ require(['trie'], function(Trie) {
 						n : { value : 'can' },
 					}
 				}
-			});
+			}));
 		},
 
 		insertsMultiplePathsIntoNonEmptyTrie : function() {
@@ -60,15 +62,15 @@ require(['trie'], function(Trie) {
 			Test.insert(['c', 'a', 'n'], 'can');
 			Test.insert(['c', 'a', 'p'], 'cap');
 
-			expectEq(Test.data, { 
+			expectThat(Test.data, recursivelyEquals({ 
 				c : { 
 					a : { 
 						t : { value : 'cat' },
 						n : { value : 'can' },
-						p : { calue : 'cap' }
+						p : { value : 'cap' }
 					}
 				}
-			});
+			}));
 		},
 
 		overWritesExistingValue : function() {
@@ -76,7 +78,7 @@ require(['trie'], function(Trie) {
 			Test.insert(['a', 'b'], 'ab');
 			Test.insert(['a', 'b'], 'ab');
 
-			expectEq(Test.data, { a : { b : 'ab' } });
+			expectThat(Test.data, recursivelyEquals({ a : { b : { value : 'ab' } } }));
 		},
 
 		returnsThis : function() {
@@ -99,29 +101,39 @@ require(['trie'], function(Trie) {
 			Test.insert(['c'], 'c');
 			Test.delete(['c']);
 
-			expectEq(Test.data, { });
+			expectThat(Test.data, recursivelyEquals({ }));
 		},
 
 		deletesANestedPath : function() {
 			var Test = new Trie;
 			Test.insert(['c', 'a', 't'], 'c');
-			Test.delete(['c']);
+			Test.delete(['c', 'a', 't']);
 
-			expectEq(Test.data, { });
+			expectThat(Test.data, recursivelyEquals({ c : { a : { } } }));
 		},
 
 		doesNotDeleteAnythingIfEmpty : function() {
 			var Test = new Trie;
 			Test.delete(['c']);
 
-			expectEq(Test.data, { });
+			expectThat(Test.data, recursivelyEquals({ }));
+		},
+
+		doesNotDeleteAnythingEvenIfPathIsAPrefix : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'a', 't'], 'cat');
+			Test.delete(['c', 'a']);
+
+			expectThat(Test.data,
+				recursivelyEquals({ c : { a : { t : { value : 'cat' } } } }));
 		},
 
 		doesNotDeleteAnythingIfDoesNotExist : function() {
 			var Test = new Trie;
 			Test.insert(['c', 'a', 't'], 'cat');
-			Test.delete(['c', 'a']);
-			expectEq(Test.data, { c : { a : { t : { value : 'cat' } } } });
+			Test.delete(['c', 'b']);
+			expectThat(Test.data, 
+				recursivelyEquals({ c : { a : { t : { value : 'cat' } } } }));
 		},
 
 		returnsThis : function() {
