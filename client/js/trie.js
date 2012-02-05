@@ -20,7 +20,7 @@ define('trie', function() {
 			} else {
 				// If there is no correct child, the path
 				// does not exist
-				return null;
+				return false;
 			}
 
 		}
@@ -34,6 +34,7 @@ define('trie', function() {
 
 	Trie.prototype = {
 		
+		// Inserts a node given a path
 		insert : function(paths, value) {
 			var current = this.data,
 				path;
@@ -60,6 +61,7 @@ define('trie', function() {
 			return this;
 		},
 
+		// Deletes a node in the trie with a given path
 		delete : function(paths) {
 			// Get the parent element to the target
 			var parent = find(_.init(paths)),
@@ -72,6 +74,36 @@ define('trie', function() {
 			return this;
 		},
 
+		// Iterates over all of the nodes in depth first
+		// order yielding each one to an iterator
+		each : function(fn) {
+			
+		},
+
+		// Maps over all of the nodes in depth first order,
+		// the node's new value is the value returned
+		map : function() {
+			
+		},
+
+		// Returns an array of the value(s) which 
+		// satisfy the predicate
+		find : function(predicate) {
+			
+		},
+
+		// Yields each function that satisfies the predicate
+		// to the iterator
+		filter : function(predicate, fn) {
+			
+		},
+
+		// Deletes all nodes which satisfy the predicate
+		deleteWhen : function(predicate) {
+			
+		},
+
+		// Returns the value of a node given its path
 		has : function(paths) {
 			return find(this.data, paths).value;
 		}
