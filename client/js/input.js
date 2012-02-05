@@ -37,6 +37,13 @@ var mouseDown = inputII.mouseDown(function(e) {
 
 var shift = inputII.bind('⇧ + mouseDown', drag);
 
+	inputII.tripleClick(function(e) {
+		selection.start.col = 0;
+		selection.setEnd(Cursor.row, Text.lineLength());
+
+		events.publish('operation');
+	});
+
 	// inputII.scroll();
 
 	// inputII.printable();
