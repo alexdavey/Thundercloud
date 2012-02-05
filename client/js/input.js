@@ -11,7 +11,7 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 		Text.removeSelection(start.row, start.col, end.row, end.col);
 	}
 
-	inputII.drag(function(e) {
+var drag = inputII.drag(function(e) {
 		var mouse = _.mouse(e),
 			offset = _.offset(Canvas.paper);
 
@@ -21,7 +21,7 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 		events.publish('operation');
 	});
 
-	inputII.mouseDown(function(e) {
+var mouseDown = inputII.mouseDown(function(e) {
 		var mouse = _.mouse(e),
 			offset = _.offset(Canvas.paper);
 
@@ -35,9 +35,7 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 		events.publish('operation');
 	});
 
-	inputII.bind('⇧ + mouseDown', function(e) {
-		
-	});
+var shift = inputII.bind('⇧ + mouseDown', drag);
 
 	inputII.tripleClick(function(e) {
 		selection.start.col = 0;
