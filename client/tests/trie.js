@@ -83,7 +83,120 @@ require(['trie'], function(Trie) {
 
 		returnsThis : function() {
 			var Test = new Trie;
-			expectEq(Test.insert(['a', 'b', 'c']), Test);
+			expectEq(Test.insert(['a', 'b', 'c'], 'abc'), Test);
+		}
+		
+	};
+
+	// PushList
+	// ------
+	
+	function PushList() { };
+	registerTestSuite(PushList);
+
+	PushList.prototype = {
+		
+		insertsASinglePathIntoEmptyTrie : function() {
+			var Test = new Trie;
+			Test.pushList(['c'], 'c');
+
+			expectThat(Test.data, recursivelyEquals({ c : { value : ['c'] } }));
+		},
+
+		insertsMultiplePathsIntoEmptyTrie : function() {
+			var Test = new Trie;
+			Test.pushList(['c', 'a', 't'], 'cat');
+
+			expectThat(Test.data,
+				recursivelyEquals({ c : { a : { t : { value : ['cat'] } } } }));
+		},
+
+		insertsASinglePathIntoNonEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'a', 't'], 'cat');
+			Test.insert(['c', 'a', 'n'], 'can');
+			Test.pushList(['c'], 'c');
+
+			expectThat(Test.data, recursivelyEquals({ 
+				c : { 
+					value : ['c'],
+					a : { 
+						t : { value : 'cat' },
+						n : { value : 'can' },
+					}
+				}
+			}));
+		},
+
+		pushesASinglePathIntoNonEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'a', 't'], 'cat');
+			Test.insert(['c', 'a', 'n'], 'can');
+			Test.insert(['c'], ['a']);
+			Test.pushList(['c'], 'b');
+
+			expectThat(Test.data, recursivelyEquals({ 
+				c : { 
+					value : ['a', 'b'],
+					a : { 
+						t : { value : 'cat' },
+						n : { value : 'can' },
+					}
+				}
+			}));
+		},
+
+		insertsMultiplePathsIntoNonEmptyTrie : function() {
+			var Test = new Trie;
+			Test.pushList(['c', 'a', 't'], 'cat');
+			Test.pushList(['c', 'a', 'n'], 'can');
+			Test.pushList(['c', 'a', 'p'], 'cap');
+
+			expectThat(Test.data, recursivelyEquals({ 
+				c : { 
+					a : { 
+						t : { value : ['cat'] },
+						n : { value : ['can'] },
+						p : { value : ['cap'] }
+					}
+				}
+			}));
+		},
+
+		pushesMultiplePathsIntoNonEmptyTrie : function() {
+			var Test = new Trie;
+			Test.pushList(['c', 'a', 't'], 'cat');
+			Test.pushList(['c', 'a', 't'], 'can');
+			Test.pushList(['c', 'a', 't'], 'cap');
+
+			expectThat(Test.data, recursivelyEquals({ 
+				c : { 
+					a : { 
+						t : { value : ['cat', 'can', 'cap'] },
+					}
+				}
+			}));
+		},
+
+		overWritesExistingValue : function() {
+			var Test = new Trie;
+			Test.insert(['a', 'b'], 'ab');
+			Test.pushList(['a', 'b'], 'ab');
+
+			expectThat(Test.data, recursivelyEquals({ a : { b : { value : ['ab'] } } }));
+		},
+
+		pushesOntoExistingList : function() {
+			var Test = new Trie;
+			Test.insert(['a', 'b'], ['ab']);
+			Test.pushList(['a', 'b'], 'bc');
+
+			expectThat(Test.data, recursivelyEquals({ a : { b : { value : ['ab', 'bc'] } } }));
+		},
+
+		returnsThis : function() {
+			var Test = new Trie;
+			expectEq(Test.pushList(['a', 'b', 'c'], 'abc'), Test);
 		}
 		
 	};
