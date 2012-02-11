@@ -1,7 +1,0 @@
-require(['selection'], function(selection) {
-	
-
-	
-	
-
-});
