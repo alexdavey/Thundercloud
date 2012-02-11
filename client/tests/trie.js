@@ -88,6 +88,50 @@ require(['trie'], function(Trie) {
 		
 	};
 
+	// KeyFilter
+	// ---------
+	
+	function KeyFilter() { };
+	registerTestSuite(KeyFilter);
+
+	KeyFilter.prototype = {
+
+		singleKeysAreReturned : function() {
+			var Test = new Trie;
+			Test.insert(['c'], 'c');
+			Test.insert(['a'], 'a');
+			Test.insert(['t'], 't');
+			expectThat(Test.KeyFilter(['c', 'a', 't']), recursivelyEquals(['c', 'a', 't']));
+		},
+
+		multipleLayerKeysAreReturned : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'a', 't'], 'cat');
+			Test.insert(['c', 'a', 'b'], 'cab');
+			Test.insert(['t'], 't');
+			expectThat(Test.KeyFilter(['c', 'a', 't']),
+					recursivelyEquals(['cat', 'cab', 't']));
+		},
+
+		repeatingKeysAreNotCounted : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'a', 'a', 't'], 'cat');
+			expectThat(Test.KeyFilter(['c', 'a', 't']), recursivelyEquals([]));
+		},
+		
+		returnsEmptyArrayIfNoMatches : function() {
+			var Test = new Trie;
+			expectThat(Test.keyFilter(['c', 'a', 't']), recursivelyEquals([]));
+		},
+
+		returnsEmptyArrayIfNoKeys : function () {
+			var Test = new Trie;
+			Trie.insert(['c', 'a', 't'], 'cat');
+			expectThat(Test.keyFilter(), recursivelyEquals([]));
+		}
+		
+	};
+
 	// PushList
 	// ------
 	

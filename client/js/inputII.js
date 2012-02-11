@@ -1,10 +1,10 @@
-define('inputII', function() {
+define('inputII', ['trie'], function(Trie) {
 	
 	// Functions bound to single events
-	var bindings = [],
-
-	// Functions bound to multiple key combinations
-		combinations = [],
+	var Bindings = new Trie,
+// 
+// 	// Functions bound to multiple key combinations
+// 		combinations = ,
 	
 	// Currently pressed keys
 		flags    = {},
@@ -25,12 +25,14 @@ define('inputII', function() {
 	}
 
 	function addBinding(keyCodes, fn) {
-		if (_.isString(keyCodes)) {
-			bindings[keyCodes] || (bindings[keyCodes] = []);
-			bindings[keyCodes].push(fn);
-		} else {
-			bindings.push(fn);
-		}
+		Bindings.pushList(keyCodes, fn);
+
+		// // if (_.isString(keyCodes)) {
+		// // 	bindings[keyCodes] || (bindings[keyCodes] = []);
+		// // 	bindings[keyCodes].push(fn);
+		// // } else {
+		// // 	bindings.push(fn);
+		// // }
 
 		// Return the function passed to it so that
 		// anonymous functions can be saved to variables
@@ -38,29 +40,34 @@ define('inputII', function() {
 	}
 
 	function removeBinding(name, fn) {
-		var binding = bindings[name];
-		if (!binding) return;
-		binding = _.without(binding, fn);
+		var functions = Bindings.has(name);
+		functions = _.without(functions, fn);
+		// // var binding = bindings[name];
+		// // if (!binding) return;
+		// // binding = _.without(binding, fn);
 	}
 
 	function fireBindings(name, e) {
-		if (_.isString(name)) {
-			if (name in bindings) {
-				invokeAll(bindings[name], e);
-			}
-		} else {
-			fireActive(name);
-		}
+		var binding = Bindings.has(name);
+		if (binding) invokeAll(binding);
+
+		// // if (_.isString(name)) {
+		// // 	if (name in bindings) {
+		// // 		invokeAll(bindings[name], e);
+		// // 	}
+		// // } else {
+		// // 	fireActive(name);
+		// // }
 	}
 
 	function fireActive(e) {
-		var binding, stop;
-		for (var i = 0, l = bindings.length; i < l; ++i) {
-			binding = bindings[i];
-			if (areActive(binding[0])) {
-				if (bindings[1](e) !== true) cancelEvent(e);
-			}
-		}
+		// // var binding, stop;
+		// // for (var i = 0, l = bindings.length; i < l; ++i) {
+		// // 	binding = bindings[i];
+		// // 	if (areActive(binding[0])) {
+		// // 		if (bindings[1](e) !== true) cancelEvent(e);
+		// // 	}
+		// // }
 	}
 
 	function cancelEvent(e) {
