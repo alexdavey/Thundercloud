@@ -1,0 +1,45 @@
+canvas .text {
+	color : rgb(221, 221, 221);
+}
+
+canvas .openTag, canvas .closeTag {
+	color : #20BBE6;
+}
+
+canvas .tagBody {
+	color : rgb(129, 151, 191);
+}
+
+canvas .comment, canvas .doctype {
+	color : #84bfef;
+}
+
+canvas .doubleQuote, canvas .singleQuote {
+	color : #09B027;
+}
+
+canvas .doubleQuotedString, canvas .singleQuotedString {
+	color : #09B027;
+}
+
+canvas .attribute {
+	color : rgb(285, 187, 100);
+}
+
+canvas .comment canvas .commentStart canvas .commentEnd {
+	color : rgb(192, 74, 31);
+}
+
+/* JAVASCRIPT */
+
+canvas .keyword {
+	color : rgb(147, 159, 191);
+}
+
+canvas .syntax {
+	color : rgb(242, 197, 109);
+}
+
+canvas .number {
+	color : rgb(192, 100, 70);
+}
