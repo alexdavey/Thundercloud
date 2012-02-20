@@ -2,6 +2,16 @@
 
 _.mixin({
 
+	filterObj : function(obj, fn, ctx) {
+		var filtrate = {};
+
+		_.each(obj, function(value, key) {
+			if (fn.call(ctx, value, key)) filtrate[key] = obj[key];
+		});
+
+		return filtrate;
+	},
+
 	invokeAll : function(array) {
 		var args = _.tail(arguments);
 		_.each(array, function(fn) {
