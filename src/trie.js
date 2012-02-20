@@ -28,22 +28,22 @@ define('trie', function() {
 	}
 
 	function iterate(node, names) {
-	// Get all of the children with keys in 'names'
-	var children = hasChild(node, names),
-		validChildren;
+		// Get all of the children with keys in 'names'
+		var children = hasChild(node, names),
+			validChildren;
 
-	if (!children) return false;
+		if (!children) return false;
 
-	// Iterate over all of the valid children nodes and check
-	// if they have any valid children
-	validChildren = _.filter(children, function(child) {
-		return iterate(node[child], _.without(names, child));
-	});
+		// Iterate over all of the valid children nodes and check
+		// if they have any valid children
+		validChildren = _.filter(children, function(child) {
+			return iterate(node[child], _.without(names, child));
+		});
 
-	validChildren = _.without(validChildren, false);
+		validChildren = _.without(validChildren, false);
 
-	return _.isEmpty(validChildren) && validChildren;
-}
+		return _.isEmpty(validChildren) && validChildren;
+	}
 
 	// Returns an array containing the children of a node which have
 	// names in the specified list or false if no children match
@@ -101,13 +101,12 @@ define('trie', function() {
 			// Get the parent element to the target
 			var furthest = decend(data || this.data, paths),
 				node     = furthest.node,
-				rest     = furthest.remaining
-				value    = node.value;
+				rest     = furthest.remaining;
 
 			// If the node already exists, push the value onto it
 			// otherwise insert an array with the value
 			if (furthest.end) {
-				_.isArray(value) ? value.push(value) : (value = [newValue]);
+				_.isArray(node.value) ? node.value.push(newValue) : (node.value = [newValue]);
 			} else {
 				this.insert(rest, [newValue], node);
 			}

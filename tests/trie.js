@@ -101,7 +101,7 @@ require(['trie'], function(Trie) {
 			Test.insert(['c'], 'c');
 			Test.insert(['a'], 'a');
 			Test.insert(['t'], 't');
-			expectThat(Test.KeyFilter(['c', 'a', 't']), recursivelyEquals(['c', 'a', 't']));
+			expectThat(Test.keyFilter(['c', 'a', 't']), recursivelyEquals(['c', 'a', 't']));
 		},
 
 		multipleLayerKeysAreReturned : function() {
@@ -109,14 +109,14 @@ require(['trie'], function(Trie) {
 			Test.insert(['c', 'a', 't'], 'cat');
 			Test.insert(['c', 'a', 'b'], 'cab');
 			Test.insert(['t'], 't');
-			expectThat(Test.KeyFilter(['c', 'a', 't']),
+			expectThat(Test.keyFilter(['c', 'a', 't']),
 					recursivelyEquals(['cat', 'cab', 't']));
 		},
 
 		repeatingKeysAreNotCounted : function() {
 			var Test = new Trie;
 			Test.insert(['c', 'a', 'a', 't'], 'cat');
-			expectThat(Test.KeyFilter(['c', 'a', 't']), recursivelyEquals([]));
+			expectThat(Test.keyFilter(['c', 'a', 't']), recursivelyEquals([]));
 		},
 		
 		returnsEmptyArrayIfNoMatches : function() {
