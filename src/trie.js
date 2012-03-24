@@ -27,33 +27,35 @@ define('trie', function() {
 		return { remaining : [], end : true, node : current };
 	}
 
-	function iterate(node, names) {
+	function iterate(node, names, root) {
 		// Get all of the children with keys in 'names'
 		var children = hasChild(node, names),
-			validChildren;
-
-		if (!children) return false;
+			validChildren = [],
+			result = [],
+			current = _.isUndefined(node.value) || node === root ? [] : node.value;
 
 		// Iterate over all of the valid children nodes and check
 		// if they have any valid children
-		validChildren = _.filter(children, function(child) {
-			return iterate(node[child], _.without(names, child));
+		validChildren = _.map(children, function(child) {
+			return iterate(node[child], _.without(names, child), root);
 		});
 
 		validChildren = _.without(validChildren, false);
 
-		return _.isEmpty(validChildren) && validChildren;
+		result = validChildren.concat(current);
+
+		return _.isEmpty(result) ? false : _.flatten(result);
 	}
 
 	// Returns an array containing the children of a node which have
 	// names in the specified list or false if no children match
 	function hasChild(node, names) {
 		var children      = Trie.prototype.children(node);
-			validChildren =  _.keys(_.filter(node, function(value, key) {
-			return _.include(names, key) && key != 'values';
-		}));
+			validChildren =  _.filterObj(node, function(value, key) {
+				return _.include(names, key) && key != 'values';
+			});
 
-		return _.isEmpty(validChildren) && validChildren;
+		return _.keys(validChildren);
 	}
 
 	// Returns the node with a given set of 
@@ -155,7 +157,8 @@ define('trie', function() {
 		// Returns an array of the values which 
 		// have the given paths
 		keyFilter : function(paths) {
-			return iterate(this.data, paths);
+			var filtrate = iterate(this.data, paths, this.data);
+			return filtrate === false ? [] : filtrate;
 		},
 
 		// Yields each node that satisfies the predicate
