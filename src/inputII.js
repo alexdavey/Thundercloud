@@ -2,9 +2,6 @@ define('inputII', ['trie'], function(Trie) {
 	
 	// Functions bound to single events
 	var Bindings = new Trie,
-// 
-// 	// Functions bound to multiple key combinations
-// 		combinations = ,
 	
 	// Currently pressed keys
 		flags    = {},
@@ -12,62 +9,32 @@ define('inputII', ['trie'], function(Trie) {
 	// Textarea element used to capture printable keystrokes
 		textArea = document.createElement('textArea');
 	
+	window.Bindings = Bindings;
+
 	document.body.appendChild(textArea);
+
 
 	// Utility
 	// -------
 	
-	function areActive(states) {
-		for (var i = 0, l = states.length; i < l; ++i) {
-			if (!flags[i]) return false;
-		}
-		return true;
-	}
-
 	function addBinding(keyCodes, fn) {
 		Bindings.pushList(keyCodes, fn);
-
-		// // if (_.isString(keyCodes)) {
-		// // 	bindings[keyCodes] || (bindings[keyCodes] = []);
-		// // 	bindings[keyCodes].push(fn);
-		// // } else {
-		// // 	bindings.push(fn);
-		// // }
-
-		// Return the function passed to it so that
-		// anonymous functions can be saved to variables
 		return fn;
 	}
 
 	function removeBinding(name, fn) {
 		var functions = Bindings.has(name);
 		functions = _.without(functions, fn);
-		// // var binding = bindings[name];
-		// // if (!binding) return;
-		// // binding = _.without(binding, fn);
 	}
 
 	function fireBindings(name, e) {
 		var binding = Bindings.has(name);
 		if (binding) invokeAll(binding, e);
-
-		// // if (_.isString(name)) {
-		// // 	if (name in bindings) {
-		// // 		invokeAll(bindings[name], e);
-		// // 	}
-		// // } else {
-		// // 	fireActive(name);
-		// // }
 	}
 
-	function fireActive(e) {
-		// // var binding, stop;
-		// // for (var i = 0, l = bindings.length; i < l; ++i) {
-		// // 	binding = bindings[i];
-		// // 	if (areActive(binding[0])) {
-		// // 		if (bindings[1](e) !== true) cancelEvent(e);
-		// // 	}
-		// // }
+	function fireActive() {
+		var active = _.keys(_.withoutObj(flags, false));
+		invokeAll(Bindings.keyFilter(active));
 	}
 
 	function cancelEvent(e) {
@@ -83,6 +50,8 @@ define('inputII', ['trie'], function(Trie) {
 		}
 	}
 
+	window.toKeyCodes = toKeyCodes;
+
 	// Parse a string of '+' delimited keys into
 	// an array of integer key codes
 	function toKeyCodes(string) {
@@ -90,7 +59,7 @@ define('inputII', ['trie'], function(Trie) {
 
 		keys = _.map(keys, function(key) {
 			key = _.trim(key);
-			return aliases[key] || key.charCodeAt(0);
+			return aliases[key] || (key.length > 1 ? key : key.charCodeAt(0));
 		});
 
 		return keys;
@@ -98,11 +67,12 @@ define('inputII', ['trie'], function(Trie) {
 
 	// Sort the key codes in ascending order
 	function sortKeyCodes(keyCodes) {
-		return _.sortBy(keyCodes, function(x) { return x });
+		return _(keyCodes).sort();
 	}
 
 	function addFlag(flag) {
 		flags[flag] = true;
+		fireActive();
 	}
 
 	function removeFlag(flag) {
@@ -142,8 +112,6 @@ define('inputII', ['trie'], function(Trie) {
 			}));
 
 		} else {
-
-			console.log('firing META');
 
 			fireBindings('meta', extended);
 
@@ -217,7 +185,7 @@ define('inputII', ['trie'], function(Trie) {
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			getKeyInput(_.bind(textInput, null, e));
-			addFlag(code);
+			// addFlag(code);
 			fireBindings('keyDown', _.extend(e, {
 				which : code
 			}));
@@ -280,20 +248,16 @@ define('inputII', ['trie'], function(Trie) {
 
 		// Check to see id an array of keys are currently
 		// being pressed
-		is : _.compose(areActive, toKeyCodes),
+		is : _.compose(Bindings.has, toKeyCodes),
 
 		bind : function(codes, fn) {
-			Bindings.pushList([toKeyCodes(codes), fn]);
+			Bindings.pushList(toKeyCodes(codes), fn);
 			return fn;
 		},
 
-		unbind : function(fn) {
-			for (var i = 0, l = bindings.length; i < l; ++i) {
-				if (bindings[i][1] === fn) {
-					bindings.splice(i, 1);
-					return;
-				}
-			}
+		unbind : function(paths, fn) {
+			var bindings = Bindings.has(paths);
+			bindings = bindings && _.without(bindings, fn);
 		},
 
 		setClipboard : function(string) {
@@ -304,7 +268,10 @@ define('inputII', ['trie'], function(Trie) {
 
 	// Add all of the named events to the interface
 	_.each(namedEvents, function(name) {
-		input[name] = _.bind(addBinding, null, name);
+		input[name] = function(fn) {
+			Bindings.pushList(name, fn);
+			return fn;
+		}
 	});
 
 	// Attach all of the event listeners needed
@@ -312,14 +279,6 @@ define('inputII', ['trie'], function(Trie) {
 		_.listen(name.toLowerCase(), function(e) {
 			fn(e || window.e);
 		});
-	});
-
-	input.meta(function(e) {
-		console.log('meta', e.which);
-	});
-
-	input.printable(function(e) {
-		console.log('printable', e.character);
 	});
 
 	return input;
