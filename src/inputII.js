@@ -49,7 +49,7 @@ define('inputII', ['trie'], function(Trie) {
 
 	function fireBindings(name, e) {
 		var binding = Bindings.has(name);
-		if (binding) invokeAll(binding);
+		if (binding) invokeAll(binding, e);
 
 		// // if (_.isString(name)) {
 		// // 	if (name in bindings) {
