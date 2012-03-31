@@ -37,7 +37,6 @@ define('files', function() {
 				path : window.location.href + 'read/',
 				callback : callback
 			});
-			console.log('called');
 		},
 
 		write : function(file, path, callback) {
