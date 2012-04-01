@@ -99,7 +99,7 @@ define('cursor', ['events', 'text', 'settings', 'viewport'],
 					this.row += magnitude;
 
 					length = Text.source.length;
-					if (this.row > length) this.row = length - 1;
+					if (this.row >= length) this.row = length - 1;
 
 					lineLength = Text.lineLength(this.row);
 					if (this.col > lineLength) this.col = lineLength;
