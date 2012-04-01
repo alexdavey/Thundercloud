@@ -78,8 +78,9 @@ define('cursor', ['events', 'text', 'settings', 'viewport'],
 
 		// Shifts the cursor position whilst checking boundaries
 		shift : function(direction, magnitude) {
+			var length, lineLength;
+
 			magnitude || (magnitude = 1);
-			var length;
 
 			switch(direction) {
 
@@ -96,13 +97,21 @@ define('cursor', ['events', 'text', 'settings', 'viewport'],
 
 				case 'down':
 					this.row += magnitude;
+
 					length = Text.source.length;
 					if (this.row > length) this.row = length - 1;
+
+					lineLength = Text.lineLength(this.row);
+					if (this.col > lineLength) this.col = lineLength;
+
 					break;
 
 				case 'up':
 					this.row -= magnitude;
 					if (this.row < 0) this.row = 0;
+
+					lineLength = Text.lineLength(this.row);
+					if (this.col > lineLength) this.col = lineLength;
 
 			}
 
