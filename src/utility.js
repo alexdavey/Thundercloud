@@ -12,6 +12,12 @@ _.mixin({
 		return filtrate;
 	},
 
+	withoutObj : function(obj, value, ctx) {
+		return _.filterObj(obj, function(test) {
+			return test !== value;
+		}, ctx);
+	},
+
 	invokeAll : function(array) {
 		var args = _.tail(arguments);
 		_.each(array, function(fn) {
