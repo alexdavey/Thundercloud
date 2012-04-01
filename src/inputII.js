@@ -2,15 +2,13 @@ define('inputII', ['trie'], function(Trie) {
 	
 	// Functions bound to single events
 	var Bindings = new Trie,
-	
+
 	// Currently pressed keys
 		flags    = {},
 	
 	// Textarea element used to capture printable keystrokes
 		textArea = document.createElement('textArea');
 	
-	window.Bindings = Bindings;
-
 	document.body.appendChild(textArea);
 
 
@@ -32,9 +30,9 @@ define('inputII', ['trie'], function(Trie) {
 		if (binding) invokeAll(binding, e);
 	}
 
-	function fireActive() {
+	function fireActive(e) {
 		var active = _.keys(_.withoutObj(flags, false));
-		invokeAll(Bindings.keyFilter(active));
+		invokeAll(Bindings.keyFilter(active), e);
 	}
 
 	function cancelEvent(e) {
@@ -49,8 +47,6 @@ define('inputII', ['trie'], function(Trie) {
 			array[i](value);
 		}
 	}
-
-	window.toKeyCodes = toKeyCodes;
 
 	// Parse a string of '+' delimited keys into
 	// an array of integer key codes
@@ -70,9 +66,9 @@ define('inputII', ['trie'], function(Trie) {
 		return _(keyCodes).sort();
 	}
 
-	function addFlag(flag) {
+	function addFlag(flag, e) {
 		flags[flag] = true;
-		fireActive();
+		fireActive(e || undefined);
 	}
 
 	function removeFlag(flag) {
@@ -94,10 +90,12 @@ define('inputII', ['trie'], function(Trie) {
 			extended = _.extend(e, { which : code }),
 			extras;
 
-		addFlag(code);
+		addFlag(code, e);
 
 		// If a character is given, fire the 'printable' event
 		if (character) {
+
+			console.log('PRINTABLE');
 
 			// If multiple characters where caught, fire the
 			// events multiple times
@@ -112,6 +110,8 @@ define('inputII', ['trie'], function(Trie) {
 			}));
 
 		} else {
+
+			console.log('META');
 
 			fireBindings('meta', extended);
 
@@ -164,7 +164,7 @@ define('inputII', ['trie'], function(Trie) {
 	var handlers = {
 
 		onMouseDown : function(e) {
-			addFlag('mouseDown');
+			addFlag('mouseDown', e);
 			fireBindings('mouseDown', e);
 		},
 
@@ -185,7 +185,7 @@ define('inputII', ['trie'], function(Trie) {
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			getKeyInput(_.bind(textInput, null, e));
-			// addFlag(code);
+			// addFlag(code, e);
 			fireBindings('keyDown', _.extend(e, {
 				which : code
 			}));
@@ -194,6 +194,7 @@ define('inputII', ['trie'], function(Trie) {
 		onKeyUp : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			if (!code in flags) throw Error('Invalid flag');
+			console.log('REMOVING: %s', code);
 			removeFlag(code);
 			fireBindings('keyUp', _.extend(e, {
 				which : code
@@ -248,7 +249,12 @@ define('inputII', ['trie'], function(Trie) {
 
 		// Check to see id an array of keys are currently
 		// being pressed
-		is : _.compose(Bindings.has, toKeyCodes),
+		is : function(keys) {
+			var codes = toKeyCodes(keys);
+			return _.all(codes, function(code) {
+				return code in flags;
+			});
+		},
 
 		bind : function(codes, fn) {
 			Bindings.pushList(toKeyCodes(codes), fn);
