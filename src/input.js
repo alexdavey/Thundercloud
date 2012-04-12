@@ -29,8 +29,12 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 
 		// Deselect any existing selections and 
 		// start a new one
-		selection.clear();
-		selection.setStart();
+		if (inputII.is('shift')) {
+			selection.setEnd();
+		} else {
+			selection.clear();
+			selection.setStart();
+		}
 
 		events.publish('operation');
 	});
@@ -42,10 +46,6 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 		selection.setEnd(Cursor.row, Text.lineLength());
 
 		events.publish('operation');
-	});
-
-	inputII.bind('↑', function() {
-		console.log('UP!!');
 	});
 
 	// inputII.scroll();
@@ -72,28 +72,7 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 	// 		// _.listen('mousewheel', this.onScroll);
 	// 	},
 	// 	
-	// 	onMouseDown : function(e) {
-	// 		var mouse = _.mouse(e),
-	// 			offset = _.offset(Canvas.paper);
-
-	// 		e.preventDefault();
-	// 		e.stopPropagation();
-
-	// 		Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
-	// 		mouseDown = true;
-
-	// 		if (actions.shiftDown) {
-	// 			endSelection();
-	// 		} else {
-	// 			// Deselect any existing selections and 
-	// 			// start a new one
-	// 			selection.clear();
-	// 			startSelection();
-	// 		}
-
-	// 		events.publish('operation');
-	// 	},
-
+	
 	// 	onMouseMove : function(e) {
 	// 		if (!mouseDown) return;
 
@@ -144,6 +123,21 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 	// 		}
 	// 	},
 
+	var printable = inputII.printable(function(e) {
+		var character = e.character;
+		if (character.length < 1) return;
+		e.preventDefault();
+
+		// If there is a current selection, delete it using
+		// the backspace function
+		if (!selection.isEmpty()) actions.delete();
+
+		Text.insert(character, Cursor.row, Cursor.col);
+
+		Cursor.shift('right');
+		events.publish('operation');
+	})
+	
 	// 	onKeyPress : function(e) {
 	// 		e = e || window.e;
 	// 		var character = String.fromCharCode(e.charCode);
@@ -185,4 +179,3 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 	// return Input;
 
 });
-
