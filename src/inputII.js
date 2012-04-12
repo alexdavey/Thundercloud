@@ -25,20 +25,22 @@ define('inputII', ['trie'], function(Trie) {
 		functions = _.without(functions, fn);
 	}
 
+	// Fire all bindings with a given name
 	function fireBindings(name, e) {
-		var binding = Bindings.has(name);
+		var binding = Bindings.has([name]);
 		if (binding) invokeAll(binding, e);
 	}
 
+	// Fire all active flags with the event object e
 	function fireActive(e) {
 		var active = _.keys(_.withoutObj(flags, false));
 		invokeAll(Bindings.keyFilter(active), e);
 	}
 
-	function cancelEvent(e) {
-		e.stopPropagation();
-		e.preventDefault();
-	}
+	// function cancelEvent(e) {
+	// 	e.stopPropagation();
+	// 	e.preventDefault();
+	// }
 
 	// Invoke all of the elements in an array 
 	// with a certain value
@@ -95,8 +97,6 @@ define('inputII', ['trie'], function(Trie) {
 		// If a character is given, fire the 'printable' event
 		if (character) {
 
-			console.log('PRINTABLE');
-
 			// If multiple characters where caught, fire the
 			// events multiple times
 			if (character.length > 1) {
@@ -110,8 +110,6 @@ define('inputII', ['trie'], function(Trie) {
 			}));
 
 		} else {
-
-			console.log('META');
 
 			fireBindings('meta', extended);
 
@@ -194,7 +192,6 @@ define('inputII', ['trie'], function(Trie) {
 		onKeyUp : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			if (!code in flags) throw Error('Invalid flag');
-			console.log('REMOVING: %s', code);
 			removeFlag(code);
 			fireBindings('keyUp', _.extend(e, {
 				which : code
@@ -275,7 +272,7 @@ define('inputII', ['trie'], function(Trie) {
 	// Add all of the named events to the interface
 	_.each(namedEvents, function(name) {
 		input[name] = function(fn) {
-			Bindings.pushList(name, fn);
+			Bindings.pushList([name], fn);
 			return fn;
 		}
 	});
