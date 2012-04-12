@@ -183,7 +183,8 @@ define('inputII', ['trie'], function(Trie) {
 
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
-			getKeyInput(_.bind(textInput, null, e));
+			// Tabs need special treatment
+			if (code !== 9) getKeyInput(_.bind(textInput, null, e));
 			addFlag(code, e);
 			fireBindings('keyDown', _.extend(e, {
 				which : code
