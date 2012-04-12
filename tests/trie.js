@@ -39,6 +39,24 @@ require(['trie'], function(Trie) {
 				recursivelyEquals({ c : { a : { t : { value : 'cat' } } } }));
 		},
 
+		insertsSingleMultiCharacterPathsIntoEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['cat', 'dog', 'bear'], 'animal');
+			expectThat(Test.data, recursivelyEquals({
+				cat : { dog : { bear : { value : 'animal' }  } },
+			}));
+		},
+
+		insertsMultipleMultiCharacterPathsIntoEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['cat', 'dog'], 'animal');
+			Test.insert(['cod', 'bass'], 'fish');
+			expectThat(Test.data, recursivelyEquals({
+				cat : { dog : { value : 'animal' } },
+				cod : { bass : { value : 'fish' } }
+			}));
+		},
+
 		insertsASinglePathIntoNonEmptyTrie : function() {
 			var Test = new Trie;
 			Test.insert(['c', 'a', 't'], 'cat');
@@ -56,6 +74,16 @@ require(['trie'], function(Trie) {
 			}));
 		},
 
+		insertsSingleMultiCharacterPathsIntoNonEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'a', 't'], 'cat');
+			Test.insert(['cat', 'dog', 'bear'], 'animal');
+			expectThat(Test.data, recursivelyEquals({
+				c : { a : { t : { value : 'cat' } } },
+				cat : { dog : { bear : { value : 'animal' } } },
+			}));
+		},
+
 		insertsMultiplePathsIntoNonEmptyTrie : function() {
 			var Test = new Trie;
 			Test.insert(['c', 'a', 't'], 'cat');
@@ -70,6 +98,18 @@ require(['trie'], function(Trie) {
 						p : { value : 'cap' }
 					}
 				}
+			}));
+		},
+
+		insertsMultipleMultiCharacterPathsIntoNonEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'a', 't'], 'cat');
+			Test.insert(['cat', 'dog'], 'animal');
+			Test.insert(['cod', 'bass'], 'fish');
+			expectThat(Test.data, recursivelyEquals({
+				c : { a : { t : { value : 'cat' } } },
+				cat : { dog : { value : 'animal' } },
+				cod : { bass : { value : 'fish' } }
 			}));
 		},
 
@@ -104,12 +144,28 @@ require(['trie'], function(Trie) {
 			expectThat(Test.keyFilter(['c', 'a', 't']), recursivelyEquals(['c', 'a', 't']));
 		},
 
+		singleMultiCharacterKeysAreReturned : function() {
+			var Test = new Trie;
+			Test.insert(['cat'], 'cat');
+			Test.insert(['ant'], 'ant');
+			Test.insert(['turtle'], 'turtle');
+			expectThat(Test.keyFilter(['cat', 'ant', 'turtle']), recursivelyEquals(['cat', 'ant', 'turtle']));
+		},
+
 		multipleLayerKeysAreReturned : function() {
 			var Test = new Trie;
 			Test.insert(['c', 'a', 't'], 'cat');
 			Test.insert(['c', 'a', 'b'], 'cab');
 			Test.insert(['t'], 't');
 			expectThat(Test.keyFilter(['c', 'a', 't']), recursivelyEquals(['cat', 't']));
+		},
+
+		multipleLayerMultiCharacterKeysAreReturned : function() {
+			var Test = new Trie;
+			Test.insert(['cat', 'ant', 'turtle'], 'animal');
+			Test.insert(['mouse', 'red', 'blue'], '?');
+			Test.insert(['cat'], 'life');
+			expectThat(Test.keyFilter(['cat', 'ant', 'turtle']), recursivelyEquals(['animal', 'life']));
 		},
 
 		repeatingKeysAreNotCounted : function() {
@@ -159,20 +215,11 @@ require(['trie'], function(Trie) {
 				recursivelyEquals({ c : { a : { t : { value : ['cat'] } } } }));
 		},
 
-		insertsASinglePathIntoNonEmptyTrie : function() {
+		pushesSingleMultiCharacterPathsIntoEmptyTrie : function() {
 			var Test = new Trie;
-			Test.insert(['c', 'a', 't'], 'cat');
-			Test.insert(['c', 'a', 'n'], 'can');
-			Test.pushList(['c'], 'c');
-
-			expectThat(Test.data, recursivelyEquals({ 
-				c : { 
-					value : ['c'],
-					a : { 
-						t : { value : 'cat' },
-						n : { value : 'can' },
-					}
-				}
+			Test.pushList(['cat', 'dog', 'bear'], 'animal');
+			expectThat(Test.data, recursivelyEquals({
+				cat : { dog : { bear : { value : ['animal'] }  } },
 			}));
 		},
 
@@ -194,6 +241,15 @@ require(['trie'], function(Trie) {
 			}));
 		},
 
+		pushesMultipleMultiCharacterPathsIntoEmptyTrie : function() {
+			var Test = new Trie;
+			Test.pushList(['cod', 'bass'], 'fish');
+			expectThat(Test.data, recursivelyEquals({
+				cat : { dog : { value : 'animal' } },
+				cod : { bass : { value : ['fish'] } }
+			}));
+		},
+
 		insertsMultiplePathsIntoNonEmptyTrie : function() {
 			var Test = new Trie;
 			Test.pushList(['c', 'a', 't'], 'cat');
@@ -208,6 +264,16 @@ require(['trie'], function(Trie) {
 						p : { value : ['cap'] }
 					}
 				}
+			}));
+		},
+
+		pushesSingleMultiCharacterPathsIntoNonEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'd'], 'change directory');
+			Test.pushList(['cat', 'dog', 'bear'], 'animal');
+			expectThat(Test.data, recursivelyEquals({
+				c : { d : { value : 'change directory'} },
+				cat : { dog : { bear : { value : ['animal'] }  } },
 			}));
 		},
 
@@ -226,7 +292,17 @@ require(['trie'], function(Trie) {
 			}));
 		},
 
-		overWritesExistingValue : function() {
+		pushesMultipleMultiCharacterPathsIntoEmptyTrie : function() {
+			var Test = new Trie;
+			Test.insert(['c', 'd'], 'change directory');
+			Test.pushList(['cod', 'bass'], 'fish');
+			expectThat(Test.data, recursivelyEquals({
+				c : { d : { value : 'change directory'} },
+				cod : { bass : { value : ['fish'] } }
+			}));
+		},
+
+		overwritesExistingValue : function() {
 			var Test = new Trie;
 			Test.insert(['a', 'b'], 'ab');
 			Test.pushList(['a', 'b'], 'ab');
@@ -267,10 +343,10 @@ require(['trie'], function(Trie) {
 
 		deletesANestedPath : function() {
 			var Test = new Trie;
-			Test.insert(['c', 'a', 't'], 'c');
-			Test.delete(['c', 'a', 't']);
+			Test.insert(['c', 'ant', 't'], 'c');
+			Test.delete(['c', 'ant', 't']);
 
-			expectThat(Test.data, recursivelyEquals({ c : { a : { } } }));
+			expectThat(Test.data, recursivelyEquals({ c : { ant : { } } }));
 		},
 
 		doesNotDeleteAnythingIfEmpty : function() {
@@ -369,10 +445,22 @@ require(['trie'], function(Trie) {
 
 	Has.prototype = {
 		
-		returnsValueIfExists : function() {
+		returnsKeyValueIfExists : function() {
 			var Test = new Trie;
 			Test.insert(['c'], 'c');
 			expectEq(Test.has(['c']), 'c');
+		},
+
+		returnsMultiCharacterValueIfExists : function() {
+			var Test = new Trie;
+			Test.insert(['cat'], 'cat');
+			expectEq(Test.has(['cat']), 'cat');
+		},
+
+		returnsNestedMultiCharacterValueIfExists : function() {
+			var Test = new Trie;
+			Test.insert(['a', 'cat'], 'cat');
+			expectEq(Test.has(['a', 'cat']), 'cat');
 		},
 
 		returnsValueInNestedTrie : function() {
