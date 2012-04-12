@@ -1,4 +1,6 @@
 define('inputII', ['trie'], function(Trie) {
+
+	"use strict";
 	
 	// Functions bound to single events
 	var Bindings = new Trie,
@@ -15,10 +17,10 @@ define('inputII', ['trie'], function(Trie) {
 	// Utility
 	// -------
 	
-	function addBinding(keyCodes, fn) {
-		Bindings.pushList(keyCodes, fn);
-		return fn;
-	}
+	// function addBinding(keyCodes, fn) {
+	// 	Bindings.pushList(keyCodes, fn);
+	// 	return fn;
+	// }
 
 	function removeBinding(name, fn) {
 		var functions = Bindings.has(name);
@@ -92,7 +94,7 @@ define('inputII', ['trie'], function(Trie) {
 			extended = _.extend(e, { which : code }),
 			extras;
 
-		addFlag(code, e);
+		// addFlag(/* code */keyCode, e);
 
 		// If a character is given, fire the 'printable' event
 		if (character) {
@@ -118,7 +120,7 @@ define('inputII', ['trie'], function(Trie) {
 		fireBindings('keypress', extended);
 	}
 
-	// Human readable synonyms to the key codes
+	// Human readable aliases to the key codes
 	var aliases = {
 
 		backspace : 8,  '⌫' : 8,
@@ -140,8 +142,8 @@ define('inputII', ['trie'], function(Trie) {
 		right : 39, '→' : 39,
 		down  : 40, '↓' : 40,
 
-		insert   : 45, 
-		delete   : 45, '⌫' : 45,
+		// insert   : 45, TODO: find correct keycode
+		delete   : 45, /* '⌫' : 45, */ // TODO: Same here
 		command  : 91, '⌘' : 91,
 
 		asterisk : 106, '*' : 106,
@@ -157,8 +159,7 @@ define('inputII', ['trie'], function(Trie) {
 	// -----------------------
 	
 	// Event handlers perform internal administration
-	// before firing any event handlers listening
-	// to that event
+	// before firing any functions subscribed to that event
 	var handlers = {
 
 		onMouseDown : function(e) {
@@ -183,7 +184,7 @@ define('inputII', ['trie'], function(Trie) {
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			getKeyInput(_.bind(textInput, null, e));
-			// addFlag(code, e);
+			addFlag(code, e);
 			fireBindings('keyDown', _.extend(e, {
 				which : code
 			}));
@@ -191,7 +192,7 @@ define('inputII', ['trie'], function(Trie) {
 
 		onKeyUp : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
-			if (!code in flags) throw Error('Invalid flag');
+			// if (!(code in flags)) throw Error('Invalid flag');
 			removeFlag(code);
 			fireBindings('keyUp', _.extend(e, {
 				which : code
