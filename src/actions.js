@@ -21,7 +21,7 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 	var actions = {
 		
 		// Backspace
-		8 : function() {
+		backspace : input.bind('backspace', function() {
 			var col = Cursor.col,
 				row = Cursor.row,
 				length;
@@ -43,10 +43,11 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 			} else {
 				deleteSelection();
 			}
-		},
+			events.publish('operation');
+		}),
 
 		// Delete
-		46 : function() {
+		delete : input.bind('delete', function() {
 			if (!Cursor.atEndOfLine()) {
 				Cursor.shift('right');
 			} else {
@@ -55,11 +56,12 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 			}
 
 			// Proxy to backspace function
-			actions[8]();
-		},
+			actions.delete();
+			events.publish('operation');
+		}),
 
 		// Enter
-		13 : function() {
+		enter : input.bind('return', function() {
 			var row = Cursor.row,
 				col = Cursor.col,
 				overflow
@@ -75,42 +77,48 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 
 			Cursor.shift('down');
 			Cursor.col = 0;
-		},
+			events.publish('operation');
+		}),
 
 		// Tab
-		9 : function() {
+		tab : input.bind('tab', function() {
 			var tab = new Array(settings.tabSize + 1).join(' ');
 			Text.insert(tab/* '\t' */, Cursor.row, Cursor.col);
 			Cursor.shift('right', 4);
-		},
+			events.publish('operation');
+		}),
 
 		// Up arrow
 		up : input.bind('↑', function() {
 			actions.handleSelection();
 			Cursor.shift('up');
+			events.publish('operation');
 		}),
 
 		// Down arrow
 		down : input.bind('↓', function() {
 			actions.handleSelection();
 			Cursor.shift('down');
+			events.publish('operation');
 		}),
 
 		// Left arrow
 		left : input.bind('←', function() {
 			actions.handleSelection();
 			Cursor.shift('left');
+			events.publish('operation');
 		}),
 
 		// Right arrow
 		right : input.bind('→', function() {
 			actions.handleSelection();
 			Cursor.shift('right');
+			events.publish('operation');
 		}),
 
 		passive : {
 			// Select all (a)
-			65 : function() {
+			selectAll : input.bind('command + a', function() {
 				if (!actions.ctrlDown) return;
 				var start = selection.start,
 					end = selection.end;
@@ -119,21 +127,21 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 				end.row = Text.source.length - 1;
 				end.col = _.last(Text.source).length;
 				events.publish('operation');
-			},
+			}),
 
 			// Undo (z)
-			90 : function() {
+			undo : input.bind('ctrl + z', function() {
 				if (!actions.ctrlDown) return;
 				history.undo();
 				Canvas.render();
-			},
+			}),
 
 			// Redo (y)
-			89 : function() {
+			redo : input.bind('ctrl + y', function() {
 				if (!actions.ctrlDown) return;
 				history.redo();
 				Canvas.render();
-			},
+			}),
 
 			// Shift
 			16 : function() {
@@ -230,18 +238,13 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 		// ---------------
 
 		handleSelection : function() {
-			if (actions.shiftDown) {
+			if (input.is('shift')) {
 				selection.setEnd();
 			} else if (!selection.empty) {
 				selection.clear();
+				selection.setStart();
 			}
-		},
-
-		// Flags
-		// -----
-		
-		shiftDown : false,
-		ctrlDown : false
+		}
 
 	};
 
