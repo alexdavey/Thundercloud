@@ -13,23 +13,21 @@ define('inputII', ['trie'], function(Trie) {
 	
 	document.body.appendChild(textArea);
 
+	window.Bindings = Bindings;
+
 
 	// Utility
 	// -------
 	
-	// function addBinding(keyCodes, fn) {
-	// 	Bindings.pushList(keyCodes, fn);
-	// 	return fn;
-	// }
-
 	function removeBinding(name, fn) {
 		var functions = Bindings.has(name);
 		functions = _.without(functions, fn);
 	}
 
 	// Fire all bindings with a given name
-	function fireBindings(name, e) {
+	function fireBindings(name, e, extended) {
 		var binding = Bindings.has([name]);
+		if (extended) e = _.extend(e, extended);
 		if (binding) invokeAll(binding, e);
 	}
 
@@ -85,6 +83,7 @@ define('inputII', ['trie'], function(Trie) {
 		setTimeout(function() {
 			callback(textArea.value || null);
 			textArea.value = '';
+			textArea.blur();
 		}, 10);
 	}
 	
@@ -107,9 +106,7 @@ define('inputII', ['trie'], function(Trie) {
 				character = character.slice(0, 1);
 			}
 
-			fireBindings('printable', _.extend(extended, {
-				character : character,
-			}));
+			fireBindings('printable', extended, { character : character });
 
 		} else {
 
@@ -168,7 +165,7 @@ define('inputII', ['trie'], function(Trie) {
 		},
 
 		onMouseMove : function(e) {
-			if (flags['mouseDown']) fireBindings('drag', e);
+			if (flags.mouseDown) fireBindings('drag', e);
 			fireBindings('mouseMove', e);
 		},
 
@@ -186,30 +183,22 @@ define('inputII', ['trie'], function(Trie) {
 			// Tabs need special treatment
 			if (code !== 9) getKeyInput(_.bind(textInput, null, e));
 			addFlag(code, e);
-			fireBindings('keyDown', _.extend(e, {
-				which : code
-			}));
+			fireBindings('keyDown', e, { which : code });
 		},
 
 		onKeyUp : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			// if (!(code in flags)) throw Error('Invalid flag');
 			removeFlag(code);
-			fireBindings('keyUp', _.extend(e, {
-				which : code
-			}));
+			fireBindings('keyUp', e, { which : code });
 		},
 
 		onScrollFF : function(e) {
-			fireBindings('scroll', _.extend(e, {
-				delta : -e.detail / 3
-			}));
+			fireBindings('scroll', e, { delta : -e.detail / 3 });
 		},
 
 		onScroll : function(e) {
-			fireBindings('scroll', _.extend(e, {
-				delta : e.wheelDelta / 120
-			}));
+			fireBindings('scroll', e, { delta : e.wheelDelta / 120 });
 		}
 
 
