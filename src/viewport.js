@@ -21,8 +21,8 @@ define('viewport', ['text', 'settings'], function(Text, settings) {
 
 			if (this.startRow < 0) {
 				this.shiftTo('start', 0);
-			} else if (this.endRow > length - 1) {
-				this.shiftTo('end', length - 1);
+			} else if (this.endRow > length) {
+				this.shiftTo('end', length);
 			}
 
 		},

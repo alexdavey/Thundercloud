@@ -93,10 +93,10 @@ define('inputII', ['trie'], function(Trie) {
 			extended = _.extend(e, { which : code }),
 			extras;
 
-		// addFlag(/* code */keyCode, e);
+		// addFlag(code, e);
 
 		// If a character is given, fire the 'printable' event
-		if (character) {
+		if (character && code != 10) {
 
 			// If multiple characters where caught, fire the
 			// events multiple times
@@ -194,11 +194,11 @@ define('inputII', ['trie'], function(Trie) {
 		},
 
 		onScrollFF : function(e) {
-			fireBindings('scroll', e, { delta : -e.detail / 3 });
+			fireBindings('scroll', e, { delta : -e.detail /* / 3 */ });
 		},
 
 		onScroll : function(e) {
-			fireBindings('scroll', e, { delta : e.wheelDelta / 120 });
+			fireBindings('scroll', e, { delta : e.wheelDelta /* / 120 */ });
 		}
 
 

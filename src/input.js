@@ -135,7 +135,19 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 
 		Cursor.shift('right');
 		events.publish('operation');
-	})
+	});
+
+	var scroll = inputII.scroll(function(e) {
+		var viewportStart = viewport.startRow,
+			viewportEnd = viewport.endRow;
+
+		e.preventDefault();
+		viewport.shift(~~(e.delta / settings.mouseSensitivity));
+
+		if (viewport.startRow != viewportStart || viewport.endRow != viewportEnd) {
+			events.publish('operation');
+		}
+	});
 	
 	// 	onKeyPress : function(e) {
 	// 		e = e || window.e;
