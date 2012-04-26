@@ -1,16 +1,20 @@
-define('cursor', ['events', 'text', 'settings', 'viewport'],
-			function(events, Text, settings, viewport) {
+define('cursor', ['events', 'text', 'settings', 'viewport', 'canvas'],
+			function(events, Text, settings, viewport, canvas) {
 
 	"use strict";
 
 	function shiftViewport() {
+		var length = Text.source.length - 1,
+			endRow = viewport.endRow,
+			startRow = viewport.startRow,
+			cursorRow = cursor.row;
 		// Ensure that the viewport is not past the end of the text
-		if (viewport.endRow > Text.source.length - 1) {
+		if (endRow > length /* && length >= viewport.height */) {
 			viewport.shiftTo('end', cursor.row);
-		} else if (!viewport.isInside(cursor.row)) {
+		} else if (!viewport.isInside(cursorRow)) {
 			// Shift the viewport to the end of the line if the cursor
 			// is above the cursor or to the beginning if below.
-			viewport.shiftTo(cursor.row < viewport.startRow ? 'start' : 'end', cursor.row);
+			viewport.shiftTo(cursorRow < startRow ? 'start' : 'end', cursorRow);
 		}
 	}
 
@@ -18,7 +22,6 @@ define('cursor', ['events', 'text', 'settings', 'viewport'],
 
 		row : 0,
 		col : 10,
-
 
 		blinking : false,
 
@@ -124,6 +127,7 @@ define('cursor', ['events', 'text', 'settings', 'viewport'],
 	// 	cursor.blinking = false;
 	// 	setInterval(function() {
 	// 		cursor.blinking = !cursor.blinking;
+	// 		canvas.render();
 	// 	}, 500);
 	// });
 
