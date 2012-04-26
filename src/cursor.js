@@ -71,7 +71,10 @@ define('cursor', ['events', 'text', 'settings', 'viewport', 'canvas'],
 			col = (col > lineLength ? lineLength : col);
 
 			// Is the cursor in the margin?
-			col < 0 && (col = 0);
+			if (col < 0) col = 0
+
+			// Is the cursor to far up?
+			if (row < 0) row = 0;
 
 			this.col = col;
 			this.row = row;
