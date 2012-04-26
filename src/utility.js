@@ -2,6 +2,10 @@
 
 _.mixin({
 
+	partial : function(fn) {
+		return _.bind(fn, null, _.rest(arguments));
+	},
+
 	filterObj : function(obj, fn, ctx) {
 		var filtrate = {};
 
