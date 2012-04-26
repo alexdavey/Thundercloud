@@ -116,121 +116,116 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 			events.publish('operation');
 		}),
 
-		passive : {
-			// Select all (a)
-			selectAll : input.bind('command + a', function() {
-				if (!actions.ctrlDown) return;
-				var start = selection.start,
-					end = selection.end;
-				
-				start.row = start.col = 0;
-				end.row = Text.source.length - 1;
-				end.col = _.last(Text.source).length;
-				events.publish('operation');
-			}),
-
-			// Undo (z)
-			undo : input.bind('ctrl + z', function() {
-				if (!actions.ctrlDown) return;
-				history.undo();
-				Canvas.render();
-			}),
-
-			// Redo (y)
-			redo : input.bind('ctrl + y', function() {
-				if (!actions.ctrlDown) return;
-				history.redo();
-				Canvas.render();
-			}),
-
-			// Shift
-			16 : function() {
-				if (selection.isEmpty()) selection.setStart();
-				actions.shiftDown = true;
-			},
+		// Select all (a)
+		selectAll : input.bind('ctrl + a', function() {
+			var start = selection.start,
+				end = selection.end;
 			
-			// Ctrl
-			17 : function() {
-				actions.ctrlDown = true;
-				textArea.focus();
-			},
+			start.row = start.col = 0;
+			end.row = Text.source.length - 1;
+			end.col = _.last(Text.source).length;
+			events.publish('operation');
+		}),
 
-			// Left window
-			91 : function() {
-				actions.ctrlDown = true;
-				textArea.focus();
-			},
+		// Undo (z)
+		undo : input.bind('ctrl + z', function() {
+			history.undo();
+			Canvas.render();
+		}),
 
-			// Cut (x)
-			88 : function() {
-				if (!actions.ctrlDown) return;
+		// Redo (y)
+		redo : input.bind('ctrl + y', function() {
+			history.redo();
+			Canvas.render();
+		}),
 
-				// Proxy to the copy function
-				actions.passive[67]();
-				// Proxy to the backspace function
-				actions[8]();
+		// Shift
+		16 : function() {
+			if (selection.isEmpty()) selection.setStart();
+			actions.shiftDown = true;
+		},
+		
+		// Ctrl
+		17 : function() {
+			actions.ctrlDown = true;
+			textArea.focus();
+		},
 
-				events.publish('operation');
-			},
+		// Left window
+		91 : function() {
+			actions.ctrlDown = true;
+			textArea.focus();
+		},
 
-			// Paste (v)
-			86 : function() {
-				if (!actions.ctrlDown) return;
+		// Cut (x)
+		88 : function() {
+			if (!actions.ctrlDown) return;
 
-				// If there is a current selection, delete it using
-				// the backspace function
-				if (!selection.isEmpty()) actions[8]();
+			// Proxy to the copy function
+			actions.passive[67]();
+			// Proxy to the backspace function
+			actions[8]();
 
-				// Wait for the text to be pasted into the textarea
-				setTimeout(function() {
-					var input = textArea.value.split(/\r\n|\n|\r/),
-						overflow = Text.lineSection(Cursor.row, Cursor.col),
-						length = input.length,
-						lastLineLength = _.last(input).length,
-						row = Cursor.row,
-						col = Cursor.col;
+			events.publish('operation');
+		},
 
-					// Is the input multi-line?
-					if (length > 1) {
-						// Remove the text after the cursor temporarily
-						Text.remove(-overflow.length, row, col)
+		// Paste (v)
+		86 : function() {
+			if (!actions.ctrlDown) return;
 
-						// Append the top line
-						Text.insert(input.shift(), row, col)
+			// If there is a current selection, delete it using
+			// the backspace function
+			if (!selection.isEmpty()) actions[8]();
 
-						// Insert the bottom line and the overflow
-						Text.insert(input.pop() + overflow, row + 1, 0)
+			// Wait for the text to be pasted into the textarea
+			setTimeout(function() {
+				var input = textArea.value.split(/\r\n|\n|\r/),
+					overflow = Text.lineSection(Cursor.row, Cursor.col),
+					length = input.length,
+					lastLineLength = _.last(input).length,
+					row = Cursor.row,
+					col = Cursor.col;
 
-						// Insert all of the lines in between
-						Text.insertLines(input, row + 1);
+				// Is the input multi-line?
+				if (length > 1) {
+					// Remove the text after the cursor temporarily
+					Text.remove(-overflow.length, row, col)
 
-						Cursor.col = overflow.length + lastLineLength;
-						Cursor.shift('down', length - 1);
-					} else {
-						// If the input is a single line, simply insert it
-						Text.insert(textArea.value, row, col);
-						Cursor.shift('right', textArea.value.length);
-					}
+					// Append the top line
+					Text.insert(input.shift(), row, col)
 
-					textArea.value = '';
-					events.publish('operation');
-				}, 100);
-			},
+					// Insert the bottom line and the overflow
+					Text.insert(input.pop() + overflow, row + 1, 0)
 
-			// Copy (c)
-			67 : function() {
-				var normal = selection.normalize(), 
-					start = normal.start,
-					end = normal.end;
+					// Insert all of the lines in between
+					Text.insertLines(input, row + 1);
 
-				if (!selection.isEmpty()) {
-					textArea.value = Text.selection(start.row, start.col, end.row, end.col);
-					textArea.select();
-
-					setTimeout(function() {
-						textArea.value = '';
-					}, 100);
+					Cursor.col = overflow.length + lastLineLength;
+					Cursor.shift('down', length - 1);
+				} else {
+					// If the input is a single line, simply insert it
+					Text.insert(textArea.value, row, col);
+					Cursor.shift('right', textArea.value.length);
 				}
+
+				textArea.value = '';
+				events.publish('operation');
+			}, 100);
+		},
+
+		// Copy (c)
+		67 : function() {
+			var normal = selection.normalize(), 
+				start = normal.start,
+				end = normal.end;
+
+			if (!selection.isEmpty()) {
+				textArea.value = Text.selection(start.row, start.col, end.row, end.col);
+				textArea.select();
+
+				setTimeout(function() {
+					textArea.value = '';
+				}, 100);
 			}
 		},
 	
