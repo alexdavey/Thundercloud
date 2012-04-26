@@ -127,8 +127,6 @@ define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings'
 		var character = e.character;
 		e.preventDefault();
 
-		if (e.keyCode ==  13) console.log('THIRTEEN');
-		console.log('Character:' + '|' + character + '|');
 		// If there is a current selection, delete it using
 		// the backspace function
 		if (!selection.isEmpty()) actions.delete();
