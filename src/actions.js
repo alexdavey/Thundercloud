@@ -62,6 +62,8 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 
 		// Enter
 		enter : input.bind('return', function() {
+			if (!selection.isEmpty()) actions.backspace();
+
 			var row = Cursor.row,
 				col = Cursor.col,
 				overflow
