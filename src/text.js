@@ -42,7 +42,7 @@ define('text', ['events'], function(events) {
 			var line  = this.source[row],
 				temp;
 
-			col2 === undefined && (col2 = line.length);
+			if (col2 === undefined) col2 = line.length;
 
 			// If col1 is larger than col2, swap the positions
 			if (col1 > col2) {
@@ -57,9 +57,9 @@ define('text', ['events'], function(events) {
 			this.source[row] = left + right;
 
 			// If everything on line was removed, delete the line
-			if (this.source[row] == '') {
-				this.removeLine(row);	
-			}
+			// if (this.source[row] == '') {
+			// 	this.removeLine(row);	
+			// }
 
 			this.onChange();
 			return this;
