@@ -36,8 +36,10 @@ define('events', function() {
 			notifyAll('*', info);
 		},
 
-		unsubscribe : function() {
-			
+		unsubscribe : function(evt, fn) {
+			if (evt in fn) {
+				subscribers[evt] = _.without(subscribers[evt], fn);
+			}
 		}
 
 	};
