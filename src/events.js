@@ -18,12 +18,17 @@ define('events', function() {
 	var events = {
 		
 		subscribe : function(evt, fn, context) {
-			var callback = _.bind(fn, context);
-			if (evt in subscribers) {
-				subscribers[evt].push(callback);
-			} else {
-				subscribers[evt] = [callback];
-			}
+			var callback = _.bind(fn, context),
+				events = evt.split('|');
+
+			_.each(events, function(evt) {
+				if (evt in subscribers) {
+					subscribers[evt].push(callback);
+				} else {
+					subscribers[evt] = [callback];
+				}
+			});
+
 		},
 
 		publish : function(evt, info) {
