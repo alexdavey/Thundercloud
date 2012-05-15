@@ -13,4 +13,5 @@ define('settings', {
 	fontSize : 14,
 	lineHeight : 14,
 	mouseSensitivity : 3,                // Factor by which the scrolling value is reduced
+	clickTimeout : 1000                 // Maximum time between mouseDowns in a double click
 });
