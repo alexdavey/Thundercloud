@@ -1,5 +1,5 @@
-require(['input', 'inputII', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'viewport', 'selection', 'files', 'overlay', 'debug', 'menu'],
-	function(Input, InputII, settings, Canvas, Cursor, Text, history, events, viewport, selection, files) {
+require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'viewport', 'selection', 'files', 'overlay', 'menu'],
+	function(Input, settings, Canvas, Cursor, Text, history, events, viewport, selection, files) {
 	
 	"use strict";
 
@@ -32,8 +32,6 @@ require(['input', 'inputII', 'settings', 'canvas', 'cursor', 'text', 'history', 
 
 	
 	Text.source = source.split('\n'); // TODO implement files properly
-
-	// Input.init(editorEl, clipboardEl);
 
 	// History
 	// -------

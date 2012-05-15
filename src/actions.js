@@ -1,4 +1,4 @@
-define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history', 'viewport'], 
+define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings', 'canvas', 'history', 'viewport'], 
 	function(input, events, Cursor, Text, selection, settings, Canvas, history, viewport) {
 
 	"use strict";
@@ -118,8 +118,17 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 			events.publish('operation');
 		}),
 
+		a : input.bind('a', function() {
+			console.log('A!!!');
+		}),
+
+		ctrl : input.bind('ctrl', function() {
+			console.log('CTRL!!!');
+		}),
+
 		// Select all (a)
 		selectAll : input.bind('ctrl + a', function() {
+			console.log('SELECT');
 			var start = selection.start,
 				end = selection.end;
 			
@@ -161,6 +170,7 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 
 		// Cut (x)
 		88 : function() {
+			e.preventDefault();		
 			if (!actions.ctrlDown) return;
 
 			// Proxy to the copy function
@@ -244,6 +254,62 @@ define('actions', ['inputII', 'events', 'cursor', 'text', 'selection', 'settings
 		}
 
 	};
+
+	var drag = input.drag(function(e) {
+		var mouse = _.mouse(e),
+			offset = _.offset(Canvas.paper);
+
+		Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
+
+		selection.setEnd();
+		events.publish('operation');
+	});
+
+	var mouseDown = input.mouseDown(function(e) {
+		var mouse = _.mouse(e),
+			offset = _.offset(Canvas.paper);
+
+		Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
+
+		// Deselect any existing selections and 
+		// start a new one
+		if (input.is('shift')) {
+			selection.setEnd();
+		} else {
+			selection.clear();
+			selection.setStart();
+		}
+
+		events.publish('operation');
+	});
+
+	var shift = input.bind('⇧ + mouseDown', drag);
+
+	var printable = input.printable(function(e) {
+		var character = e.character;
+		e.preventDefault();
+
+		// If there is a current selection, delete it using
+		// the backspace function
+		if (!selection.isEmpty()) actions.delete();
+
+		Text.insert(character, Cursor.row, Cursor.col);
+
+		Cursor.shift('right');
+		events.publish('operation');
+	});
+
+	var scroll = input.scroll(function(e) {
+		var viewportStart = viewport.startRow,
+			viewportEnd = viewport.endRow;
+
+		e.preventDefault();
+		viewport.shift(~~(e.delta / settings.mouseSensitivity));
+
+		if (viewport.startRow != viewportStart || viewport.endRow != viewportEnd) {
+			events.publish('operation');
+		}
+	});
 
 	return actions;
 

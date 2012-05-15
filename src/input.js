@@ -1,192 +1,294 @@
-define('input', ['inputII', 'events', 'canvas', 'cursor', 'viewport', 'settings', 'selection', 'actions', 'text'], 
-	function(inputII, events, Canvas, Cursor, viewport, settings, selection, actions, Text) {
-	
+define('input', ['trie', 'settings'], function(Trie, settings) {
+
 	"use strict";
+	
+	// Functions bound to single events
+	var Bindings = new Trie,
 
-	function removeCurrentSelection() {
-		var normal = selection.normalize(),
-			start = selection.start,
-			end   = selection.end;
+		lastClick = false,
 
-		Text.removeSelection(start.row, start.col, end.row, end.col);
+	// Currently pressed keys
+		flags    = {},
+	
+	// Textarea element used to capture printable keystrokes
+		textArea = document.createElement('textArea');
+	
+	document.body.appendChild(textArea);
+
+	window.Bindings = Bindings;
+
+
+	// Utility
+	// -------
+	
+	function removeBinding(name, fn) {
+		var functions = Bindings.has(name);
+		functions = _.without(functions, fn);
 	}
 
-	var drag = inputII.drag(function(e) {
-		var mouse = _.mouse(e),
-			offset = _.offset(Canvas.paper);
+	// Fire all bindings with a given name
+	function fireBindings(name, e, extended) {
+		var binding = Bindings.has([name]);
+		if (extended) e = _.extend(e, extended);
+		if (binding) invokeAll(binding, e);
+	}
 
-		Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
+	// Fire all active flags with the event object e
+	function fireActive(e) {
+		var active = _.keys(_.withoutObj(flags, false));
+		invokeAll(Bindings.keyFilter(active), e);
+	}
 
-		selection.setEnd();
-		events.publish('operation');
-	});
+	// function cancelEvent(e) {
+	// 	e.stopPropagation();
+	// 	e.preventDefault();
+	// }
 
-	var mouseDown = inputII.mouseDown(function(e) {
-		var mouse = _.mouse(e),
-			offset = _.offset(Canvas.paper);
+	// Invoke all of the elements in an array 
+	// with a certain value
+	function invokeAll(array, value) {
+		for (var i = 0, l = array.length; i < l; ++i) {
+			array[i](value);
+		}
+	}
 
-		Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
+	// Parse a string of '+' delimited keys into
+	// an array of integer key codes
+	function toKeyCodes(string) {
+		var keys = string.split('+');
 
-		// Deselect any existing selections and 
-		// start a new one
-		if (inputII.is('shift')) {
-			selection.setEnd();
+		keys = _.map(keys, function(key) {
+			key = _.trim(key);
+			return aliases[key] || (key.length > 1 ? key : key.charCodeAt(0));
+		});
+
+		return keys;
+	}
+
+	// Sort the key codes in ascending order
+	function sortKeyCodes(keyCodes) {
+		return _(keyCodes).sort();
+	}
+
+	function addFlag(flag, e) {
+		flags[flag] = true;
+		fireActive(e || undefined);
+	}
+
+	function removeFlag(flag) {
+		delete flags[flag];
+	}
+
+	// Check the hidden textArea for printable characters
+	function getKeyInput(callback) {
+		textArea.focus();
+		setTimeout(function() {
+			callback(textArea.value || null);
+			textArea.value = '';
+			textArea.blur();
+		}, 10);
+	}
+	
+	function textInput(e, character) {
+		var keyCode = e.which || e.charCode || e.keyCode,
+			code = character ? character.charCodeAt(0) : keyCode,
+			extended = _.extend(e, { which : code }),
+			extras;
+
+		// If a character is given, fire the 'printable' event
+		// The return key gets special treatment
+		if (character && code != 10) {
+
+			// If multiple characters where caught, fire the
+			// events multiple times
+			if (character.length > 1) {
+				extras = _.tail(character.split(''));
+				_.each(extras, _.bind(textInput, null, e));
+				character = character.slice(0, 1);
+			}
+
+			fireBindings('printable', extended, { character : character });
+
 		} else {
-			selection.clear();
-			selection.setStart();
+
+			// addFlag(keyCode, e);
+			fireBindings('meta', extended);
+
 		}
 
-		events.publish('operation');
-	});
+		fireBindings('keypress', extended);
+	}
 
-	var shift = inputII.bind('⇧ + mouseDown', drag);
+	// Human readable aliases to the key codes
+	var aliases = {
 
-	inputII.tripleClick(function(e) {
-		selection.start.col = 0;
-		selection.setEnd(Cursor.row, Text.lineLength());
+		backspace : 8,  '⌫' : 8,
+		tab       : 9,  '⇥' : 9,
+		'return'  : 13, '↩' : 13,
+		pause     : 19,
 
-		events.publish('operation');
-	});
+		'caps-lock' : 20, '⇪' : 20,
+		'escape'    : 27, '⎋' : 27,
 
-	// inputII.scroll();
+		shift : 16, '⇧' : 16,
+		ctrl  : 17, '^' : 17,
+		alt   : 18, '⌥' : 18,
 
-	// inputII.printable();
+		space : 32, '␣' : 32,
+		
+		up    : 38, '↑' : 38,
+		left  : 37, '←' : 37,
+		right : 39, '→' : 39,
+		down  : 40, '↓' : 40,
 
-	// var mouseDown = false,
-	// 	textArea;
+		// insert   : 45, TODO: find correct keycode
+		delete   : 45, /* '⌫' : 45, */ // TODO: Same here
+		command  : 91, '⌘' : 91,
 
-	// var Input = {
+		asterisk : 106, '*' : 106,
+		plus     : 107, '+' : 107,
+		minus    : 109, '-' : 109,
+		equals   : 187, '=' : 187,
+		comma    : 188, ',' : 188
 
-	// 	init : function(clipboardEl) {
-	// 		textArea = clipboardEl;
+	};
 
-	// 		// _.listen('mousedown', this.onMouseDown);
-	// 		// _.listen('mousemove', this.onMouseMove);
-	// 		// _.listen('mouseup', this.onMouseUp);
-
-	// 		// _.listen('keypress', this.onKeyPress);
-	// 		// _.listen('keydown', this.onKeyDown);
-	// 		// _.listen('keyup', this.onKeyUp);
-
-	// 		// _.listen('DOMMouseScroll', this.onScrollFF);
-	// 		// _.listen('mousewheel', this.onScroll);
-	// 	},
-	// 	
 	
-	// 	onMouseMove : function(e) {
-	// 		if (!mouseDown) return;
+	// for (var i = 64; i < 91; i++) {
+	// 	aliases[String.fromCharCode(i)] = i;
+	// }
 
-	// 		var mouse = _.mouse(e),
-	// 			offset = _.offset(Canvas.paper),
-	// 			oldCol = Cursor.col,
-	// 			oldRow = Cursor.row;
+	// for (var i = 47, i < 58; i++) {
+	// 	aliases[i - ]
+	// }
 
-	// 		e.preventDefault();
-	// 		e.stopPropagation();
 
-	// 		// Move the cursor and end point of
-	// 		// the selection
-	// 		Cursor.moveTo(mouse.x - offset.left, mouse.y - offset.top);
-	// 		endSelection();
+	// Internal event handlers
+	// -----------------------
+	
+	// Event handlers perform internal administration
+	// before firing any functions subscribed to that event
+	var handlers = {
 
-	// 		// Only render if the cursor position has changed
-	// 		if (Cursor.col != oldCol || Cursor.row != oldRow) {
-	// 			events.publish('operation');
-	// 		}
-	// 	},
+		onMouseDown : function(e) {
+			addFlag('mouseDown', e);
+			fireBindings('mouseDown', e);
+		},
 
-	// 	onMouseUp : function(e) {
-	// 		mouseDown = false;
-	// 	},
+		onMouseMove : function(e) {
+			if (flags.mouseDown) fireBindings('drag', e);
+			fireBindings('mouseMove', e);
+		},
 
-	// 	onKeyDown : function(e) {
-	// 		e = e || window.e;
-	// 		var keyCode = e.keyCode,
-	// 			passive = actions.passive;
+		onMouseUp : function(e) {
+			removeFlag('mouseDown');
+			fireBindings('mouseUp');
+		},
 
-	// 		if (keyCode in actions) {
-	// 			e.preventDefault();
-	// 			actions[keyCode]();
-	// 			events.publish('operation');
-	// 		} else if (keyCode in passive) {
-	// 			passive[keyCode]();
-	// 		}
-	// 	},
+		onKeyPress : function(e, character) {
+			getKeyInput(_.bind(textInput, null, e));
+		},
 
-	// 	onKeyUp : function(e) {
-	// 		e = e || window.e;
+		onKeyDown : function(e) {
+			var code = e.which || e.charCode || e.keyCode;
+			// Tabs need special treatment
+			if (code !== 9) {
+				getKeyInput(_.bind(textInput, null, e));
+			} else {
+				e.preventDefault();
+			}
+			addFlag(code, e);
+			fireBindings('keyDown', e, { which : code });
+		},
 
-	// 		if (e.keyCode == 17 || e.keyCode == 91) {
-	// 			actions.ctrlDown = false;
-	// 		} else if (e.keyCode == 16) {
-	// 			actions.shiftDown = false;
-	// 		}
-	// 	},
+		onKeyUp : function(e) {
+			var code = e.which || e.charCode || e.keyCode;
+			removeFlag(code);
+			fireBindings('keyUp', e, { which : code });
+		},
 
-	var printable = inputII.printable(function(e) {
-		var character = e.character;
-		e.preventDefault();
+		onScrollFF : function(e) {
+			fireBindings('scroll', e, { delta : -e.detail /* / 3 */ });
+		},
 
-		// If there is a current selection, delete it using
-		// the backspace function
-		if (!selection.isEmpty()) actions.delete();
+		onScroll : function(e) {
+			fireBindings('scroll', e, { delta : e.wheelDelta /* / 120 */ });
+		}
 
-		Text.insert(character, Cursor.row, Cursor.col);
 
-		Cursor.shift('right');
-		events.publish('operation');
-	});
+	};
 
-	var scroll = inputII.scroll(function(e) {
-		var viewportStart = viewport.startRow,
-			viewportEnd = viewport.endRow;
 
-		e.preventDefault();
-		viewport.shift(~~(e.delta / settings.mouseSensitivity));
+	// Internal event listeners
+	// ------------------------
+	
+	var events = {
 
-		if (viewport.startRow != viewportStart || viewport.endRow != viewportEnd) {
-			events.publish('operation');
+		'mouseDown': handlers.onMouseDown,
+		'mouseMove': handlers.onMouseMove,
+		'mouseUp'  : handlers.onMouseUp,
+	
+		'keyPress' : handlers.onKeyPress,
+		'keyDown'  : handlers.onKeyDown,
+		'keyUp'    : handlers.onKeyUp,
+									
+		'DOMMouseScroll' : handlers.onScrollFF,
+		'mouseWheel'     : handlers.onScroll
+
+	};
+	
+
+	// Interface
+	// ---------
+	
+	// List of events that will be automatically
+	// added to the interface
+	var namedEvents = ['printable', 'control', 'mouseMove', 'mouseDown',
+					   'mouseUp', 'click', 'doubleClick', 'tripleClick',
+					   'drag', 'scroll', 'meta'];
+	
+	var input = {
+
+		// Check to see id an array of keys are currently
+		// being pressed
+		is : function(keys) {
+			var codes = toKeyCodes(keys);
+			return _.all(codes, function(code) {
+				return code in flags;
+			});
+		},
+
+		bind : function(codes, fn) {
+			Bindings.pushList(toKeyCodes(codes), fn);
+			return fn;
+		},
+
+		unbind : function(paths, fn) {
+			var bindings = Bindings.has(paths);
+			bindings = bindings && _.without(bindings, fn);
+		},
+
+		setClipboard : function(string) {
+			textArea.value = string;
+		}
+
+	};
+
+	// Add all of the named events to the interface
+	_.each(namedEvents, function(name) {
+		input[name] = function(fn) {
+			Bindings.pushList([name], fn);
+			return fn;
 		}
 	});
-	
-	// 	onKeyPress : function(e) {
-	// 		e = e || window.e;
-	// 		var character = String.fromCharCode(e.charCode);
-	// 		if (character.length < 1) return;
-	// 		e.preventDefault();
 
-	// 		// If there is a current selection, delete it using
-	// 		// the backspace function
-	// 		if (!selection.isEmpty()) actions[8]();
+	// Attach all of the event listeners needed
+	_.each(events, function(fn, name) {
+		_.listen(name.toLowerCase(), function(e) {
+			fn(e || window.e);
+		});
+	});
 
-	// 		Text.insert(character, Cursor.row, Cursor.col);
-
-	// 		Cursor.shift('right');
-	// 		events.publish('operation');
-	// 	},
-
-	// 	onScrollFF : function(e) {
-	// 		e.preventDefault();
-	// 		viewport.shift(~~(e.detail / settings.mouseSensitivity));
-	// 		events.publish('operation');
-	// 	},
-
-	// 	onScroll : function(e) {
-	// 		e = e || window.e;
-
-	// 		var viewportStart = viewport.startRow,
-	// 			viewportEnd = viewport.endRow;
-
-	// 		e.preventDefault();
-	// 		viewport.shift(~~(-e.wheelDelta / settings.mouseSensitivity));
-
-	// 		if (viewport.startRow != viewportStart || viewport.endRow != viewportEnd) {
-	// 			events.publish('operation');
-	// 		}
-	// 	}
-
-	// };
-
-	// return Input;
+	return input;
 
 });
