@@ -1,9 +1,11 @@
-define('inputII', ['trie'], function(Trie) {
+define('inputII', ['trie', 'settings'], function(Trie, settings) {
 
 	"use strict";
 	
 	// Functions bound to single events
 	var Bindings = new Trie,
+
+		lastClick = false,
 
 	// Currently pressed keys
 		flags    = {},
@@ -93,9 +95,8 @@ define('inputII', ['trie'], function(Trie) {
 			extended = _.extend(e, { which : code }),
 			extras;
 
-		// addFlag(code, e);
-
 		// If a character is given, fire the 'printable' event
+		// The return key gets special treatment
 		if (character && code != 10) {
 
 			// If multiple characters where caught, fire the
@@ -110,6 +111,7 @@ define('inputII', ['trie'], function(Trie) {
 
 		} else {
 
+			// addFlag(keyCode, e);
 			fireBindings('meta', extended);
 
 		}
@@ -151,6 +153,15 @@ define('inputII', ['trie'], function(Trie) {
 
 	};
 
+	
+	// for (var i = 64; i < 91; i++) {
+	// 	aliases[String.fromCharCode(i)] = i;
+	// }
+
+	// for (var i = 47, i < 58; i++) {
+	// 	aliases[i - ]
+	// }
+
 
 	// Internal event handlers
 	// -----------------------
@@ -181,14 +192,17 @@ define('inputII', ['trie'], function(Trie) {
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			// Tabs need special treatment
-			if (code !== 9) getKeyInput(_.bind(textInput, null, e));
+			if (code !== 9) {
+				getKeyInput(_.bind(textInput, null, e));
+			} else {
+				e.preventDefault();
+			}
 			addFlag(code, e);
 			fireBindings('keyDown', e, { which : code });
 		},
 
 		onKeyUp : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
-			// if (!(code in flags)) throw Error('Invalid flag');
 			removeFlag(code);
 			fireBindings('keyUp', e, { which : code });
 		},
