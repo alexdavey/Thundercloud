@@ -150,24 +150,6 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 			Canvas.render();
 		}),
 
-		// // Shift
-		// 16 : function() {
-		// 	if (selection.isEmpty()) selection.setStart();
-		// 	actions.shiftDown = true;
-		// },
-		
-		// Ctrl
-		17 : function() {
-			actions.ctrlDown = true;
-			textArea.focus();
-		},
-
-		// Left window
-		91 : function() {
-			actions.ctrlDown = true;
-			textArea.focus();
-		},
-
 		// Cut (x)
 		88 : function() {
 			e.preventDefault();		
