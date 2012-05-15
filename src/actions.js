@@ -92,29 +92,29 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 
 		// Up arrow
 		up : input.bind('↑', function() {
-			actions.handleSelection();
 			Cursor.shift('up');
+			actions.handleSelection();
 			events.publish('operation');
 		}),
 
 		// Down arrow
 		down : input.bind('↓', function() {
-			actions.handleSelection();
 			Cursor.shift('down');
+			actions.handleSelection();
 			events.publish('operation');
 		}),
 
 		// Left arrow
 		left : input.bind('←', function() {
-			actions.handleSelection();
 			Cursor.shift('left');
+			actions.handleSelection();
 			events.publish('operation');
 		}),
 
 		// Right arrow
 		right : input.bind('→', function() {
-			actions.handleSelection();
 			Cursor.shift('right');
+			actions.handleSelection();
 			events.publish('operation');
 		}),
 
@@ -150,11 +150,11 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 			Canvas.render();
 		}),
 
-		// Shift
-		16 : function() {
-			if (selection.isEmpty()) selection.setStart();
-			actions.shiftDown = true;
-		},
+		// // Shift
+		// 16 : function() {
+		// 	if (selection.isEmpty()) selection.setStart();
+		// 	actions.shiftDown = true;
+		// },
 		
 		// Ctrl
 		17 : function() {
@@ -247,7 +247,7 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 		handleSelection : function() {
 			if (input.is('shift')) {
 				selection.setEnd();
-			} else if (!selection.empty) {
+			} else {
 				selection.clear();
 				selection.setStart();
 			}
@@ -273,12 +273,7 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 
 		// Deselect any existing selections and 
 		// start a new one
-		if (input.is('shift')) {
-			selection.setEnd();
-		} else {
-			selection.clear();
-			selection.setStart();
-		}
+		actions.handleSelection();
 
 		events.publish('operation');
 	});
