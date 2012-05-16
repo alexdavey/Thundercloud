@@ -4,7 +4,7 @@ var document = {
 	createElement : function() { return textArea }
 };
 
-require(['inputII'], function(input) {
+require(['input'], function(input) {
 
 	// Bind
 	// ----
