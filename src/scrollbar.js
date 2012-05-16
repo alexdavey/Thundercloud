@@ -28,6 +28,7 @@ require(['plugin', 'events', 'viewport', 'text', 'settings'], function(plugin, e
 		clickable : true,
 		floating : true,
 		width : 8,
+		height : settings.height,
 		render : render,
 		x : settings.width - 8,
 		y : 0,
@@ -46,8 +47,8 @@ require(['plugin', 'events', 'viewport', 'text', 'settings'], function(plugin, e
 		model.bar.offset = (canvasHeight / textLength) * viewport.startRow + 8;
 	});
 
-	// model.click(function(e) {
-	// 	viewport.shiftTo('start', (e.y / settings.height) * text.source.length);
-	// });
+	model.click = function(e, x, y) {
+		viewport.shiftTo('start', (y / settings.height) * text.source.length);
+	};
 
 });

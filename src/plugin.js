@@ -1,5 +1,11 @@
-define('plugin', ['canvas', 'events'], function(canvas, events) {
+define('plugin', ['canvas', 'events', 'input'], function(canvas, events, input) {
 
+	"use strict";
+
+	function within(x, y, model) {
+		return model.x <= x && (model.x + model.width) >= x &&
+				model.y <= y && (model.y + model.height) >= y;
+	}
 	
 	var plugin = {
 
@@ -18,6 +24,16 @@ define('plugin', ['canvas', 'events'], function(canvas, events) {
 		});
 	});
 
+	input.mouseDown(function(e) {
+		var mouse = _.mouse(e),
+			offset = _.offset(canvas.paper),
+			predicate = _.partial(within, mouse.x - offset.left, mouse.y - offset.top),
+			inside = _.filter(plugin.elements, predicate);
+
+		_.each(inside, function(model) {
+			if (_.isFunction(model.click) && model.clickable) model.click(e, mouse.x, mouse.y);
+		});
+	});
 	
 	return plugin;
 
