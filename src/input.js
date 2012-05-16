@@ -141,8 +141,8 @@ define('input', ['trie', 'settings'], function(Trie, settings) {
 		right : 39, '→' : 39,
 		down  : 40, '↓' : 40,
 
-		// insert   : 45, TODO: find correct keycode
-		delete   : 45, /* '⌫' : 45, */ // TODO: Same here
+		insert   : 45,
+		delete   : 46, '⌫' : 46,
 		command  : 91, '⌘' : 91,
 
 		asterisk : 106, '*' : 106,
