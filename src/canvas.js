@@ -1,5 +1,5 @@
-define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'history'], 
-	function(Text, Highlighter, selection, viewport, Cursor, settings, history) {
+define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'settings', 'history', 'events'], 
+	function(Text, Highlighter, selection, viewport, Cursor, settings, history, events) {
 
 	"use strict";
 	
@@ -47,6 +47,7 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 
 		// Main render loop
 		render : function() {
+			events.publish('pre-render');
 			var text, y;
 
 			// If the text has not been modified, use the cached version
@@ -68,7 +69,8 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 			this.drawMargin(y + 1);
 			this.drawCursor();
 
-			this.drawScrollbar(y + 1, viewport.startRow);
+			// this.drawScrollbar(y + 1, viewport.startRow);
+			events.publish('post-render');
 		},
 
 		// Draws the main body of code onto the canvas, given
@@ -153,30 +155,30 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 		},
 
 		// Draws the scrollbar
-		drawScrollbar : function() {
+		// drawScrollbar : function() {
 
-			if (Text.source.length <= viewport.height + 1) return;
+		// 	if (Text.source.length <= viewport.height + 1) return;
 
-			var oldLineCap = ctx.lineCap,
-				canvasHeight = paper.height,
-				textLength = Text.source.length,
-				height = (viewport.height / textLength) * canvasHeight - 16,
-				y = (canvasHeight / textLength) * viewport.startRow + 8,
-				x = paper.width - 8;
-		
-			ctx.lineCap = 'round';
-			ctx.strokeStyle = 'rgba(181, 181, 181, 0.5)';
-			ctx.lineWidth = 8;
+		// 	var oldLineCap = ctx.lineCap,
+		// 		canvasHeight = paper.height,
+		// 		textLength = Text.source.length,
+		// 		height = (viewport.height / textLength) * canvasHeight - 16,
+		// 		y = (canvasHeight / textLength) * viewport.startRow + 8,
+		// 		x = paper.width - 8;
+		// 
+		// 	ctx.lineCap = 'round';
+		// 	ctx.strokeStyle = 'rgba(181, 181, 181, 0.5)';
+		// 	ctx.lineWidth = 8;
 
-			ctx.beginPath();
+		// 	ctx.beginPath();
 
-			ctx.moveTo(x, y);
-			ctx.lineTo(x, y + height);
+		// 	ctx.moveTo(x, y);
+		// 	ctx.lineTo(x, y + height);
 
-			ctx.stroke();
+		// 	ctx.stroke();
 
-			ctx.lineCap = oldLineCap;
-		},
+		// 	ctx.lineCap = oldLineCap;
+		// },
 		
 		// Draws the highlighted part of the page
 		drawSelection : function() {
