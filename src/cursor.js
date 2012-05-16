@@ -5,16 +5,14 @@ define('cursor', ['events', 'text', 'settings', 'viewport', 'canvas'],
 
 	function shiftViewport() {
 		var length = Text.source.length - 1,
-			endRow = viewport.endRow,
-			startRow = viewport.startRow,
 			cursorRow = cursor.row;
-		// Ensure that the viewport is not past the end of the text
-		if (endRow > length /* && length >= viewport.height */) {
-			viewport.shiftTo('end', cursor.row);
+
+		if (viewport.endRow > length) {
+			viewport.shiftTo('start', length);
 		} else if (!viewport.isInside(cursorRow)) {
 			// Shift the viewport to the end of the line if the cursor
 			// is above the cursor or to the beginning if below.
-			viewport.shiftTo(cursorRow < startRow ? 'start' : 'end', cursorRow);
+			viewport.shiftTo(cursorRow < viewport.startRow ? 'start' : 'end', cursorRow);
 		}
 	}
 
