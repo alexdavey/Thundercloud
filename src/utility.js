@@ -137,6 +137,12 @@ _.mixin({
 		else {
 			el.addEventListener(type, fn, false);
 		}
+	},
+
+	insertSorted : function(array, model) {
+		var z = _.pluck(array, 'z');
+		array.splice(_.sortedIndex(z, model.z), 0, model);
+		return array;
 	}
 });
 
