@@ -1,5 +1,5 @@
-require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'viewport', 'selection', 'files', 'overlay', 'menu'],
-	function(Input, settings, Canvas, Cursor, Text, history, events, viewport, selection, files) {
+require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', 'viewport', 'selection', 'files', 'plugin', 'overlay', 'menu', 'scrollbar'],
+	function(Input, settings, Canvas, Cursor, Text, history, events, viewport, selection, files, plugin) {
 	
 	"use strict";
 
@@ -51,8 +51,7 @@ require(['input', 'settings', 'canvas', 'cursor', 'text', 'history', 'events', '
 	Canvas.init(editorEl);
 
 	// Render the canvas when the text is changed
-	events.subscribe('operation', Canvas.render, Canvas);
-
+	events.subscribe('operation|silentRender', Canvas.render, Canvas);
 
 	// Files
 	// -----

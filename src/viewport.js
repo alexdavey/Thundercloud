@@ -1,4 +1,4 @@
-define('viewport', ['text', 'settings'], function(Text, settings) {
+define('viewport', ['text', 'settings', 'events'], function(Text, settings, events) {
 	
 	"use strict";
 
@@ -24,11 +24,12 @@ define('viewport', ['text', 'settings'], function(Text, settings) {
 			} else if (this.endRow > length - 1) {
 				this.shiftTo('end', length - 1);
 			}
-
+			events.publish('moveViewport');
 		},
 
 		shiftTo : function(startOrEnd, row) {
 			this.shift(row - (startOrEnd == 'start' ? this.startRow : this.endRow));
+			events.publish('moveViewport');
 		}
 
 	};
