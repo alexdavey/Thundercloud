@@ -264,7 +264,7 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 
 	var printable = input.printable(function(e) {
 		var character = e.character;
-		e.preventDefault();
+		// e.preventDefault();
 
 		// If there is a current selection, delete it using
 		// the backspace function

@@ -103,7 +103,7 @@ define('input', ['trie', 'settings'], function(Trie, settings) {
 			// events multiple times
 			if (character.length > 1) {
 				extras = _.tail(character.split(''));
-				_.each(extras, _.bind(textInput, null, e));
+				_.each(extras, _.partial(textInput, e));
 				character = character.slice(0, 1);
 			}
 
@@ -142,7 +142,7 @@ define('input', ['trie', 'settings'], function(Trie, settings) {
 		down  : 40, '↓' : 40,
 
 		insert   : 45,
-		delete   : 46, '⌫' : 46,
+		delete   : 46, 
 		command  : 91, '⌘' : 91,
 
 		asterisk : 106, '*' : 106,
@@ -186,14 +186,14 @@ define('input', ['trie', 'settings'], function(Trie, settings) {
 		},
 
 		onKeyPress : function(e, character) {
-			getKeyInput(_.bind(textInput, null, e));
+			getKeyInput(_.partial(textInput, e));
 		},
 
 		onKeyDown : function(e) {
 			var code = e.which || e.charCode || e.keyCode;
 			// Tabs need special treatment
 			if (code !== 9) {
-				getKeyInput(_.bind(textInput, null, e));
+				getKeyInput(_.partial(textInput, e));
 			} else {
 				e.preventDefault();
 			}
