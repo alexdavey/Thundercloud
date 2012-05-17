@@ -47,7 +47,7 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 
 		// Main render loop
 		render : function() {
-			events.publish('pre-render');
+			events.publish('canvas.pre-render');
 			var text, y;
 
 			// If the text has not been modified, use the cached version
@@ -70,7 +70,7 @@ define('canvas', ['text', 'syntax/html', 'selection', 'viewport', 'cursor', 'set
 			this.drawCursor();
 
 			// this.drawScrollbar(y + 1, viewport.startRow);
-			events.publish('post-render');
+			events.publish('canvas.post-render');
 		},
 
 		// Draws the main body of code onto the canvas, given

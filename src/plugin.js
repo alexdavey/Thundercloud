@@ -18,7 +18,7 @@ define('plugin', ['canvas', 'events', 'input'], function(canvas, events, input) 
 
 	};
 
-	events.subscribe('post-render', function() {
+	events.subscribe('canvas.post-render', function() {
 		_.each(plugin.elements, function(model) {
 			if (model.visible) model.render(canvas.ctx, model, canvas);
 		});

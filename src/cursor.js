@@ -120,7 +120,7 @@ define('cursor', ['events', 'text', 'settings', 'viewport', 'canvas'],
 		},
 
 		onChange : function() {
-			events.publish('cursor.move');
+			events.publish('cursor.change');
 			shiftViewport();
 		}
 	};

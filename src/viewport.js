@@ -24,12 +24,12 @@ define('viewport', ['text', 'settings', 'events'], function(Text, settings, even
 			} else if (this.endRow > length - 1) {
 				this.shiftTo('end', length - 1);
 			}
-			events.publish('moveViewport');
+			events.publish('viewport.move');
 		},
 
 		shiftTo : function(startOrEnd, row) {
 			this.shift(row - (startOrEnd == 'start' ? this.startRow : this.endRow));
-			events.publish('moveViewport');
+			events.publish('viewport.move');
 		}
 
 	};

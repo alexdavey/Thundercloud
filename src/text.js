@@ -194,7 +194,7 @@ define('text', ['events'], function(events) {
 
 		onChange : function() {
 			this.modified = true;
-			events.publish('textModified');
+			events.publish('text.change');
 		},
 
 		modified : true

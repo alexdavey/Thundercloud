@@ -64,8 +64,6 @@ define('history', ['events', 'canvas'], function(events) {
 			setActive(delta);
 			var activeState = states[active];
 
-			console.dir(activeState);
-
 			// Restore all of the objects
 			for (var i = 0, l = activeState.length; i < l; ++i) {
 				_.merge(objects[i], activeState[i]);

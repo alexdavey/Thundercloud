@@ -39,7 +39,7 @@ require(['plugin', 'events', 'viewport', 'text', 'settings'], function(plugin, e
 		}
 	});
 
-	events.subscribe('moveViewport|textModified', function() {
+	events.subscribe('viewport.change|text.change', function() {
 		var canvasHeight = settings.height,
 			textLength = text.source.length;
 

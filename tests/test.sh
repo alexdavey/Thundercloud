@@ -12,34 +12,41 @@ args=("../src/lib/require.js"
 dependencies=()
 
 function contains {
-	for i in $0
+	dependencyDoesNotExist=true
+	for i in $1
 	do
-		if i == $1
-			then return true
+		echo "1: ${1}"
+		echo "2: ${2}"
+		if "$i" = $2
+			then dependencyDoesNotExist=false
 		fi
 	done
-
-	return false
 }
 
 function addDependencies {
 	# Get the dependencies of the file using sed,
 	# 'require(['trie', 'canvas', 'test'], function...' becomes
 	# 'trie,canvas,test' and is then split at the comma
-	dependencies=$0 | sed 's/require(\[\(.*\)\].*/\1/' | sed s/\'//g | sed 's/ *\, */,/g' # TODO: split at comma! + global recursive search
+	# TODO: split at comma! + global recursive search
+	dependencies=exec sed 's/(require|define)(\[\(.*\)\].*/\1/' "$1" | sed s/\'//g | sed 's/ *\, */,/g' 
+
+	# echo "1:: ${1}"
+	echo "dependencies:: ${dependencies}"
 
 	# Add all of the dependencies
-	for j in dependencies
+	for j in $dependencies
 	do
 		# Only add the dependency if it has not already been added
-		if ! contains dependencies j
+		echo "$dependencies"
+		contains $dependencies $j
+		if $dependencyDoesNotExist
 			then
 
 			# Add the dependencies of that file
 			addDependencies j
 
 			# Add name of dependencies to list of loaded dependencies
-			$dependencies=(${dependencies[@]} ${j})
+			dependencies=("${dependencies[@]}" "${j}")
 
 			echo "Adding ../src/${j}.js as a dependency"
 
@@ -53,7 +60,8 @@ function addDependencies {
 # Loop over all of the arguments to the test script
 for i in $*
 do
-	addDependencies i
+	# addDependencies "../src/${i}.js"
+	addDependencies "${i}.js"
 
 	# Add the source file itself and the test file
 	args=("${args[@]}" "../src/${i}.js" "${i}.js")

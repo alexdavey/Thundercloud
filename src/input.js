@@ -59,7 +59,7 @@ define('input', ['trie', 'settings'], function(Trie, settings) {
 
 		keys = _.map(keys, function(key) {
 			key = _.trim(key);
-			return aliases[key] || (key.length > 1 ? key : key.charCodeAt(0));
+			return aliases[key] || key/* (key.length > 1 ? key : key.charCodeAt(0)); */
 		});
 
 		return keys;
@@ -71,7 +71,7 @@ define('input', ['trie', 'settings'], function(Trie, settings) {
 	}
 
 	function addFlag(flag, e) {
-		flags[flag] = true;
+		flags[flag] = e;
 		fireActive(e || undefined);
 	}
 
