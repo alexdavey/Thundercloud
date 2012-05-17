@@ -30,7 +30,10 @@ define('plugin', ['canvas', 'events', 'input'], function(canvas, events, input) 
 			predicate = _.partial(within, mouse.x - offset.left, mouse.y - offset.top),
 			inside = _.filter(plugin.elements, predicate);
 
+		// console.dir(inside);
+
 		_.each(inside, function(model) {
+			console.dir(model);
 			if (_.isFunction(model.click) && model.clickable) model.click(e, mouse.x, mouse.y);
 		});
 	});
