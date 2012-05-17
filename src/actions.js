@@ -56,7 +56,7 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 			}
 
 			// Proxy to backspace function
-			actions.delete();
+			actions.backspace();
 			events.publish('operation');
 		}),
 
@@ -268,7 +268,7 @@ define('actions', ['input', 'events', 'cursor', 'text', 'selection', 'settings',
 
 		// If there is a current selection, delete it using
 		// the backspace function
-		if (!selection.isEmpty()) actions.delete();
+		if (!selection.isEmpty()) actions.backspace();
 
 		Text.insert(character, Cursor.row, Cursor.col);
 
