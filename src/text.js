@@ -56,18 +56,13 @@ define('text', ['events'], function(events) {
 
 			this.source[row] = left + right;
 
-			// If everything on line was removed, delete the line
-			// if (this.source[row] == '') {
-			// 	this.removeLine(row);	
-			// }
-
 			this.onChange();
 			return this;
 		},
 
 		// Removes all text between two points (row, col) 
 		removeSelection : function(row1, col1, row2, col2) {
-			var diff, temp;
+			var temp;
 
 			// If the selection is backwards, reverse it
 			if (row1 > row2 || col1 > col2) {
@@ -80,11 +75,9 @@ define('text', ['events'], function(events) {
 				col2 = temp.col;
 			}
 
-			diff = row2 - row1;
-
 			// Proxy to removeSection if the start and end
 			// are on the same line
-			if (diff == 0) {
+			if (row1 == row2) {
 				this.removeSection(row1, col1, col2);
 			} else {
 				// Trim the bottom line
@@ -97,14 +90,8 @@ define('text', ['events'], function(events) {
 				this.removeSection(row1, col1);
 
 				// Merge the top and bottom lines together
-				// provided that the top line was not deleted
-				if (col1 != 0) {
-					this.merge(row1, row1 + 1);
-				}
+				this.merge(row1, row1 + 1);
 
-				// If everything is selected, the array will be
-				// emptied, which causes errors when inserting text
-				if (_.isEmpty(this.source)) this.source = [''];
 			}
 			this.onChange();
 			return this;
