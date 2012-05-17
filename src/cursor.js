@@ -26,14 +26,10 @@ define('cursor', ['events', 'text', 'settings', 'viewport', 'canvas'],
 		// Converts the grid co-ordinates of the text 
 		// grid (row, col) into pixels
 		toPixels : function() {
-			var row = this.row,
-				col = this.col;
-
-			if (!viewport.isInside(row)) return;
 			return {
-				x : col * settings.charWidth + settings.padding,
-				y : (row - viewport.startRow) * settings.lineHeight
-			};
+				x : this.col * settings.charWidth + settings.padding,
+				y : (this.row - viewport.startRow) * settings.lineHeight
+			}
 		},
 
 		atEndOfLine : function() {
@@ -77,7 +73,7 @@ define('cursor', ['events', 'text', 'settings', 'viewport', 'canvas'],
 			this.col = col;
 			this.row = row;
 
-			shiftViewport();
+			this.onChange();
 		},
 
 		// Shifts the cursor position whilst checking boundaries
@@ -119,8 +115,13 @@ define('cursor', ['events', 'text', 'settings', 'viewport', 'canvas'],
 
 			}
 
-			shiftViewport();
+			this.onChange();
 
+		},
+
+		onChange : function() {
+			events.publish('cursor.move');
+			shiftViewport();
 		}
 	};
 
