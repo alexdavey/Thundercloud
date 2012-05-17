@@ -48,7 +48,7 @@ require(['plugin', 'events', 'viewport', 'text', 'settings'], function(plugin, e
 	});
 
 	model.click = function(e, x, y) {
-		viewport.shiftTo('start', (y / settings.height) * text.source.length);
+		viewport.shiftTo('start', ~~((y / settings.height) * text.source.length));
 	};
 
 });
