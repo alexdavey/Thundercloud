@@ -47,28 +47,13 @@ define(function() {
 		var rules, states = [], output = [], precedence;
 
 		function preceding(type) {
-			// var last = _.last(states),
-			// 	rule;
-
-			// if (type == last) return;
-
-			// for (var i = 0, l = precedence.length; i < l; ++i) {
-			// 	rule = precedence[i];
-			// 	if (rule == type) return;
-			// 	if (rule == last) return last;
-			// }
-
 			var last     = _.last(states),
 				elevated = _.include(precedence, type),
 				override = _.include(precedence, last);
 
-			if (type == last) {
-				return;
-			}
+			if (type == last) return;
 
-			if (override) {
-				return last;
-			}
+			if (override) return last;
 
 		}
 
@@ -193,9 +178,7 @@ define(function() {
 
 				// Send anything that has overflowed to
 				// the next line
-				if (token != '') {
-					pushTextToken(token);
-				}
+				if (token != '') pushTextToken(token);
 
 				// Reset the token
 				token = '';
